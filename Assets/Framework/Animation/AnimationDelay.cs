@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 
 namespace Framework.Animation
@@ -6,6 +5,11 @@ namespace Framework.Animation
     class AnimationDelay : AnimationBase
     {
         [SerializeField] protected float _duration;
+        public float Duration
+        {
+            get { return _duration; }
+            set { _duration = value; }
+        }
 
         private TweenFloat _tweener;
 

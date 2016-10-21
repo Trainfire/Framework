@@ -9,14 +9,20 @@ namespace Framework.Animation
         private CanvasGroup _canvasGroup;
         private TweenFloat _tweenFloat;
 
-        void Awake()
+        protected override void Awake()
         {
-            _canvasGroup = Target.GetOrAddComponent<CanvasGroup>();
+            base.Awake();
 
             _tweenFloat = gameObject.AddComponent<TweenFloat>();
             _tweenFloat.Duration = Duration;
             _tweenFloat.OnDone += OnTweenDone;
             _tweenFloat.OnTweenValue += OnTween;
+        }
+
+        protected override void OnSetTarget(GameObject target)
+        {
+            base.OnSetTarget(target);
+            _canvasGroup = Target.GetOrAddComponent<CanvasGroup>();
         }
 
         protected override void OnPlay()

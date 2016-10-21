@@ -19,7 +19,7 @@ namespace Framework.Animation
         {
             _animations = GetComponents<AnimationBase>().Where(x => x != this).ToList();
 
-            _queue = gameObject.AddComponent<AnimationQueue>();
+            _queue = new AnimationQueue();
             _queue.Add(_animations);
             _queue.Completed += OnQueueComplete;
             _queue.EnableLogging = _enableLogging;

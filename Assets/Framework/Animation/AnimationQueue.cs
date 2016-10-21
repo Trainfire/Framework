@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace Framework.Animation
 {
-    public class AnimationQueue : MonoBehaviour
+    public class AnimationQueue
     {
         public event Action<AnimationQueue> Completed;
 
@@ -13,7 +13,7 @@ namespace Framework.Animation
 
         public bool EnableLogging { get; set; }
 
-        void Awake()
+        public AnimationQueue()
         {
             _animations = new List<AnimationBase>();
         }
@@ -47,6 +47,11 @@ namespace Framework.Animation
             }
 
             _animations.Clear();
+        }
+
+        public void Cancel()
+        {
+            _animations.ForEach(x => x.Stop());
         }
 
         public void UpdateQueue()
@@ -98,11 +103,6 @@ namespace Framework.Animation
         {
             if (EnableLogging)
                 Debug.LogFormat("{0}: {1}", "AnimationQueue", string.Format(message, args));
-        }
-
-        void OnDestroy()
-        {
-            Clear();
         }
     }
 }
