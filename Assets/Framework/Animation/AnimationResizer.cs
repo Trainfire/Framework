@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace Framework.Animation
 {
-    class AnimationResizer : AnimationBase
+    class AnimationResizer : AnimationTargeted
     {
         [SerializeField] private Vector2 _size;
 

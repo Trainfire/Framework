@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Framework.Animation
 {
-    class AnimationFader : AnimationBase
+    class AnimationFader : AnimationTargeted
     {
         [SerializeField] private FadeType _fadeType;
         private CanvasGroup _canvasGroup;

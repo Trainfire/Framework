@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Framework.Animation
 {
-    class AnimationSlider : AnimationBase
+    class AnimationSlider : AnimationTargeted
     {
         [SerializeField]
         private bool _relative;

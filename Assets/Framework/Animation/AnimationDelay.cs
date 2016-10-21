@@ -5,7 +5,14 @@ namespace Framework.Animation
 {
     class AnimationDelay : AnimationBase
     {
+        [SerializeField] protected float _duration;
+
         private TweenFloat _tweener;
+
+        void Awake()
+        {
+            Awaitable = true;
+        }
 
         protected override void OnPlay()
         {
@@ -18,7 +25,7 @@ namespace Framework.Animation
             _tweener.From = 0f;
             _tweener.To = 1f;
             _tweener.OnDone += OnTweenDone;
-            _tweener.Duration = Duration;
+            _tweener.Duration = _duration;
             _tweener.Play();
         }
 

@@ -51,14 +51,18 @@ namespace Framework.Animation
 
         public void UpdateQueue()
         {
+            Log("Updating queue...");
+
             var playbackQueue = _animations.Where(x => x.State == AnimationPlaybackState.Stopped).ToList();
+
+            Log("Queue contains {0} items...", playbackQueue.Count);
 
             foreach (var item in playbackQueue)
             {
                 Log("Playing '" + item.GetType().Name + "'");
                 item.Play();
 
-                if (item.WaitForCompletion)
+                if (item.Awaitable)
                 {
                     Log("Waiting for '" + item.GetType().Name + "'");
                     break;
@@ -70,15 +74,24 @@ namespace Framework.Animation
         {
             if (obj.PlaybackType == AnimationEventType.PlayComplete)
             {
+                Log("Animation '{0}' finished playback", obj.Sender.GetType().Name);
+
                 if (_animations.TrueForAll(x => x.State == AnimationPlaybackState.PlayComplete))
                 {
-                    Completed.InvokeSafe(this);
+                    TriggerComplete();
                 }
                 else
                 {
+                    // TODO: Don't update if all animations are playing or have completed.
                     UpdateQueue();
                 }
             }
+        }
+
+        void TriggerComplete()
+        {
+            Log("All animations completed.");
+            Completed.InvokeSafe(this);
         }
 
         void Log(string message, params object[] args)

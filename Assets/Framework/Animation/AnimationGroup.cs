@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Framework.Animation
 {
-    public class AnimationGroup : MonoBehaviour
+    public class AnimationGroup : AnimationBase
     {
         [SerializeField]
         private bool _enableLogging;
@@ -17,7 +17,7 @@ namespace Framework.Animation
 
         void Awake()
         {
-            _animations = GetComponents<AnimationBase>().ToList();
+            _animations = GetComponents<AnimationBase>().Where(x => x != this).ToList();
 
             _queue = gameObject.AddComponent<AnimationQueue>();
             _queue.Add(_animations);
@@ -33,14 +33,22 @@ namespace Framework.Animation
             Completed.InvokeSafe(this);    
         }
 
-        public void Play()
+        protected override void OnPlay()
         {
+            base.OnPlay();
             _queue.UpdateQueue();
         }
 
-        public void Stop()
+        protected override void OnStop()
         {
+            base.OnStop();
             _animations.ForEach(x => x.Stop());
+        }
+
+        void OnValidate()
+        {
+            if (_queue != null)
+                _queue.EnableLogging = _enableLogging;
         }
 
         void OnDestroy()

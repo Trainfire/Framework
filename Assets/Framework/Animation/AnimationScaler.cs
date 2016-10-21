@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace Framework.Animation
 {
-    class AnimationScaler : AnimationBase
+    class AnimationScaler : AnimationTargeted
     {
         [SerializeField] private bool _useFromValue;
         [SerializeField] private Vector3 _from;

@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Framework.Animation
 {
-    class AnimationMaterialColorBlender : AnimationBase
+    class AnimationMaterialColorBlender : AnimationTargeted
     {
         public Material _material;
 
