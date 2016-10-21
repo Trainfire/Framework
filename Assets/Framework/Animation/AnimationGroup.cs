@@ -13,21 +13,29 @@ namespace Framework.Animation
         public event Action<AnimationGroup> Completed;
 
         private List<AnimationBase> _animations;
+        private AnimationQueue _queue;
 
         void Awake()
         {
-            _animations = new List<AnimationBase>();
+            _animations = GetComponents<AnimationBase>().ToList();
 
-            foreach (var anim in GetComponents<AnimationBase>())
-            {
-                _animations.Add(anim);
-                anim.Triggered += OnAnimationEvent;
-            }
+            _queue = gameObject.AddComponent<AnimationQueue>();
+            _queue.Add(_animations);
+            _queue.Completed += OnQueueComplete;
+            _queue.EnableLogging = _enableLogging;
+        }
+
+        void OnQueueComplete(AnimationQueue obj)
+        {
+            if (_enableLogging)
+                Debug.Log("Completed");
+
+            Completed.InvokeSafe(this);    
         }
 
         public void Play()
         {
-            UpdateQueue();
+            _queue.UpdateQueue();
         }
 
         public void Stop()
@@ -35,41 +43,10 @@ namespace Framework.Animation
             _animations.ForEach(x => x.Stop());
         }
 
-        void UpdateQueue()
+        void OnDestroy()
         {
-            var playbackQueue = _animations.Where(x => x.State == AnimationPlaybackState.Stopped).ToList();
-
-            foreach (var item in playbackQueue)
-            {
-                Log("Playing '" + item.GetType().Name + "'");
-                item.Play();
-
-                if (item.WaitForCompletion)
-                {
-                    Log("Waiting for '" + item.GetType().Name + "'");
-                    break;
-                }
-            }
-        }
-
-        void OnAnimationEvent(AnimationEvent obj)
-        {
-            if(obj.PlaybackType == AnimationEventType.PlayComplete)
-            {
-                if (_animations.TrueForAll(x => x.State == AnimationPlaybackState.PlayComplete))
-                {
-                    Completed.InvokeSafe(this);
-                }
-                else
-                {
-                    UpdateQueue();
-                }
-            }
-        }
-
-        void Log(string message, params object[] args)
-        {
-            Debug.LogFormat("{0}: {1}", name, string.Format(message, args));
+            _queue.Completed -= OnQueueComplete;
+            _queue.Clear();
         }
     }
 }
