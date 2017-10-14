@@ -21,7 +21,7 @@ namespace Framework
 
             for (int i = 0; i < targetUnloadScenes.Length; i++)
             {
-                SceneManager.UnloadScene(targetUnloadScenes[i]);
+                SceneManager.UnloadSceneAsync(targetUnloadScenes[i]);
             }
 
             int scenesLoaded = 0;
@@ -40,7 +40,7 @@ namespace Framework
                 scenesLoaded++;
             }
 
-            SceneManager.UnloadScene(LoadingScene);
+            SceneManager.UnloadSceneAsync(LoadingScene);
 
             // We're going to assume that the last scene is what we want to be active...
             var activeScene = SceneManager.GetSceneByName(targetLoadScenes[targetLoadScenes.Length - 1]);

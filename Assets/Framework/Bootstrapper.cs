@@ -48,7 +48,7 @@ namespace Framework
             SceneManager.MoveGameObjectToScene(gameObject, SceneManager.GetActiveScene());
 
             // Unload the scene the bootstrapper is in.
-            SceneManager.UnloadScene(_sceneName);
+            SceneManager.UnloadSceneAsync(_sceneName);
 
             // Initialize game passing in the level name as an argument.
             var game = FindObjectOfType<Game>();
