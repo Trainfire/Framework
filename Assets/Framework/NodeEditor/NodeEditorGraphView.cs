@@ -8,6 +8,7 @@ namespace Framework.NodeEditor
 {
     public class NodeEditorGraphView
     {
+        public bool GraphLoaded { get { return _graph != null; } }
         private NodeGraph _graph;
         private EditorInputListener _inputListener;
 
@@ -29,8 +30,8 @@ namespace Framework.NodeEditor
             DebugEx.Log<NodeEditorGraphView>("Removing old graph...");
 
             graph.GraphDestroyed -= Unload;
-            graph.NodeAdded -= OnNodeAdded;
-            graph.NodeRemoved -= OnNodeRemoved;
+            graph.NodeAdded -= OnGraphNodeAdded;
+            graph.NodeRemoved -= OnGraphNodeRemoved;
         }
 
         public void Load(NodeGraph graph)
@@ -42,16 +43,40 @@ namespace Framework.NodeEditor
 
             if (graph != null)
             {
+                DebugEx.Log<NodeEditorGraphView>("Loading graph...");
+
                 // Assign new graph.
                 _graph = graph;
                 _graph.GraphDestroyed += Unload;
-                _graph.NodeAdded += OnNodeAdded;
-                _graph.NodeRemoved += OnNodeRemoved;
-                _graph.Nodes.ForEach((node) => _nodeViews.Add(node, new NodeView(node)));
+                _graph.NodeAdded += OnGraphNodeAdded;
+                _graph.NodeRemoved += OnGraphNodeRemoved;
+
+                // Make new view.
+                _graph.Nodes.ForEach((node) => AssignView(node));
             }
         }
 
-        void OnNodeAdded(Node node)
+        void AssignView(Node node)
+        {
+            var nodeView = new NodeView(node);
+            nodeView.NodeSelected += OnViewSelected;
+            nodeView.NodeDeleted += OnViewDeleted;
+
+            _nodeViews.Add(node, nodeView);
+        }
+
+        #region Callbacks
+        void OnViewSelected(NodeView nodeView)
+        {
+            Selection.activeGameObject = nodeView.Node.gameObject;
+        }
+
+        void OnViewDeleted(NodeView nodeView)
+        {
+            _graph.RemoveNode(nodeView.Node);
+        }
+
+        void OnGraphNodeAdded(Node node)
         {
             DebugEx.Log<NodeEditorGraphView>("Node was added.");
 
@@ -60,13 +85,10 @@ namespace Framework.NodeEditor
             Assert.IsFalse(containsNode);
 
             if (!containsNode)
-            {
-                var view = new NodeView(node);
-                _nodeViews.Add(node, view);
-            }
+                AssignView(node);
         }
 
-        void OnNodeRemoved(Node node)
+        void OnGraphNodeRemoved(Node node)
         {
             DebugEx.Log<NodeEditorGraphView>("Node was removed.");
 
@@ -76,10 +98,14 @@ namespace Framework.NodeEditor
 
             if (containsNode)
             {
-                _nodeViews[node].Destroy();
+                var nodeView = _nodeViews[node];
+                nodeView.NodeSelected -= OnViewSelected;
+                nodeView.Destroy();
+
                 _nodeViews.Remove(node);
             }
         }
+        #endregion
 
         #region Draw
         public void Draw()

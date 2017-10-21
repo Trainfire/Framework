@@ -9,16 +9,16 @@ namespace Framework.NodeEditor
     {
         private const string WindowName = "Node Editor";
 
-        private EditorInputListener _inputListener;
+        public NodeGraph Graph { get { return _graph; } }
         private NodeGraph _graph;
+
         private NodeEditorGraphView _graphView;
+        private NodeEditorContextMenu _contextMenu;
 
         public NodeEditorWindow()
         {
-            _inputListener = new EditorInputListener();
-            _inputListener.ContextClicked += OnContextClick;
-
             _graphView = new NodeEditorGraphView();
+            _contextMenu = new NodeEditorContextMenu(this);
         }
 
         [MenuItem("Window/Node Editor")]
@@ -29,14 +29,13 @@ namespace Framework.NodeEditor
 
         void OnGUI()
         {
-            _inputListener.ProcessEvents();
-
             // TEMP: Just find a graph in the scene and load it.
             if (GUILayout.Button("Load Graph"))
                 OnLoad();
 
-            BeginWindows();
+            _contextMenu.Draw();
 
+            BeginWindows();
             _graphView.Draw();
             EndWindows();
 
@@ -73,18 +72,6 @@ namespace Framework.NodeEditor
             Selection.activeGameObject = _graph.gameObject;
 
             _graphView.Load(_graph);
-        }
-
-        void OnContextClick()
-        {
-            // TEMP: Spawns a node on right-click.
-            if (_graph != null)
-                _graph.AddNode<Node>("Example Node");
-        }
-
-        void OnDestroy()
-        {
-            _inputListener.Destroy();
         }
     }
 }

@@ -64,7 +64,18 @@ namespace Framework.NodeEditor
                 node.Destroyed -= RemoveNode;
                 Nodes.Remove(node);
                 NodeRemoved.InvokeSafe(node);
+
+                // TODO: Probably want to register an undo hereas the object is permanently destroy. RIP. :'(
+                DestroyImmediate(node.gameObject);
             }
+        }
+
+        public void RemoveAllNodes()
+        {
+            var nodesToClear = Nodes.ToList();
+            nodesToClear.ForEach(x => RemoveNode(x));
+
+            DebugEx.Log<NodeGraph>("Graph cleared.");
         }
     }
 }

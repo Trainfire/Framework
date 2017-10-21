@@ -1,42 +1,62 @@
 ﻿using UnityEngine;
 using UnityEditor;
+using System;
 
 namespace Framework.NodeEditor
 {
     public class NodeView
     {
-        private Node _node;
+        public event Action<NodeView> NodeSelected;
+        public event Action<NodeView> NodeDeleted;
+
+        public Node Node { get; private set; }
+
         private Rect _rect;
+        private EditorInputListener _inputListener;
 
         private readonly Vector2 NodeSize;
 
         public NodeView(Node node)
         {
+            _inputListener = new EditorInputListener();
+            _inputListener.MouseLeftClicked += (mouseEvent) => NodeSelected.InvokeSafe(this);
+            _inputListener.DeletePressed += () => NodeDeleted.InvokeSafe(this);
+
             NodeSize = new Vector2(200f, 100f);
 
-            _node = node;
-            _rect = new Rect(_node.Position, NodeSize);
+            Node = node;
+            _rect = new Rect(Node.Position, NodeSize);
         }
 
         public void Destroy()
         {
-            _node = null;
+            Node = null;
         }
 
         public void Draw()
         {
-            if (_node == null)
+            if (Node == null)
                 return;
 
-            _rect = GUI.Window(_node.ID, _rect, InternalDraw, _node.Name);
-            _node.Position = _rect.position;
+            _rect = GUI.Window(Node.ID, _rect, InternalDraw, Node.Name);
+            Node.Position = _rect.position;
         }
 
         void InternalDraw(int windowId)
         {
-            GUILayout.Label(_node.Position.ToString());
-            GUILayout.Label(_node.ID.ToString());
+            _inputListener.ProcessEvents();
+
+            if (Node == null)
+                return;
+
+            GUILayout.Label(Node.Position.ToString());
+            GUILayout.Label(Node.ID.ToString());
             GUI.DragWindow();
+        }
+
+        bool ContainsPoint(Rect rect, Vector2 point)
+        {
+            return point.x > 0 && point.x < rect.width && point.y > 0 && point.y < rect.height;
         }
     }
 }

@@ -5,17 +5,28 @@ using System.Collections.Generic;
 
 namespace Framework
 {
+    public class EditorMouseEvent : EventArgs
+    {
+        public Vector2 Position { get; private set; }
+
+        public EditorMouseEvent()
+        {
+            Position = Event.current.mousePosition;
+        }
+    }
+
     public class EditorInputListener
     {
         public Vector2 MousePosition { get; private set; }
 
-        public event Action MouseLeftClicked;
-        public event Action MouseLeftReleased;
-        public event Action<Vector2> MouseDragged;
-        public event Action<Vector2> MouseMoved;
+        public event Action<EditorMouseEvent> MouseLeftClicked;
+        public event Action<EditorMouseEvent> MouseLeftReleased;
+        public event Action<EditorMouseEvent> MouseDragged;
+        public event Action<EditorMouseEvent> MouseMoved;
 
         public event Action ContextClicked;
 
+        public event Action DeletePressed;
         public event Action<KeyCode> KeyPressed;
         public event Action<KeyCode> KeyReleased;
 
@@ -25,10 +36,10 @@ namespace Framework
         {
             _mouseEventMap = new Dictionary<EventType, List<Action>>();
 
-            AddMouseHandler(EventType.MouseDown, () => MouseLeftClicked.InvokeSafe());
-            AddMouseHandler(EventType.MouseUp, () => MouseLeftReleased.InvokeSafe());
-            AddMouseHandler(EventType.MouseDrag, () => MouseDragged.InvokeSafe(Event.current.mousePosition));
-            AddMouseHandler(EventType.MouseMove, () => MouseMoved.InvokeSafe(Event.current.mousePosition));
+            AddMouseHandler(EventType.MouseDown, () => MouseLeftClicked.InvokeSafe(new EditorMouseEvent()));
+            AddMouseHandler(EventType.MouseUp, () => MouseLeftReleased.InvokeSafe(new EditorMouseEvent()));
+            AddMouseHandler(EventType.MouseDrag, () => MouseDragged.InvokeSafe(new EditorMouseEvent()));
+            AddMouseHandler(EventType.MouseMove, () => MouseMoved.InvokeSafe(new EditorMouseEvent()));
             AddMouseHandler(EventType.ContextClick, () => ContextClicked.InvokeSafe());
         }
 
@@ -51,7 +62,13 @@ namespace Framework
                 _mouseEventMap[eventType].ForEach(x => x.InvokeSafe());
 
             if (eventType == EventType.KeyDown)
+            {
                 KeyPressed.InvokeSafe(Event.current.keyCode);
+
+                // TODO: Replace with delete command. There is one...somewhere...apparently...*shrug*
+                if (Event.current.keyCode == KeyCode.Backspace)
+                    DeletePressed.InvokeSafe();
+            }
 
             if (eventType == EventType.KeyUp)
                 KeyReleased.InvokeSafe(Event.current.keyCode);
