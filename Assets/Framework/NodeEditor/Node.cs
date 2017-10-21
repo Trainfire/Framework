@@ -1,22 +1,27 @@
 ﻿using UnityEngine;
+using System;
 using System.Collections.Generic;
 
 namespace Framework.NodeEditor
 {
-    public class Node
+    [ExecuteInEditMode]
+    public class Node : MonoBehaviour
     {
-        public string Name { get; private set; }
-        public int ID { get; private set; }
+        public event Action<Node> Destroyed;
+
+        public string Name { get { return name; } }
+        public int ID { get { return GetInstanceID(); } }
         public Vector2 Position { get; set; }
 
         public Node()
         {
-            Name = "Untitled Node";
+            
         }
 
-        public void SetID(int id)
+        [ExecuteInEditMode]
+        public void OnDestroy()
         {
-            ID = id;
+            Destroyed.InvokeSafe(this);
         }
     }
 }

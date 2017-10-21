@@ -18,8 +18,16 @@ namespace Framework.NodeEditor
             _rect = new Rect(_node.Position, NodeSize);
         }
 
+        public void Destroy()
+        {
+            _node = null;
+        }
+
         public void Draw()
         {
+            if (_node == null)
+                return;
+
             _rect = GUI.Window(_node.ID, _rect, InternalDraw, _node.Name);
             _node.Position = _rect.position;
         }

@@ -7,6 +7,19 @@ using UnityEngine.UI;
 
 namespace Framework
 {
+    static class DebugEx
+    {
+        public static void Log<T>(string message)
+        {
+            Debug.Log(string.Format("[{0}] {1}", typeof(T).Name, message));
+        }
+
+        public static void LogWarning<T>(string message)
+        {
+            Debug.LogWarning(string.Format("[{0}] {1}", typeof(T).Name, message));
+        }
+    }
+
     static class ListEx
     {
         /// <summary>

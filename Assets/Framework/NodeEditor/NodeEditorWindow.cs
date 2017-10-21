@@ -1,5 +1,7 @@
 ﻿using UnityEngine;
 using UnityEditor;
+using System;
+using System.Collections.Generic;
 
 namespace Framework.NodeEditor
 {
@@ -7,16 +9,16 @@ namespace Framework.NodeEditor
     {
         private const string WindowName = "Node Editor";
 
-        /// <summary>
-        /// Lazy initialize. Can't use Awake because Unity is a strange beast.
-        /// </summary>
+        private EditorInputListener _inputListener;
+        private NodeGraph _graph;
         private NodeEditorGraphView _graphView;
-        private NodeEditorGraphView GraphView
+
+        public NodeEditorWindow()
         {
-            get
-            {
-                return _graphView == null ? _graphView = new NodeEditorGraphView() : _graphView;
-            }
+            _inputListener = new EditorInputListener();
+            _inputListener.ContextClicked += OnContextClick;
+
+            _graphView = new NodeEditorGraphView();
         }
 
         [MenuItem("Window/Node Editor")]
@@ -27,9 +29,62 @@ namespace Framework.NodeEditor
 
         void OnGUI()
         {
+            _inputListener.ProcessEvents();
+
+            // TEMP: Just find a graph in the scene and load it.
+            if (GUILayout.Button("Load Graph"))
+                OnLoad();
+
             BeginWindows();
-            GraphView.Draw();
+
+            _graphView.Draw();
             EndWindows();
+
+            Repaint();
+        }
+
+        void OnLoad()
+        {
+            var selection = Selection.activeGameObject;
+
+            if (selection != null && selection.GetComponent<NodeGraph>())
+            {
+                _graph = selection.GetComponent<NodeGraph>();
+            }
+            else
+            {
+                DebugEx.LogWarning<NodeEditorWindow>("Failed to open graph as no Node Graph is currently selected in the scene.");
+
+                var existingGraph = FindObjectOfType<NodeGraph>();
+
+                if (existingGraph == null)
+                {
+                    DebugEx.LogWarning<NodeEditorWindow>("Creating a default graph...");
+                    _graph = new GameObject("Node Graph Root").AddComponent<NodeGraph>();
+                }
+                else
+                {
+                    _graph = existingGraph;
+                }
+            }
+
+            DebugEx.LogWarning<NodeEditorWindow>("Selecting graph...");
+
+            Selection.activeGameObject = _graph.gameObject;
+
+            _graphView.Load(_graph);
+        }
+
+        void OnContextClick()
+        {
+            // TEMP: Spawns a node on right-click.
+            if (_graph != null)
+                _graph.AddNode<Node>("Example Node");
+        }
+
+        void OnDestroy()
+        {
+            _inputListener.Destroy();
         }
     }
 }
