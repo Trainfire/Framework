@@ -9,6 +9,7 @@ namespace Framework.NodeEditor
     public class NodeEditorGraphView
     {
         public bool GraphLoaded { get { return _graph != null; } }
+
         private NodeGraph _graph;
         private EditorInputListener _inputListener;
 
@@ -111,6 +112,9 @@ namespace Framework.NodeEditor
         public void Draw()
         {
             _inputListener.ProcessEvents();
+
+            if (!GraphLoaded)
+                GUILayout.Label("Select a gameobject with a NodeGraph component to view a graph.");
 
             DrawDebug();
 
