@@ -14,7 +14,7 @@ namespace Framework.NodeEditor
         public NodeFactory()
         {
             _nodeRegistry = new Dictionary<string, Action<NodeGraph>>();
-            _nodeRegistry.Add("Node/Test Node", (graph) => graph.AddNode<Node>());
+            _nodeRegistry.Add("Node/Math/Add", (graph) => graph.AddNode<MathNodeAdd>("Add"));
         }
 
         public void Instantiate(string id, NodeGraph graph)

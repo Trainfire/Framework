@@ -22,7 +22,7 @@ namespace Framework.NodeEditor
             _inputListener.MouseLeftClicked += (mouseEvent) => NodeSelected.InvokeSafe(this);
             _inputListener.DeletePressed += () => NodeDeleted.InvokeSafe(this);
 
-            NodeSize = new Vector2(200f, 100f);
+            NodeSize = new Vector2(150f, 200f);
 
             Node = node;
             _rect = new Rect(Node.Position, NodeSize);
@@ -51,6 +51,19 @@ namespace Framework.NodeEditor
 
             GUILayout.Label(Node.Position.ToString());
             GUILayout.Label(Node.ID.ToString());
+
+            GUILayout.Label("Inputs:");
+            Node.InputPins.ForEach(x =>
+            {
+                GUILayout.Label(x.Name);   
+            });
+
+            GUILayout.Label("Outputs:");
+            Node.OutputPins.ForEach(x =>
+            {
+                GUILayout.Label(x.Name);
+            });
+
             GUI.DragWindow();
         }
 
