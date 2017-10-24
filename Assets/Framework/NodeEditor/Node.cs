@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Framework.NodeEditor
 {
@@ -9,6 +10,7 @@ namespace Framework.NodeEditor
     {
         public event Action<Node> Destroyed;
 
+        public List<NodePin> Pins { get { return InputPins.Concat(OutputPins).ToList(); } }
         public List<NodePin> InputPins { get; private set; }
         public List<NodePin> OutputPins { get; private set; }
 
@@ -32,7 +34,7 @@ namespace Framework.NodeEditor
         {
             // TODO: Spawn from factory.
             var pin = gameObject.AddComponent<NodePin>();
-            pin.Initialize(name, NodePinType.Input, valueType);
+            pin.Initialize(this, name, NodePinType.Input, valueType);
             InputPins.Add(pin);
         }
 
@@ -40,7 +42,7 @@ namespace Framework.NodeEditor
         {
             // TODO: Spawn from factory.
             var pin = gameObject.AddComponent<NodePin>();
-            pin.Initialize(name, NodePinType.Output, valueType);
+            pin.Initialize(this, name, NodePinType.Output, valueType);
             OutputPins.Add(pin);
         }
 

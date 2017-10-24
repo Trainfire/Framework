@@ -18,11 +18,13 @@ namespace Framework.NodeEditor
 
     public class NodePin : MonoBehaviour
     {
+        public Node Node { get; private set; }
         public string Name { get; private set; }
         public NodePinType PinType { get; private set; }
 
-        public void Initialize(string name, NodePinType pinType, NodePinValueType valueType)
+        public void Initialize(Node node, string name, NodePinType pinType, NodePinValueType valueType)
         {
+            Node = node;
             Name = name;
             PinType = pinType;
             // ???

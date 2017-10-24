@@ -1,6 +1,8 @@
 ﻿using UnityEngine;
 using UnityEditor;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Framework.NodeEditor
 {
@@ -13,18 +15,28 @@ namespace Framework.NodeEditor
 
         private Rect _rect;
         private EditorInputListener _inputListener;
+        private List<NodePinView> _pinViews;
 
         private readonly Vector2 NodeSize;
 
         public NodeView(Node node)
         {
             _inputListener = new EditorInputListener();
-            _inputListener.MouseLeftClicked += (mouseEvent) => NodeSelected.InvokeSafe(this);
+            _inputListener.MouseLeftClicked += InputListener_MouseLeftClicked;
+            _inputListener.MouseLeftReleased += InputListener_MouseLeftReleased;
             _inputListener.DeletePressed += () => NodeDeleted.InvokeSafe(this);
 
             NodeSize = new Vector2(150f, 200f);
 
             Node = node;
+
+            _pinViews = new List<NodePinView>();
+            Node.Pins.ForEach(x =>
+            {
+                var view = new NodePinView(x);
+                _pinViews.Add(view);
+            });
+
             _rect = new Rect(Node.Position, NodeSize);
         }
 
@@ -52,24 +64,40 @@ namespace Framework.NodeEditor
             GUILayout.Label(Node.Position.ToString());
             GUILayout.Label(Node.ID.ToString());
 
-            GUILayout.Label("Inputs:");
-            Node.InputPins.ForEach(x =>
-            {
-                GUILayout.Label(x.Name);   
-            });
+            _pinViews.ForEach(x => x.Draw());
 
-            GUILayout.Label("Outputs:");
-            Node.OutputPins.ForEach(x =>
-            {
-                GUILayout.Label(x.Name);
-            });
-
-            GUI.DragWindow();
+            if (GetPinUnderMouse() == null)
+                GUI.DragWindow();
         }
 
-        bool ContainsPoint(Rect rect, Vector2 point)
+        void InputListener_MouseLeftClicked(EditorMouseEvent mouseEvent)
         {
-            return point.x > 0 && point.x < rect.width && point.y > 0 && point.y < rect.height;
+            NodeSelected.InvokeSafe(this);
+
+            GetPinUnderMouse((pin) =>
+            {
+                DebugEx.Log<NodeView>("Pin {0} was clicked. (Node ID: {1})", pin.Name, pin.Node.ID);
+            });
+        }
+
+        void InputListener_MouseLeftReleased(EditorMouseEvent obj)
+        {
+            GetPinUnderMouse((pin) =>
+            {
+                DebugEx.Log<NodeView>("Mouse released over Pin {0}. (Node ID: {1})", pin.Name, pin.Node.ID);
+            });
+        }
+
+        NodePin GetPinUnderMouse(Action<NodePin> OnPinExists = null)
+        {
+            var pinView = _pinViews
+                .Where(x => x.Rect.Contains(_inputListener.MousePosition))
+                .FirstOrDefault();
+
+            if (pinView != null && pinView.Pin != null)
+                OnPinExists.InvokeSafe(pinView.Pin);
+
+            return pinView == null ? null : pinView.Pin;
         }
     }
 }

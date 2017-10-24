@@ -9,9 +9,10 @@ namespace Framework
 {
     static class DebugEx
     {
-        public static void Log<T>(string message)
+        public static void Log<T>(string message, params object[] args)
         {
-            Debug.Log(string.Format("[{0}] {1}", typeof(T).Name, message));
+            var prefix = string.Format("[{0}]", typeof(T).Name);
+            Debug.Log(string.Format(prefix + " " + string.Format(message, args)));
         }
 
         public static void LogWarning<T>(string message)
