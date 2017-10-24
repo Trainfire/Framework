@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.Assertions;
 using UnityEditor;
+using System;
 using System.Linq;
 using System.Collections.Generic;
 
@@ -8,6 +9,9 @@ namespace Framework.NodeEditor
 {
     public class NodeEditorGraphView
     {
+        public event Action<NodePin> MouseClickedPin;
+        public event Action<NodePin> MouseReleasedOverPin;
+
         public bool GraphLoaded { get { return _graph != null; } }
 
         private NodeGraph _graph;
@@ -62,6 +66,8 @@ namespace Framework.NodeEditor
             var nodeView = new NodeView(node);
             nodeView.NodeSelected += OnViewSelected;
             nodeView.NodeDeleted += OnViewDeleted;
+            nodeView.MouseClickedPin += NodeView_MouseClickedPin;
+            nodeView.MouseReleaseOverPin += NodeView_MouseReleasedOverPin;
 
             _nodeViews.Add(node, nodeView);
         }
@@ -75,6 +81,16 @@ namespace Framework.NodeEditor
         void OnViewDeleted(NodeView nodeView)
         {
             _graph.RemoveNode(nodeView.Node);
+        }
+
+        void NodeView_MouseClickedPin(NodePin nodePin)
+        {
+            MouseClickedPin.InvokeSafe(nodePin);
+        }
+
+        void NodeView_MouseReleasedOverPin(NodePin nodePin)
+        {
+            MouseReleasedOverPin.InvokeSafe(nodePin);
         }
 
         void OnGraphNodeAdded(Node node)
@@ -101,6 +117,10 @@ namespace Framework.NodeEditor
             {
                 var nodeView = _nodeViews[node];
                 nodeView.NodeSelected -= OnViewSelected;
+                nodeView.NodeDeleted -= OnViewDeleted;
+                nodeView.MouseClickedPin -= NodeView_MouseClickedPin;
+                nodeView.MouseReleaseOverPin -= NodeView_MouseReleasedOverPin;
+
                 nodeView.Destroy();
 
                 _nodeViews.Remove(node);

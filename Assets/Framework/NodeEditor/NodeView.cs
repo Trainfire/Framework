@@ -8,6 +8,8 @@ namespace Framework.NodeEditor
 {
     public class NodeView
     {
+        public event Action<NodePin> MouseClickedPin;
+        public event Action<NodePin> MouseReleaseOverPin;
         public event Action<NodeView> NodeSelected;
         public event Action<NodeView> NodeDeleted;
 
@@ -77,6 +79,7 @@ namespace Framework.NodeEditor
             GetPinUnderMouse((pin) =>
             {
                 DebugEx.Log<NodeView>("Pin {0} was clicked. (Node ID: {1})", pin.Name, pin.Node.ID);
+                MouseClickedPin.InvokeSafe(pin);
             });
         }
 
@@ -85,6 +88,7 @@ namespace Framework.NodeEditor
             GetPinUnderMouse((pin) =>
             {
                 DebugEx.Log<NodeView>("Mouse released over Pin {0}. (Node ID: {1})", pin.Name, pin.Node.ID);
+                MouseReleaseOverPin.InvokeSafe(pin);
             });
         }
 
