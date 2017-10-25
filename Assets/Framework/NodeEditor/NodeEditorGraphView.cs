@@ -11,6 +11,7 @@ namespace Framework.NodeEditor
     {
         public event Action<NodePin> MouseClickedPin;
         public event Action<NodePin> MouseReleasedOverPin;
+        public event Action MouseReleased;
 
         public bool GraphLoaded { get { return _graph != null; } }
 
@@ -22,7 +23,43 @@ namespace Framework.NodeEditor
         public NodeEditorGraphView()
         {
             _inputListener = new EditorInputListener();
+            _inputListener.MouseLeftClicked += InputListener_MouseLeftClicked;
+            _inputListener.MouseLeftReleased += InputListener_MouseLeftReleased;
+
             _nodeViews = new Dictionary<Node, NodeView>();
+        }
+
+        void InputListener_MouseLeftReleased(EditorMouseEvent mouseEvent)
+        {
+            GetAnyPinUnderMouse((pin) =>
+            {
+                DebugEx.Log<NodeEditorGraphView>("Mouse released over Pin {0}. (Node ID: {1})", pin.Name, pin.Node.ID);
+                MouseReleasedOverPin.InvokeSafe(pin);
+            });
+            MouseReleased.InvokeSafe();
+        }
+
+        void InputListener_MouseLeftClicked(EditorMouseEvent mouseEvent)
+        {
+            GetAnyPinUnderMouse((pin) =>
+            {
+                DebugEx.Log<NodeEditorGraphView>("Pin {0} was clicked. (Node ID: {1})", pin.Name, pin.Node.ID);
+                MouseClickedPin.InvokeSafe(pin);
+            });
+        }
+
+        NodePin GetAnyPinUnderMouse(Action<NodePin> OnPinExists = null)
+        {
+            NodePin outPin = null;
+
+            var pinViews = _nodeViews.Values.ToList();
+            pinViews.ForEach(x => x.GetPinUnderMouse((pin) =>
+            {
+                outPin = pin;
+                OnPinExists.InvokeSafe(pin);
+            }));
+
+            return outPin;
         }
 
         void Unload(NodeGraph graph)
@@ -66,8 +103,6 @@ namespace Framework.NodeEditor
             var nodeView = new NodeView(node);
             nodeView.NodeSelected += OnViewSelected;
             nodeView.NodeDeleted += OnViewDeleted;
-            nodeView.MouseClickedPin += NodeView_MouseClickedPin;
-            nodeView.MouseReleaseOverPin += NodeView_MouseReleasedOverPin;
 
             _nodeViews.Add(node, nodeView);
         }
@@ -118,8 +153,6 @@ namespace Framework.NodeEditor
                 var nodeView = _nodeViews[node];
                 nodeView.NodeSelected -= OnViewSelected;
                 nodeView.NodeDeleted -= OnViewDeleted;
-                nodeView.MouseClickedPin -= NodeView_MouseClickedPin;
-                nodeView.MouseReleaseOverPin -= NodeView_MouseReleasedOverPin;
 
                 nodeView.Destroy();
 

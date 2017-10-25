@@ -27,6 +27,9 @@ namespace Framework.NodeEditor
 
         public void CancelConnection()
         {
+            if (_sourcePin == null)
+                return;
+
             DebugEx.Log<NodeEditorPinConnector>("Cancelling connection.");
             _sourcePin = null;
         }

@@ -8,8 +8,6 @@ namespace Framework.NodeEditor
 {
     public class NodeView
     {
-        public event Action<NodePin> MouseClickedPin;
-        public event Action<NodePin> MouseReleaseOverPin;
         public event Action<NodeView> NodeSelected;
         public event Action<NodeView> NodeDeleted;
 
@@ -24,8 +22,6 @@ namespace Framework.NodeEditor
         public NodeView(Node node)
         {
             _inputListener = new EditorInputListener();
-            _inputListener.MouseLeftClicked += InputListener_MouseLeftClicked;
-            _inputListener.MouseLeftReleased += InputListener_MouseLeftReleased;
             _inputListener.DeletePressed += () => NodeDeleted.InvokeSafe(this);
 
             NodeSize = new Vector2(150f, 200f);
@@ -72,27 +68,7 @@ namespace Framework.NodeEditor
                 GUI.DragWindow();
         }
 
-        void InputListener_MouseLeftClicked(EditorMouseEvent mouseEvent)
-        {
-            NodeSelected.InvokeSafe(this);
-
-            GetPinUnderMouse((pin) =>
-            {
-                DebugEx.Log<NodeView>("Pin {0} was clicked. (Node ID: {1})", pin.Name, pin.Node.ID);
-                MouseClickedPin.InvokeSafe(pin);
-            });
-        }
-
-        void InputListener_MouseLeftReleased(EditorMouseEvent obj)
-        {
-            GetPinUnderMouse((pin) =>
-            {
-                DebugEx.Log<NodeView>("Mouse released over Pin {0}. (Node ID: {1})", pin.Name, pin.Node.ID);
-                MouseReleaseOverPin.InvokeSafe(pin);
-            });
-        }
-
-        NodePin GetPinUnderMouse(Action<NodePin> OnPinExists = null)
+        public NodePin GetPinUnderMouse(Action<NodePin> OnPinExists = null)
         {
             var pinView = _pinViews
                 .Where(x => x.Rect.Contains(_inputListener.MousePosition))
