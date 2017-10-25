@@ -26,6 +26,8 @@ namespace Framework.NodeEditor
                 _menu.AddItem(new GUIContent(x), false, () => OnAddNode.InvokeSafe(x));
             });
 
+            _menu.AddSeparator("");
+
             _menu.AddItem(new GUIContent("Remove All Nodes"), false, () => OnClearNodes.InvokeSafe());
         }
 

@@ -22,7 +22,8 @@ namespace Framework.NodeEditor
         public NodeView(Node node)
         {
             _inputListener = new EditorInputListener();
-            _inputListener.DeletePressed += () => NodeDeleted.InvokeSafe(this);
+            _inputListener.MouseLeftClicked += InputListener_MouseLeftClicked;
+            _inputListener.DeletePressed += InputListener_DeletePressed;
 
             NodeSize = new Vector2(150f, 200f);
 
@@ -78,6 +79,16 @@ namespace Framework.NodeEditor
                 OnPinExists.InvokeSafe(pinView.Pin);
 
             return pinView == null ? null : pinView.Pin;
+        }
+
+        void InputListener_MouseLeftClicked(EditorMouseEvent mouseEvent)
+        {
+            NodeSelected.InvokeSafe(this);
+        }
+
+        void InputListener_DeletePressed()
+        {
+            NodeDeleted.InvokeSafe(this);
         }
     }
 }

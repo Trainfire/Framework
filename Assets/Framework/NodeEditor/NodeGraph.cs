@@ -14,6 +14,7 @@ namespace Framework.NodeEditor
         public event Action<Node> NodeAdded;
         public event Action<Node> NodeRemoved;
 
+        public NodeGraphInfo Info { get; private set; }
         public List<Node> Nodes { get; private set; }
         
         [ExecuteInEditMode]
@@ -24,6 +25,8 @@ namespace Framework.NodeEditor
 
             var attachedNodes = GetComponentsInChildren<Node>(true).ToList();
             attachedNodes.ForEach(x => RegisterNode(x));
+
+            Info = new NodeGraphInfo(this);
         }
 
         [ExecuteInEditMode]

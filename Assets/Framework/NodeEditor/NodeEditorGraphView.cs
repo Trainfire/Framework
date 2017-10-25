@@ -9,24 +9,90 @@ namespace Framework.NodeEditor
 {
     public class NodeEditorGraphView
     {
+        public event Action<Node> NodeSelected;
+        public event Action<Node> NodeDeleted;
         public event Action<NodePin> MouseClickedPin;
         public event Action<NodePin> MouseReleasedOverPin;
         public event Action MouseReleased;
 
-        public bool GraphLoaded { get { return _graph != null; } }
+        public NodeGraphInfo GraphInfo { get; set; }
 
-        private NodeGraph _graph;
         private EditorInputListener _inputListener;
-
         private Dictionary<Node, NodeView> _nodeViews;
+        private NodeConnectionView _nodeConnectionView;
 
         public NodeEditorGraphView()
         {
             _inputListener = new EditorInputListener();
             _inputListener.MouseLeftClicked += InputListener_MouseLeftClicked;
             _inputListener.MouseLeftReleased += InputListener_MouseLeftReleased;
+            _inputListener.DeletePressed += InputListener_DeletePressed;
 
             _nodeViews = new Dictionary<Node, NodeView>();
+
+            _nodeConnectionView = new NodeConnectionView();
+        }
+
+        public void AddNodeView(Node node)
+        {
+            bool containsNode = _nodeViews.ContainsKey(node);
+
+            Assert.IsFalse(containsNode);
+
+            if (!containsNode)
+            {
+                var nodeView = new NodeView(node);
+                nodeView.NodeSelected += NodeView_selected;
+                nodeView.NodeDeleted += NodeView_Deleted;
+
+                _nodeViews.Add(node, nodeView);
+            }
+        }
+
+        public void RemoveNodeView(Node node)
+        {
+            DebugEx.Log<NodeEditorGraphView>("Node was removed.");
+
+            bool containsNode = _nodeViews.ContainsKey(node);
+
+            Assert.IsTrue(containsNode);
+
+            if (containsNode)
+            {
+                var nodeView = _nodeViews[node];
+                nodeView.NodeSelected -= NodeView_selected;
+
+                nodeView.Destroy();
+
+                _nodeViews.Remove(node);
+            }
+        }
+
+        public void RemoveAllNodeViews()
+        {
+            DebugEx.Log<NodeEditorGraphView>("Removing all nodes from view.");
+            _nodeViews.ToList().ForEach(x => RemoveNodeView(x.Key));
+        }
+
+        #region Callbacks
+        void NodeView_selected(NodeView nodeView)
+        {
+            NodeSelected.InvokeSafe(nodeView.Node);
+        }
+
+        void NodeView_Deleted(NodeView nodeView)
+        {
+            NodeDeleted.InvokeSafe(nodeView.Node);
+        }
+
+        void NodeView_MouseClickedPin(NodePin nodePin)
+        {
+            MouseClickedPin.InvokeSafe(nodePin);
+        }
+
+        void NodeView_MouseReleasedOverPin(NodePin nodePin)
+        {
+            MouseReleasedOverPin.InvokeSafe(nodePin);
         }
 
         void InputListener_MouseLeftReleased(EditorMouseEvent mouseEvent)
@@ -48,116 +114,9 @@ namespace Framework.NodeEditor
             });
         }
 
-        NodePin GetAnyPinUnderMouse(Action<NodePin> OnPinExists = null)
+        void InputListener_DeletePressed()
         {
-            NodePin outPin = null;
-
-            var pinViews = _nodeViews.Values.ToList();
-            pinViews.ForEach(x => x.GetPinUnderMouse((pin) =>
-            {
-                outPin = pin;
-                OnPinExists.InvokeSafe(pin);
-            }));
-
-            return outPin;
-        }
-
-        void Unload(NodeGraph graph)
-        {
-            _nodeViews = new Dictionary<Node, NodeView>();
-
-            if (graph == null)
-                return;
-
-            DebugEx.Log<NodeEditorGraphView>("Removing old graph...");
-
-            graph.GraphDestroyed -= Unload;
-            graph.NodeAdded -= OnGraphNodeAdded;
-            graph.NodeRemoved -= OnGraphNodeRemoved;
-        }
-
-        public void Load(NodeGraph graph)
-        {
-            // Unload previous graph.
-            Unload(_graph);
-
-            Assert.IsNotNull(graph, "Attempted to load a null graph.");
-
-            if (graph != null)
-            {
-                DebugEx.Log<NodeEditorGraphView>("Loading graph...");
-
-                // Assign new graph.
-                _graph = graph;
-                _graph.GraphDestroyed += Unload;
-                _graph.NodeAdded += OnGraphNodeAdded;
-                _graph.NodeRemoved += OnGraphNodeRemoved;
-
-                // Make new view.
-                _graph.Nodes.ForEach((node) => AssignView(node));
-            }
-        }
-
-        void AssignView(Node node)
-        {
-            var nodeView = new NodeView(node);
-            nodeView.NodeSelected += OnViewSelected;
-            nodeView.NodeDeleted += OnViewDeleted;
-
-            _nodeViews.Add(node, nodeView);
-        }
-
-        #region Callbacks
-        void OnViewSelected(NodeView nodeView)
-        {
-            Selection.activeGameObject = nodeView.Node.gameObject;
-        }
-
-        void OnViewDeleted(NodeView nodeView)
-        {
-            _graph.RemoveNode(nodeView.Node);
-        }
-
-        void NodeView_MouseClickedPin(NodePin nodePin)
-        {
-            MouseClickedPin.InvokeSafe(nodePin);
-        }
-
-        void NodeView_MouseReleasedOverPin(NodePin nodePin)
-        {
-            MouseReleasedOverPin.InvokeSafe(nodePin);
-        }
-
-        void OnGraphNodeAdded(Node node)
-        {
-            DebugEx.Log<NodeEditorGraphView>("Node was added.");
-
-            bool containsNode = _nodeViews.ContainsKey(node);
-
-            Assert.IsFalse(containsNode);
-
-            if (!containsNode)
-                AssignView(node);
-        }
-
-        void OnGraphNodeRemoved(Node node)
-        {
-            DebugEx.Log<NodeEditorGraphView>("Node was removed.");
-
-            bool containsNode = _nodeViews.ContainsKey(node);
-
-            Assert.IsTrue(containsNode);
-
-            if (containsNode)
-            {
-                var nodeView = _nodeViews[node];
-                nodeView.NodeSelected -= OnViewSelected;
-                nodeView.NodeDeleted -= OnViewDeleted;
-
-                nodeView.Destroy();
-
-                _nodeViews.Remove(node);
-            }
+            DebugEx.Log<NodeEditorGraphView>("Delete pressed.");
         }
         #endregion
 
@@ -166,13 +125,11 @@ namespace Framework.NodeEditor
         {
             _inputListener.ProcessEvents();
 
-            if (!GraphLoaded)
-                GUILayout.Label("Select a gameobject with a NodeGraph component to view a graph.");
-
             DrawDebug();
 
             // Draw nodes.
             _nodeViews.Values.ToList().ForEach(x => x.Draw());
+
         }
 
         void DrawDebug()
@@ -181,14 +138,13 @@ namespace Framework.NodeEditor
 
             DrawHeader("Graph Info");
 
-            if (_graph == null)
+            if (GraphInfo == null)
             {
                 DrawField("No graph loaded");
             }
             else
             {
-                DrawField("Node Count", _graph.Nodes.Count);
-                DrawField("Node Views", _nodeViews.Count);
+                DrawField("Node Count", GraphInfo.NodeCount);
                 DrawField("Mouse Pos", _inputListener.MousePosition);
             }
 
@@ -209,5 +165,19 @@ namespace Framework.NodeEditor
             GUILayout.Label(str);
         }
         #endregion
+
+        NodePin GetAnyPinUnderMouse(Action<NodePin> OnPinExists = null)
+        {
+            NodePin outPin = null;
+
+            var pinViews = _nodeViews.Values.ToList();
+            pinViews.ForEach(x => x.GetPinUnderMouse((pin) =>
+            {
+                outPin = pin;
+                OnPinExists.InvokeSafe(pin);
+            }));
+
+            return outPin;
+        }
     }
 }
