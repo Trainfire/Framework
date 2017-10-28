@@ -8,10 +8,16 @@ namespace Framework
     public class EditorMouseEvent : EventArgs
     {
         public Vector2 Position { get; private set; }
+        public int Button { get; private set; }
+
+        public bool IsLeftMouse { get { return Button == 0; } }
+        public bool IsRightMouse { get { return Button == 1; } }
+        public bool IsMiddleMouse { get { return Button == 2; } }
 
         public EditorMouseEvent()
         {
             Position = Event.current.mousePosition;
+            Button = Event.current.button;
         }
     }
 
@@ -19,8 +25,8 @@ namespace Framework
     {
         public Vector2 MousePosition { get; private set; }
 
-        public event Action<EditorMouseEvent> MouseLeftClicked;
-        public event Action<EditorMouseEvent> MouseLeftReleased;
+        public event Action<EditorMouseEvent> MouseDown;
+        public event Action<EditorMouseEvent> MouseUp;
         public event Action<EditorMouseEvent> MouseDragged;
         public event Action<EditorMouseEvent> MouseMoved;
 
@@ -36,8 +42,8 @@ namespace Framework
         {
             _mouseEventMap = new Dictionary<EventType, List<Action>>();
 
-            AddMouseHandler(EventType.MouseDown, () => MouseLeftClicked.InvokeSafe(new EditorMouseEvent()));
-            AddMouseHandler(EventType.MouseUp, () => MouseLeftReleased.InvokeSafe(new EditorMouseEvent()));
+            AddMouseHandler(EventType.MouseDown, () => MouseDown.InvokeSafe(new EditorMouseEvent()));
+            AddMouseHandler(EventType.MouseUp, () => MouseUp.InvokeSafe(new EditorMouseEvent()));
             AddMouseHandler(EventType.MouseDrag, () => MouseDragged.InvokeSafe(new EditorMouseEvent()));
             AddMouseHandler(EventType.MouseMove, () => MouseMoved.InvokeSafe(new EditorMouseEvent()));
             AddMouseHandler(EventType.ContextClick, () => ContextClicked.InvokeSafe());
@@ -80,7 +86,7 @@ namespace Framework
         {
             _mouseEventMap = null;
             ContextClicked = null;
-            MouseLeftClicked = null;
+            MouseDown = null;
             KeyReleased = null;
             KeyPressed = null;
         }

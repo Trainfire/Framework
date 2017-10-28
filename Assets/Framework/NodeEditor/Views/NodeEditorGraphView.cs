@@ -11,8 +11,9 @@ namespace Framework.NodeEditor
     {
         public event Action<Node> NodeSelected;
         public event Action<Node> NodeDeleted;
-        public event Action<NodePin> MouseClickedPin;
-        public event Action<NodePin> MouseReleasedOverPin;
+        public event Action<NodePin> MouseLeftClickedPin;
+        public event Action<NodePin> MouseLeftReleasedOverPin;
+        public event Action<NodePin> MouseMiddleClickedPin;
         public event Action MouseReleased;
 
         public NodeGraphInfo GraphInfo { get; set; }
@@ -23,8 +24,8 @@ namespace Framework.NodeEditor
         public NodeEditorGraphView()
         {
             _inputListener = new EditorInputListener();
-            _inputListener.MouseLeftClicked += InputListener_MouseLeftClicked;
-            _inputListener.MouseLeftReleased += InputListener_MouseLeftReleased;
+            _inputListener.MouseDown += InputListener_MouseDown;
+            _inputListener.MouseUp += InputListener_MouseLeftReleased;
             _inputListener.DeletePressed += InputListener_DeletePressed;
 
             _nodeViews = new Dictionary<Node, NodeView>();
@@ -81,32 +82,29 @@ namespace Framework.NodeEditor
             NodeDeleted.InvokeSafe(nodeView.Node);
         }
 
-        void NodeView_MouseClickedPin(NodePin nodePin)
-        {
-            MouseClickedPin.InvokeSafe(nodePin);
-        }
-
-        void NodeView_MouseReleasedOverPin(NodePin nodePin)
-        {
-            MouseReleasedOverPin.InvokeSafe(nodePin);
-        }
-
         void InputListener_MouseLeftReleased(EditorMouseEvent mouseEvent)
         {
             GetAnyPinUnderMouse((pin) =>
             {
-                DebugEx.Log<NodeEditorGraphView>("Mouse released over Pin {0}. (Node ID: {1})", pin.Name, pin.Node.ID);
-                MouseReleasedOverPin.InvokeSafe(pin);
+                DebugEx.Log<NodeEditorGraphView>("Mouse released over Pin {0}. (Node ID: {1}) (Button: {2})", pin.Name, pin.Node.ID, mouseEvent.Button);
+
+                if (mouseEvent.IsLeftMouse)
+                    MouseLeftReleasedOverPin.InvokeSafe(pin);
             });
             MouseReleased.InvokeSafe();
         }
 
-        void InputListener_MouseLeftClicked(EditorMouseEvent mouseEvent)
+        void InputListener_MouseDown(EditorMouseEvent mouseEvent)
         {
             GetAnyPinUnderMouse((pin) =>
             {
-                DebugEx.Log<NodeEditorGraphView>("Pin {0} was clicked. (Node ID: {1})", pin.Name, pin.Node.ID);
-                MouseClickedPin.InvokeSafe(pin);
+                DebugEx.Log<NodeEditorGraphView>("Pin {0} was clicked. (Node ID: {1}) (Button: {2})", pin.Name, pin.Node.ID, mouseEvent.Button);
+
+                if (mouseEvent.IsLeftMouse)
+                    MouseLeftClickedPin.InvokeSafe(pin);
+
+                if (mouseEvent.IsMiddleMouse)
+                    MouseMiddleClickedPin.InvokeSafe(pin);
             });
         }
 

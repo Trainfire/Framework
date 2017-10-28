@@ -15,7 +15,6 @@ namespace Framework.NodeEditor
         {
             _view = new NodeEditorView();
             new NodeEditorController(_view);
-            new NodeTests();
         }
 
         void OnGUI()

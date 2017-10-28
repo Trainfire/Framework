@@ -29,7 +29,7 @@ namespace Framework.NodeEditor
         public NodeView(Node node)
         {
             _inputListener = new EditorInputListener();
-            _inputListener.MouseLeftClicked += InputListener_MouseLeftClicked;
+            _inputListener.MouseDown += InputListener_MouseLeftClicked;
             _inputListener.DeletePressed += InputListener_DeletePressed;
 
             NodeSize = new Vector2(100f, 100f);

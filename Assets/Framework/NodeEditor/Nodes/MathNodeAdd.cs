@@ -10,7 +10,6 @@ namespace Framework.NodeEditor
         [ExecuteInEditMode]
         void OnEnable()
         {
-            Debug.Log("Awake");
             AddInputPin<float>("In 1");
             AddInputPin<float>("In 2");
             AddOutputPin<float>("Result");

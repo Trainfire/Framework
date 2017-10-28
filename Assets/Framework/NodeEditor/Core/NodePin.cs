@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.Assertions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -39,11 +40,21 @@ namespace Framework.NodeEditor
             return pin.GetType() == this.GetType();
         }
 
-        public void ConnectTo(NodePin pin)
+        public void ConnectTo(NodePin targetPin)
         {
-            DebugEx.Log<NodePin>("{0} is now connected {1}", Name, pin.Name);
-            if (ArePinsCompatible(pin))
-                ConnectedPin = pin;
+            Assert.IsTrue(ArePinsCompatible(targetPin));
+
+            if (ArePinsCompatible(targetPin))
+            {
+                DebugEx.Log<NodePin>("{0} is now connected {1}", Name, targetPin.Name);
+                ConnectedPin = targetPin;
+            }
+        }
+
+        public void Disconnect()
+        {
+            DebugEx.Log<NodePin>("{0} is now disconnected.", Name);
+            ConnectedPin = null;
         }
     }
 
@@ -85,29 +96,14 @@ namespace Framework.NodeEditor
     {
         private Action _onExecute;
 
-        public NodeExecutePin(string name, Node node, Action _onExecute) : base(name, node) { }
+        public NodeExecutePin(string name, Node node, Action onExecute) : base(name, node)
+        {
+            _onExecute = onExecute;
+        }
 
         public void Execute()
         {
             _onExecute.InvokeSafe();
-        }
-    }
-
-    public class NodeTests
-    {
-        public NodeTests()
-        {
-            //var aPin = new NodeValuePin<int>("A");
-            //aPin.Value = 2;
-
-            //var bPin = new NodeValuePin<int>("B");
-            //bPin.Value = 3;
-
-            //var nodeAdd = new NodeMathAdd();
-            //nodeAdd.Pins[0].ConnectTo(aPin);
-            //nodeAdd.Pins[1].ConnectTo(bPin);
-
-            //nodeAdd.Execute();
         }
     }
 }
