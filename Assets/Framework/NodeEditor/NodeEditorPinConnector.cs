@@ -14,14 +14,16 @@ namespace Framework.NodeEditor
             if (sourcePin == null)
                 return;
 
-            if (sourcePin.PinType == NodePinType.Input)
+            _sourcePin = sourcePin;
+
+            if (sourcePin.Node.IsInputPin(_sourcePin))
             {
                 DebugEx.LogWarning<NodeEditorPinConnector>("Attempted to start a connection from an Input pin!");
+                _sourcePin = null;
             }
             else
             {
                 DebugEx.Log<NodeEditorPinConnector>("Start connection from pin '{0}'", sourcePin.Name);
-                _sourcePin = sourcePin;
             }
         }
 
@@ -48,15 +50,13 @@ namespace Framework.NodeEditor
                 return;
             }
 
-            if (targetPin.PinType == NodePinType.Output)
-            {
-                DebugEx.LogWarning<NodeEditorPinConnector>("Attempted to make a connection to an Input pin!");
-            }
-            else if (targetPin.Node == _sourcePin.Node)
+            if (targetPin.Node == _sourcePin.Node)
             {
                 DebugEx.LogWarning<NodeEditorPinConnector>("Attempt to connect a pin to itself!");
+                return;
             }
-            else
+
+            if (targetPin.IsCompatible(_sourcePin))
             {
                 DebugEx.Log<NodeEditorPinConnector>("Connecting pin '{0}' in '{1}' to '{2}' in '{3}'",
                     _sourcePin.Name,
@@ -64,7 +64,7 @@ namespace Framework.NodeEditor
                     targetPin.Name,
                     targetPin.Node.ID);
 
-                // TODO: Connect the pins here.
+                targetPin.ConnectTo(_sourcePin);
 
                 _sourcePin = null;
             }

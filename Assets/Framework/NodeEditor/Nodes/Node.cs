@@ -30,27 +30,40 @@ namespace Framework.NodeEditor
             Destroyed.InvokeSafe(this);
         }
 
-        protected void AddInputPin(string name, NodePinValueType valueType)
+        protected NodeValuePin<T> AddInputPin<T>(string name)
         {
-            // TODO: Spawn from factory.
-            var pin = gameObject.AddComponent<NodePin>();
-            pin.Initialize(this, name, NodePinType.Input, valueType);
+            var pin = new NodeValuePin<T>(name, this);
+            InputPins.Add(pin);
+            return pin;
+        }
+
+        protected NodeValuePin<T> AddOutputPin<T>(string name)
+        {
+            var pin = new NodeValuePin<T>(name, this);
+            OutputPins.Add(pin);
+            return pin;
+        }
+
+        protected void AddExecuteInPin(Action onExecute)
+        {
+            var pin = new NodeExecutePin("In", this, onExecute);
             InputPins.Add(pin);
         }
 
-        protected void AddOutputPin(string name, NodePinValueType valueType)
+        protected void AddExecuteOutPin()
         {
-            // TODO: Spawn from factory.
-            var pin = gameObject.AddComponent<NodePin>();
-            pin.Initialize(this, name, NodePinType.Output, valueType);
+            var pin = new NodeExecutePin("Out", this, null);
             OutputPins.Add(pin);
         }
 
-        public void Execute()
+        public bool IsInputPin(NodePin pin)
         {
-            OnExecute();
+            return InputPins.Contains(pin);
         }
 
-        protected abstract void OnExecute();
+        public bool IsOutputPin(NodePin pin)
+        {
+            return OutputPins.Contains(pin);
+        }
     }
 }

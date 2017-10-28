@@ -129,7 +129,6 @@ namespace Framework.NodeEditor
 
             // Draw nodes.
             _nodeViews.Values.ToList().ForEach(x => x.Draw());
-
         }
 
         void DrawDebug()

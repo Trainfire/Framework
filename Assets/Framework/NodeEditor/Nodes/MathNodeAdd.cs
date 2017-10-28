@@ -8,16 +8,12 @@ namespace Framework.NodeEditor
     public class MathNodeAdd : Node
     {
         [ExecuteInEditMode]
-        void Awake()
+        void OnEnable()
         {
-            AddInputPin("In 1", NodePinValueType.Float);
-            AddInputPin("In 2", NodePinValueType.Float);
-            AddOutputPin("Out", NodePinValueType.Float);
-        }
-
-        protected override void OnExecute()
-        {
-            throw new NotImplementedException();
+            Debug.Log("Awake");
+            AddInputPin<float>("In 1");
+            AddInputPin<float>("In 2");
+            AddOutputPin<float>("Result");
         }
     }
 }

@@ -15,7 +15,7 @@ namespace Framework.NodeEditor
 
         private Rect _rect;
         private EditorInputListener _inputListener;
-        private List<NodePinView> _pinViews;
+        private Dictionary<NodePin, NodePinView> _pinViews;
 
         private readonly Vector2 NodeSize;
 
@@ -25,17 +25,10 @@ namespace Framework.NodeEditor
             _inputListener.MouseLeftClicked += InputListener_MouseLeftClicked;
             _inputListener.DeletePressed += InputListener_DeletePressed;
 
-            NodeSize = new Vector2(150f, 200f);
-
+            NodeSize = new Vector2(100f, 100f);
             Node = node;
 
-            _pinViews = new List<NodePinView>();
-            Node.Pins.ForEach(x =>
-            {
-                var view = new NodePinView(x);
-                _pinViews.Add(view);
-            });
-
+            _pinViews = new Dictionary<NodePin, NodePinView>();
             _rect = new Rect(Node.Position, NodeSize);
         }
 
@@ -60,10 +53,16 @@ namespace Framework.NodeEditor
             if (Node == null)
                 return;
 
-            GUILayout.Label(Node.Position.ToString());
-            GUILayout.Label(Node.ID.ToString());
+            Node.Pins.ForEach(x =>
+            {
+                if (!_pinViews.ContainsKey(x))
+                    _pinViews.Add(x, new NodePinView(x, x.Node.IsOutputPin(x)));
+            });
 
-            _pinViews.ForEach(x => x.Draw());
+            _pinViews
+                .Values
+                .ToList()
+                .ForEach(x => x.Draw());
 
             if (GetPinUnderMouse() == null)
                 GUI.DragWindow();
@@ -72,6 +71,7 @@ namespace Framework.NodeEditor
         public NodePin GetPinUnderMouse(Action<NodePin> OnPinExists = null)
         {
             var pinView = _pinViews
+                .Values
                 .Where(x => x.Rect.Contains(_inputListener.MousePosition))
                 .FirstOrDefault();
 
