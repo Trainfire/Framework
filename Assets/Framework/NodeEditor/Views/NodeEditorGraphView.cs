@@ -135,38 +135,34 @@ namespace Framework.NodeEditor
         {
             // TEMP: Get all connected pins in graph.
             var connectedPins = _nodeViews
-                .SelectMany(x => x.Value.PinViews)
-                .Where(x => x.IsConnected)
+                .Keys
+                .SelectMany(node => node.Pins)
+                .Where(pin => pin.ConnectedPin != null)
                 .ToList();
 
-            connectedPins.ForEach(pinView =>
+            connectedPins.ForEach(pin =>
             {
-                GUILayout.Label(pinView.Pin.Name + " -> " + pinView.Pin.ConnectedPin.Name);
-
                 Handles.BeginGUI();
-                var start = pinView.ScreenPosition;
-
-                // Dumb way to get the pin view associated with this pin.
-                var end = _nodeViews
-                .SelectMany(x => x.Value.PinViews)
-                .ToList()
-                .Find(pV => pV.Pin == pinView.Pin.ConnectedPin)
-                .ScreenPosition;
-
-                Handles.DrawLine(start, end);
+                Handles.DrawLine(DrawPinConnectionHandle(pin), DrawPinConnectionHandle(pin.ConnectedPin));
                 Handles.EndGUI();
-
-                DrawConnectionEnd(start);
-                DrawConnectionEnd(end);
             });
         }
 
-        void DrawConnectionEnd(Vector2 position)
+        Vector2 DrawPinConnectionHandle(NodePin pin)
         {
+            Vector2 position = pin.ScreenPosition;
+
+            // Adjust for pin position using magic numbers. ;)
+            position.x += pin.Node.IsOutputPin(pin) ? pin.LocalRect.width : -15f;
+            position.y += pin.LocalRect.height * 0.5f;
+
+            // Draw handle.
             const float size = 10f;
-            position = position - new Vector2(size * 0.5f, size * 0.5f);
-            var rect = new Rect(position, new Vector2(size, size));
+            var handlePosition = position - new Vector2(size * 0.5f, size * 0.5f);
+            var rect = new Rect(handlePosition, new Vector2(size, size));
             GUI.Box(rect, "");
+
+            return position;
         }
 
         void DrawDebug()

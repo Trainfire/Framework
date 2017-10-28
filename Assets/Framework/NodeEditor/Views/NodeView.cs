@@ -64,7 +64,7 @@ namespace Framework.NodeEditor
             Node.Pins.ForEach(x =>
             {
                 if (!_pinViews.ContainsKey(x))
-                    _pinViews.Add(x, new NodePinView(x, x.Node.IsOutputPin(x)));
+                    _pinViews.Add(x, new NodePinView(x));
             });
 
             // Draw.
