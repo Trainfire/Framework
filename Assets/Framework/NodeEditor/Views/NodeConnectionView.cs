@@ -13,6 +13,17 @@ namespace Framework.NodeEditor
             Handles.BeginGUI();
             Handles.DrawAAPolyLine(5f, Start, End);
             Handles.EndGUI();
+
+            DrawConnectionEnd(Start);
+            DrawConnectionEnd(End);
+        }
+
+        void DrawConnectionEnd(Vector2 position)
+        {
+            const float size = 10f;
+            position = position - new Vector2(size * 0.5f, size * 0.5f);
+            var rect = new Rect(position, new Vector2(size, size));
+            GUI.Box(rect, "");
         }
     }
 }

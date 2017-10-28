@@ -16,6 +16,7 @@ namespace Framework.NodeEditor
             _nodeRegistry = new Dictionary<string, Action<NodeGraph>>();
             _nodeRegistry.Add("Math/Add", (graph) => graph.AddNode<MathNodeAdd>("Add"));
             _nodeRegistry.Add("Debug/Log", (graph) => graph.AddNode<DebugNodeLog>("Debug Log"));
+            _nodeRegistry.Add("One Out", (graph) => graph.AddNode<OneOutNode>("One Out"));
         }
 
         public void Instantiate(string id, NodeGraph graph)

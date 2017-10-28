@@ -12,6 +12,13 @@ namespace Framework.NodeEditor
         public event Action<NodeView> NodeDeleted;
 
         public Node Node { get; private set; }
+        public List<NodePinView> PinViews
+        {
+            get
+            {
+                return _pinViews.Values.ToList();
+            }
+        }
 
         private Rect _rect;
         private EditorInputListener _inputListener;
@@ -53,12 +60,14 @@ namespace Framework.NodeEditor
             if (Node == null)
                 return;
 
+            // Dynamically register pin views.
             Node.Pins.ForEach(x =>
             {
                 if (!_pinViews.ContainsKey(x))
                     _pinViews.Add(x, new NodePinView(x, x.Node.IsOutputPin(x)));
             });
 
+            // Draw.
             _pinViews
                 .Values
                 .ToList()
@@ -68,17 +77,23 @@ namespace Framework.NodeEditor
                 GUI.DragWindow();
         }
 
+        public NodePinView GetViewFromPin(NodePin pin)
+        {
+            bool hasViewForPin = _pinViews.ContainsKey(pin);
+            return hasViewForPin ? _pinViews[pin] : null;
+        }
+
         public NodePin GetPinUnderMouse(Action<NodePin> OnPinExists = null)
         {
-            var pinView = _pinViews
+            var view = _pinViews
                 .Values
-                .Where(x => x.Rect.Contains(_inputListener.MousePosition))
+                .Where(x => x.LocalRect.Contains(_inputListener.MousePosition))
                 .FirstOrDefault();
 
-            if (pinView != null && pinView.Pin != null)
-                OnPinExists.InvokeSafe(pinView.Pin);
+            if (view != null && view.Pin != null)
+                OnPinExists.InvokeSafe(view.Pin);
 
-            return pinView == null ? null : pinView.Pin;
+            return view != null ? view.Pin : null;
         }
 
         void InputListener_MouseLeftClicked(EditorMouseEvent mouseEvent)

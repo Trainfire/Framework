@@ -15,6 +15,7 @@ namespace Framework.NodeEditor
         public Node Node { get; private set; }
         public string Name { get; private set; }
         public NodePin ConnectedPin { get; private set; }
+        //public Rect LocalRect { get; set; }
 
         public NodePin(string name, Node node)
         {

@@ -19,7 +19,6 @@ namespace Framework.NodeEditor
 
         private EditorInputListener _inputListener;
         private Dictionary<Node, NodeView> _nodeViews;
-        private NodeConnectionView _nodeConnectionView;
 
         public NodeEditorGraphView()
         {
@@ -29,8 +28,6 @@ namespace Framework.NodeEditor
             _inputListener.DeletePressed += InputListener_DeletePressed;
 
             _nodeViews = new Dictionary<Node, NodeView>();
-
-            _nodeConnectionView = new NodeConnectionView();
         }
 
         public void AddNodeView(Node node)
@@ -61,7 +58,6 @@ namespace Framework.NodeEditor
             {
                 var nodeView = _nodeViews[node];
                 nodeView.NodeSelected -= NodeView_selected;
-
                 nodeView.Destroy();
 
                 _nodeViews.Remove(node);
@@ -126,9 +122,51 @@ namespace Framework.NodeEditor
             _inputListener.ProcessEvents();
 
             DrawDebug();
+            DrawNodes();
+            DrawConnections();
+        }
 
-            // Draw nodes.
+        void DrawNodes()
+        {
             _nodeViews.Values.ToList().ForEach(x => x.Draw());
+        }
+
+        void DrawConnections()
+        {
+            // TEMP: Get all connected pins in graph.
+            var connectedPins = _nodeViews
+                .SelectMany(x => x.Value.PinViews)
+                .Where(x => x.IsConnected)
+                .ToList();
+
+            connectedPins.ForEach(pinView =>
+            {
+                GUILayout.Label(pinView.Pin.Name + " -> " + pinView.Pin.ConnectedPin.Name);
+
+                Handles.BeginGUI();
+                var start = pinView.ScreenPosition;
+
+                // Dumb way to get the pin view associated with this pin.
+                var end = _nodeViews
+                .SelectMany(x => x.Value.PinViews)
+                .ToList()
+                .Find(pV => pV.Pin == pinView.Pin.ConnectedPin)
+                .ScreenPosition;
+
+                Handles.DrawLine(start, end);
+                Handles.EndGUI();
+
+                DrawConnectionEnd(start);
+                DrawConnectionEnd(end);
+            });
+        }
+
+        void DrawConnectionEnd(Vector2 position)
+        {
+            const float size = 10f;
+            position = position - new Vector2(size * 0.5f, size * 0.5f);
+            var rect = new Rect(position, new Vector2(size, size));
+            GUI.Box(rect, "");
         }
 
         void DrawDebug()
