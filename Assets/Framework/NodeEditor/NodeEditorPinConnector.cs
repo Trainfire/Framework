@@ -56,7 +56,13 @@ namespace Framework.NodeEditor
                 return;
             }
 
-            if (targetPin.IsCompatible(_sourcePin))
+            if (_sourcePin.WillPinConnectionCreateCircularDependency(targetPin))
+            {
+                DebugEx.LogWarning<NodeEditorPinConnector>("Pin connection would create a circular dependency!");
+                return;
+            }
+
+            if (targetPin.ArePinsCompatible(_sourcePin))
             {
                 DebugEx.Log<NodeEditorPinConnector>("Connecting pin '{0}' in '{1}' to '{2}' in '{3}'",
                     _sourcePin.Name,

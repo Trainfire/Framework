@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Framework.NodeEditor
 {
@@ -25,7 +26,15 @@ namespace Framework.NodeEditor
             Node = node;
         }
 
-        public bool IsCompatible(NodePin pin)
+        public bool WillPinConnectionCreateCircularDependency(NodePin targetPin)
+        {
+            // Pin cannot be connected to a node that has connections to this pin's node.
+            return Node.InputPins
+                .Where(pin => pin.ConnectedPin != null)
+                .Any(pin => pin.ConnectedPin.Node == targetPin.Node);
+        }
+
+        public bool ArePinsCompatible(NodePin pin)
         {
             return pin.GetType() == this.GetType();
         }
@@ -33,7 +42,7 @@ namespace Framework.NodeEditor
         public void ConnectTo(NodePin pin)
         {
             DebugEx.Log<NodePin>("{0} is now connected {1}", Name, pin.Name);
-            if (IsCompatible(pin))
+            if (ArePinsCompatible(pin))
                 ConnectedPin = pin;
         }
     }
