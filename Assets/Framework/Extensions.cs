@@ -11,13 +11,22 @@ namespace Framework
     {
         public static void Log<T>(string message, params object[] args)
         {
-            var prefix = string.Format("[{0}]", typeof(T).Name);
-            Debug.Log(string.Format(prefix + " " + string.Format(message, args)));
+            Debug.Log(string.Format(GetPrefix<T>() + " " + string.Format(message, args)));
         }
 
-        public static void LogWarning<T>(string message)
+        public static void LogWarning<T>(string message, params object[] args)
         {
-            Debug.LogWarning(string.Format("[{0}] {1}", typeof(T).Name, message));
+            Debug.LogWarning(string.Format(GetPrefix<T>() + " " + string.Format(message, args)));
+        }
+
+        public static void LogError<T>(string message, params object[] args)
+        {
+            Debug.LogError(string.Format(GetPrefix<T>() + " " + string.Format(message, args)));
+        }
+
+        static string GetPrefix<T>()
+        {
+            return string.Format("[{0}]", typeof(T).Name);
         }
     }
 

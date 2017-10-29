@@ -7,17 +7,18 @@ namespace Framework.NodeEditor
     [ExecuteInEditMode]
     public class DebugNodeLog : Node
     {
+        NodeValuePin<string> _inLog;
+
         [ExecuteInEditMode]
-        void OnEnable()
+        protected override void OnEnable()
         {
-            Debug.Log("Awake");
             AddExecuteInPin(OnExecute);
-            AddInputPin<string>("Log");
+            _inLog = AddInputPin<string>("Log");
         }
 
-        void OnExecute()
+        protected override void OnExecute()
         {
-            var log = (InputPins[0] as NodeValuePin<string>).Value;
+            var log = _inLog.Value;
             Debug.Log(log);
         }
     }

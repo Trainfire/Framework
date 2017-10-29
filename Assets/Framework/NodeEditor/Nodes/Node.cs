@@ -25,6 +25,9 @@ namespace Framework.NodeEditor
         }
 
         [ExecuteInEditMode]
+        protected virtual void OnEnable() { }
+
+        [ExecuteInEditMode]
         public void OnDestroy()
         {
             Destroyed.InvokeSafe(this);
@@ -65,5 +68,12 @@ namespace Framework.NodeEditor
         {
             return OutputPins.Contains(pin);
         }
+
+        public void Execute()
+        {
+            OnExecute();
+        }
+
+        protected virtual void OnExecute() { }
     }
 }

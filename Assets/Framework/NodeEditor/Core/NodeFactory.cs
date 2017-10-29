@@ -17,6 +17,8 @@ namespace Framework.NodeEditor
             _nodeRegistry.Add("Math/Add", (graph) => graph.AddNode<MathNodeAdd>("Add"));
             _nodeRegistry.Add("Debug/Log", (graph) => graph.AddNode<DebugNodeLog>("Debug Log"));
             _nodeRegistry.Add("One Out", (graph) => graph.AddNode<OneOutNode>("One Out"));
+            _nodeRegistry.Add("Event/On Start", (graph) => graph.AddNode<NodeEventOnStart>("On Start"));
+            _nodeRegistry.Add("Conversion/Float to String", (graph) => graph.AddNode<NodeConversionFloatToString>("Float to String"));
         }
 
         public void Instantiate(string id, NodeGraph graph)

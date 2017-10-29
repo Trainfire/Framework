@@ -70,7 +70,18 @@ namespace Framework.NodeEditor
                     targetPin.Name,
                     targetPin.Node.ID);
 
-                targetPin.ConnectTo(_sourcePin);
+                // Execution pins flow left right.
+                // Value pins flow right to left.
+                if (_sourcePin.GetType() == typeof(NodeExecutePin))
+                {
+                    DebugEx.Log<NodeEditorPinConnector>("Connected execution pins.");
+                    _sourcePin.ConnectTo(targetPin);
+                }
+                else
+                {
+                    DebugEx.Log<NodeEditorPinConnector>("Connected value pins.");
+                    targetPin.ConnectTo(_sourcePin);
+                }
 
                 _sourcePin = null;
             }

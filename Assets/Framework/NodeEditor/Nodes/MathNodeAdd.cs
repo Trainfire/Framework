@@ -8,7 +8,7 @@ namespace Framework.NodeEditor
     public class MathNodeAdd : Node
     {
         [ExecuteInEditMode]
-        void OnEnable()
+        protected override void OnEnable()
         {
             AddInputPin<float>("In 1");
             AddInputPin<float>("In 2");

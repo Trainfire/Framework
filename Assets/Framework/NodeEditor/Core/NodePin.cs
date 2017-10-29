@@ -62,11 +62,16 @@ namespace Framework.NodeEditor
     {
         public NodeValuePin(string name, Node node) : base(name, node) { }
 
+        public event Action<T> OnSet;
+        public event Action OnGet;
+
         private T _value;
         public T Value
         {
             get
             {
+                OnGet.InvokeSafe();
+
                 if (_value == null)
                     _value = default(T);
 
@@ -83,12 +88,21 @@ namespace Framework.NodeEditor
                     DebugEx.Log<NodeValuePin<T>>(ex.Message);
                 }
 
-                return connectedValuePin != null ? connectedValuePin.Value : _value;
+                _value = connectedValuePin.Value;
+
+                //return connectedValuePin != null ? connectedValuePin.Value : _value;
+                return _value;
             }
             set
             {
                 _value = value;
+                OnSet.InvokeSafe(_value);
             }
+        }
+
+        public override string ToString()
+        {
+            return _value != null ? _value.ToString() : string.Empty;
         }
     }
 
@@ -103,7 +117,17 @@ namespace Framework.NodeEditor
 
         public void Execute()
         {
+            if (_onExecute == null)
+                DebugEx.LogWarning<NodeExecutePin>("Cannot execute pin '{0}' on node '{1}'.", Name, Node.Name);
+
             _onExecute.InvokeSafe();
+        }
+
+        public override string ToString()
+        {
+            if (ConnectedPin != null)
+                return string.Format("{0} ({1})", ConnectedPin.Name, ConnectedPin.Node.name);
+            return string.Empty;
         }
     }
 }

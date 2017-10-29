@@ -9,6 +9,7 @@ namespace Framework.NodeEditor
 {
     public class NodeEditorGraphView
     {
+        public event Action RunGraph;
         public event Action<Node> NodeSelected;
         public event Action<Node> NodeDeleted;
         public event Action<NodePin> MouseLeftClickedPin;
@@ -20,6 +21,7 @@ namespace Framework.NodeEditor
 
         private EditorInputListener _inputListener;
         private Dictionary<Node, NodeView> _nodeViews;
+        private Node _selectedNode;
 
         public NodeEditorGraphView()
         {
@@ -40,7 +42,7 @@ namespace Framework.NodeEditor
             if (!containsNode)
             {
                 var nodeView = new NodeView(node);
-                nodeView.NodeSelected += NodeView_selected;
+                nodeView.NodeSelected += NodeView_Selected;
                 nodeView.NodeDeleted += NodeView_Deleted;
 
                 _nodeViews.Add(node, nodeView);
@@ -58,7 +60,7 @@ namespace Framework.NodeEditor
             if (containsNode)
             {
                 var nodeView = _nodeViews[node];
-                nodeView.NodeSelected -= NodeView_selected;
+                nodeView.NodeSelected -= NodeView_Selected;
                 nodeView.Destroy();
 
                 _nodeViews.Remove(node);
@@ -72,13 +74,15 @@ namespace Framework.NodeEditor
         }
 
         #region Callbacks
-        void NodeView_selected(NodeView nodeView)
+        void NodeView_Selected(NodeView nodeView)
         {
+            _selectedNode = nodeView.Node;
             NodeSelected.InvokeSafe(nodeView.Node);
         }
 
         void NodeView_Deleted(NodeView nodeView)
         {
+            _selectedNode = null;
             NodeDeleted.InvokeSafe(nodeView.Node);
         }
 
@@ -165,7 +169,7 @@ namespace Framework.NodeEditor
 
         void DrawDebug()
         {
-            GUILayout.BeginArea(new Rect(new Vector2(0f, Screen.height - 100f), new Vector2(400f, 100f)));
+            GUILayout.BeginArea(new Rect(new Vector2(0f, Screen.height - 100f), new Vector2(400f, 1000f)));
 
             DrawHeader("Graph Info");
 
@@ -177,9 +181,27 @@ namespace Framework.NodeEditor
             {
                 DrawField("Node Count", GraphInfo.NodeCount);
                 DrawField("Mouse Pos", _inputListener.MousePosition);
+
+                if (GUILayout.Button("Run"))
+                    RunGraph.InvokeSafe();
             }
 
             GUILayout.EndArea();
+
+            if (_selectedNode != null)
+            {
+                // Node Debug
+                GUILayout.BeginArea(new Rect(new Vector2(Screen.width - 400f, Screen.height - 100f), new Vector2(400f, 1000f)));
+
+                DrawHeader("Selected Node: " + _selectedNode.Name);
+
+                _selectedNode.Pins.ForEach(pin =>
+                {
+                    DrawField(pin.Name, pin.ToString());
+                });
+
+                GUILayout.EndArea();
+            }
         }
 
         void DrawHeader(string label)
@@ -192,8 +214,13 @@ namespace Framework.NodeEditor
 
         void DrawField(string label, object value = null)
         {
-            var str = value != null ? string.Format("{0}: {1}", label, value) : label;
-            GUILayout.Label(str);
+            string valueStr = string.Empty;
+
+            if (value != null)
+                valueStr = value.ToString() == string.Empty ? "N/A" : value.ToString();
+
+            var outStr = value != null ? string.Format("{0}: {1}", label, valueStr) : label;
+            GUILayout.Label(outStr);
         }
         #endregion
 

@@ -6,6 +6,7 @@ namespace Framework.NodeEditor
 {
     class NodeEditorController
     {
+        private NodeGraphRunner _runner;
         private NodeGraph _graph;
         private NodeEditorPinConnector _pinConnector;
         private NodeEditorView _view;
@@ -13,6 +14,7 @@ namespace Framework.NodeEditor
         public NodeEditorController(NodeEditorView view)
         {
             _pinConnector = new NodeEditorPinConnector();
+            _runner = new NodeGraphRunner();
 
             _view = view;
             _view.ContextMenu.OnAddNode += ContextMenu_OnAddNode;
@@ -23,6 +25,7 @@ namespace Framework.NodeEditor
             _view.GraphView.MouseReleased += GraphView_MouseReleased;
             _view.GraphView.NodeSelected += GraphView_NodeSelected;
             _view.GraphView.NodeDeleted += GraphView_NodeDeleted;
+            _view.GraphView.RunGraph += GraphView_RunGraph;
 
             Selection.selectionChanged += GetGraphFromSelection;
         }
@@ -87,6 +90,11 @@ namespace Framework.NodeEditor
         void GraphView_NodeSelected(Node node)
         {
             Selection.activeGameObject = node.gameObject;
+        }
+
+        void GraphView_RunGraph()
+        {
+            _runner.Run(_graph);
         }
         #endregion
 

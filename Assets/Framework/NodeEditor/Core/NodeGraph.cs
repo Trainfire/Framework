@@ -80,5 +80,10 @@ namespace Framework.NodeEditor
 
             DebugEx.Log<NodeGraph>("Graph cleared.");
         }
+
+        public Node GetStartNode()
+        {
+            return Nodes.Find(node => node.GetType() == typeof(NodeEventOnStart));
+        }
     }
 }
