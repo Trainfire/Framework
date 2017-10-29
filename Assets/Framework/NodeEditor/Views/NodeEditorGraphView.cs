@@ -53,7 +53,7 @@ namespace Framework.NodeEditor
         {
             DebugEx.Log<NodeEditorGraphView>("Node was removed.");
 
-            bool containsNode = _nodeViews.ContainsKey(node);
+            bool containsNode = _nodeViews.ContainsKey(node) && _nodeViews.Count > 0;
 
             Assert.IsTrue(containsNode);
 
@@ -71,6 +71,8 @@ namespace Framework.NodeEditor
         {
             DebugEx.Log<NodeEditorGraphView>("Removing all nodes from view.");
             _nodeViews.ToList().ForEach(x => RemoveNodeView(x.Key));
+
+            Assert.IsTrue(_nodeViews.Count == 0);
         }
 
         #region Callbacks
@@ -197,7 +199,7 @@ namespace Framework.NodeEditor
 
                 _selectedNode.Pins.ForEach(pin =>
                 {
-                    DrawField(pin.Name, pin.ToString());
+                    DrawField(string.Format("{0} (ID: {1})", pin.Name, pin.Index), pin.ToString());
                 });
 
                 GUILayout.EndArea();

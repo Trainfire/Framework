@@ -7,6 +7,23 @@ using UnityEngine.Assertions;
 
 namespace Framework.NodeEditor
 {
+    [Serializable]
+    public class NodeGraphConnection
+    {
+        public int SourceNodeID { get; set; }
+        public int SourcePinIndex { get; set; }
+        public int TargetNodeID { get; set; }
+        public int TargetPinIndex { get; set; }
+
+        public NodeGraphConnection(NodePin sourcePin, NodePin targetPin)
+        {
+            SourceNodeID = sourcePin.Node.ID;
+            SourcePinIndex = sourcePin.Index;
+            TargetNodeID = targetPin.Node.ID;
+            TargetPinIndex = targetPin.Index;
+        }
+    }
+
     [ExecuteInEditMode]
     public class NodeGraph : MonoBehaviour
     {
@@ -16,10 +33,21 @@ namespace Framework.NodeEditor
 
         public NodeGraphInfo Info { get; private set; }
         public List<Node> Nodes { get; private set; }
+        public List<NodeGraphConnection> Connections { get; private set; }
         
         [ExecuteInEditMode]
         void OnEnable()
         {
+            
+        }
+
+        public void Initialize()
+        {
+            DebugEx.Log<NodeGraph>("Initialized.");
+
+            if (Connections == null)
+                Connections = new List<NodeGraphConnection>();
+
             // Clear list of nodes and rebuild tree.
             Nodes = new List<Node>();
 
@@ -41,7 +69,11 @@ namespace Framework.NodeEditor
             {
                 DebugEx.Log<NodeGraph>("Registered node.");
                 node.Destroyed += RemoveNode;
+                node.PinAdded += Node_PinAdded;
+
                 Nodes.Add(node);
+
+                node.Initialize();
             }
         }
 
@@ -65,6 +97,7 @@ namespace Framework.NodeEditor
             {
                 DebugEx.Log<NodeGraph>("Removed node.");
                 node.Destroyed -= RemoveNode;
+                node.PinAdded -= Node_PinAdded;
                 Nodes.Remove(node);
                 NodeRemoved.InvokeSafe(node);
 
@@ -84,6 +117,18 @@ namespace Framework.NodeEditor
         public Node GetStartNode()
         {
             return Nodes.Find(node => node.GetType() == typeof(NodeEventOnStart));
+        }
+
+        void Node_PinAdded(NodePin pin)
+        {
+            pin.PinConnected += Pin_PinConnected;
+        }
+
+        void Pin_PinConnected(NodePin sourcePin, NodePin targetPin)
+        {
+            var connection = new NodeGraphConnection(sourcePin, targetPin);
+            Connections.Add(connection);
+            DebugEx.Log<NodeGraph>("Registered connection from {0} to {1}.", sourcePin.Name, targetPin.Name);
         }
     }
 }

@@ -11,7 +11,7 @@ namespace Framework.NodeEditor
         private NodeValuePin<string> _out;
 
         [ExecuteInEditMode]
-        protected override void OnEnable()
+        protected override void OnInitialize()
         {
             _in = AddInputPin<float>("In");
             _out = AddOutputPin<string>("Out");

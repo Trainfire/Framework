@@ -10,7 +10,7 @@ namespace Framework.NodeEditor
         NodeValuePin<string> _inLog;
 
         [ExecuteInEditMode]
-        protected override void OnEnable()
+        protected override void OnInitialize()
         {
             AddExecuteInPin(OnExecute);
             _inLog = AddInputPin<string>("Log");

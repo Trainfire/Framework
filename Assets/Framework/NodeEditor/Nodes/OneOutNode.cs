@@ -6,7 +6,7 @@ namespace Framework.NodeEditor
     public class OneOutNode : Node
     {
         [ExecuteInEditMode]
-        protected override void OnEnable()
+        protected override void OnInitialize()
         {
             AddOutputPin<float>("Out");
         }

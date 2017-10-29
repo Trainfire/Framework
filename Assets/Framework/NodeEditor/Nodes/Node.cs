@@ -8,6 +8,9 @@ namespace Framework.NodeEditor
     [ExecuteInEditMode]
     public abstract class Node : MonoBehaviour
     {
+        public event Action<NodePin> PinAdded;
+        public event Action<NodePin> PinRemoved;
+
         public event Action<Node> Destroyed;
 
         public List<NodePin> Pins { get { return InputPins.Concat(OutputPins).ToList(); } }
@@ -24,8 +27,14 @@ namespace Framework.NodeEditor
             OutputPins = new List<NodePin>();   
         }
 
-        [ExecuteInEditMode]
-        protected virtual void OnEnable() { }
+        public void Initialize()
+        {
+            InputPins.Clear(); // TEMP!
+            OutputPins.Clear(); // TEMP!
+            OnInitialize();
+        }
+
+        protected virtual void OnInitialize() { }
 
         [ExecuteInEditMode]
         public void OnDestroy()
@@ -35,27 +44,31 @@ namespace Framework.NodeEditor
 
         protected NodeValuePin<T> AddInputPin<T>(string name)
         {
-            var pin = new NodeValuePin<T>(name, this);
+            var pin = new NodeValuePin<T>(name, Pins.Count, this);
+            RegisterPin(pin);
             InputPins.Add(pin);
             return pin;
         }
 
         protected NodeValuePin<T> AddOutputPin<T>(string name)
         {
-            var pin = new NodeValuePin<T>(name, this);
+            var pin = new NodeValuePin<T>(name, Pins.Count, this);
+            RegisterPin(pin);
             OutputPins.Add(pin);
             return pin;
         }
 
         protected void AddExecuteInPin(Action onExecute)
         {
-            var pin = new NodeExecutePin("In", this, onExecute);
+            var pin = new NodeExecutePin("In", Pins.Count, this, onExecute);
+            RegisterPin(pin);
             InputPins.Add(pin);
         }
 
         protected void AddExecuteOutPin()
         {
-            var pin = new NodeExecutePin("Out", this, null);
+            var pin = new NodeExecutePin("Out", Pins.Count, this, null);
+            RegisterPin(pin);
             OutputPins.Add(pin);
         }
 
@@ -75,5 +88,10 @@ namespace Framework.NodeEditor
         }
 
         protected virtual void OnExecute() { }
+
+        void RegisterPin(NodePin pin)
+        {
+            PinAdded.InvokeSafe(pin);
+        }
     }
 }

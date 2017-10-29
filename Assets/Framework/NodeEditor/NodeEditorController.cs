@@ -45,18 +45,24 @@ namespace Framework.NodeEditor
                     {
                         Assert.IsNotNull(graph, "Graph was null.");
 
-                        DebugEx.Log<NodeEditorController>("Loaded graph.");
+                        DebugEx.Log<NodeEditorController>("Loading graph...");
+
+                        // Clear existing view.
+                        _view.GraphView.RemoveAllNodeViews();
 
                         _graph = graph;
+                        _graph.Initialize();
                         _graph.NodeAdded += Graph_NodeAdded;
                         _graph.NodeRemoved += Graph_NodeRemoved;
-
                         _graph.Nodes.ForEach(node => _view.GraphView.AddNodeView(node));
 
                         _view.GraphView.GraphInfo = _graph.Info;
+
+                        DebugEx.Log<NodeEditorController>("Finished loading graph.");
                     }
                     else
                     {
+                        // TOOD: Unload/close graph here.
                         _graph = null;
                         _view.GraphView.RemoveAllNodeViews();
                     }

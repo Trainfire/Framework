@@ -7,7 +7,7 @@ namespace Framework.NodeEditor
 {
     public class NodeEventOnStart : Node
     {
-        protected override void OnEnable()
+        protected override void OnInitialize()
         {
             AddExecuteOutPin();
         }

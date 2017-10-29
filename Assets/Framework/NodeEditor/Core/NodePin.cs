@@ -12,17 +12,22 @@ namespace Framework.NodeEditor
         Output,
     }
 
+    [Serializable]
     public class NodePin
     {
+        public event Action<NodePin, NodePin> PinConnected;
+
         public Node Node { get; private set; }
         public string Name { get; private set; }
+        public int Index { get; private set; }
         public NodePin ConnectedPin { get; private set; }
 
         public Vector2 ScreenPosition { get { return LocalRect.position + Node.Position; } }
         public Rect LocalRect { get; set; }
 
-        public NodePin(string name, Node node)
+        public NodePin(string name, int index, Node node)
         {
+            Index = index;
             Name = name;
             Node = node;
         }
@@ -48,6 +53,8 @@ namespace Framework.NodeEditor
             {
                 DebugEx.Log<NodePin>("{0} is now connected {1}", Name, targetPin.Name);
                 ConnectedPin = targetPin;
+
+                PinConnected.InvokeSafe(this, targetPin);
             }
         }
 
@@ -60,7 +67,7 @@ namespace Framework.NodeEditor
 
     public class NodeValuePin<T> : NodePin
     {
-        public NodeValuePin(string name, Node node) : base(name, node) { }
+        public NodeValuePin(string name, int index, Node node) : base(name, index, node) { }
 
         public event Action<T> OnSet;
         public event Action OnGet;
@@ -110,7 +117,7 @@ namespace Framework.NodeEditor
     {
         private Action _onExecute;
 
-        public NodeExecutePin(string name, Node node, Action onExecute) : base(name, node)
+        public NodeExecutePin(string name, int index, Node node, Action onExecute) : base(name, index, node)
         {
             _onExecute = onExecute;
         }
