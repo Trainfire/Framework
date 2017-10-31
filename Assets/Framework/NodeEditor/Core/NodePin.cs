@@ -6,12 +6,6 @@ using System.Linq;
 
 namespace Framework.NodeEditor
 {
-    public enum NodePinType
-    {
-        Input,
-        Output,
-    }
-
     [Serializable]
     public class NodePin
     {
@@ -133,7 +127,7 @@ namespace Framework.NodeEditor
         public override string ToString()
         {
             if (ConnectedPin != null)
-                return string.Format("{0} ({1})", ConnectedPin.Name, ConnectedPin.Node.name);
+                return string.Format("{0} ({1})", ConnectedPin.Name, ConnectedPin.Node.Name);
             return string.Empty;
         }
     }

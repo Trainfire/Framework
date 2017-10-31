@@ -20,13 +20,14 @@ namespace Framework.NodeEditor
             }
         }
 
+        private int _id;
         private Rect _rect;
         private EditorInputListener _inputListener;
         private Dictionary<NodePin, NodePinView> _pinViews;
 
         private readonly Vector2 NodeSize;
 
-        public NodeView(Node node)
+        public NodeView(Node node, int id)
         {
             _inputListener = new EditorInputListener();
             _inputListener.MouseDown += InputListener_MouseLeftClicked;
@@ -34,6 +35,8 @@ namespace Framework.NodeEditor
 
             NodeSize = new Vector2(100f, 100f);
             Node = node;
+
+            _id = id;
 
             _pinViews = new Dictionary<NodePin, NodePinView>();
             _rect = new Rect(Node.Position, NodeSize);
@@ -49,7 +52,7 @@ namespace Framework.NodeEditor
             if (Node == null)
                 return;
 
-            _rect = GUI.Window(Node.ID, _rect, InternalDraw, Node.Name);
+            _rect = GUI.Window(_id, _rect, InternalDraw, Node.Name);
             Node.Position = _rect.position;
         }
 

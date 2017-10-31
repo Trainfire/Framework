@@ -5,8 +5,7 @@ using System.Linq;
 
 namespace Framework.NodeEditor
 {
-    [ExecuteInEditMode]
-    public abstract class Node : MonoBehaviour
+    public abstract class Node
     {
         public event Action<NodePin> PinAdded;
         public event Action<NodePin> PinRemoved;
@@ -17,8 +16,8 @@ namespace Framework.NodeEditor
         public List<NodePin> InputPins { get; private set; }
         public List<NodePin> OutputPins { get; private set; }
 
-        public string Name { get { return name; } }
-        public int ID { get { return GetInstanceID(); } }
+        public string Name { get; private set; }
+        public string ID { get; private set; }
         public Vector2 Position { get; set; }
 
         public Node()
@@ -27,8 +26,12 @@ namespace Framework.NodeEditor
             OutputPins = new List<NodePin>();   
         }
 
-        public void Initialize()
+        public void Initialize(NodeData data)
         {
+            Name = data.Name;
+            ID = data.ID;
+            Position = data.Position;
+
             InputPins.Clear(); // TEMP!
             OutputPins.Clear(); // TEMP!
             OnInitialize();

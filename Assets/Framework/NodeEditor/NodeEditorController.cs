@@ -8,6 +8,7 @@ namespace Framework.NodeEditor
     {
         private NodeGraphRunner _runner;
         private NodeGraph _graph;
+        private NodeGraphRoot _root;
         private NodeEditorPinConnector _pinConnector;
         private NodeEditorView _view;
 
@@ -23,9 +24,9 @@ namespace Framework.NodeEditor
             _view.GraphView.MouseLeftReleasedOverPin += GraphView_MouseLeftReleasedOverPin;
             _view.GraphView.MouseMiddleClickedPin += GraphView_MouseMiddleClickedPin;
             _view.GraphView.MouseReleased += GraphView_MouseReleased;
-            _view.GraphView.NodeSelected += GraphView_NodeSelected;
             _view.GraphView.NodeDeleted += GraphView_NodeDeleted;
             _view.GraphView.RunGraph += GraphView_RunGraph;
+            _view.GraphView.SaveGraph += GraphView_SaveGraph;
 
             Selection.selectionChanged += GetGraphFromSelection;
         }
@@ -36,36 +37,37 @@ namespace Framework.NodeEditor
             
             if (selection != null)
             {
-                var graph = selection.GetComponentInParent<NodeGraph>();
+                var root = selection.GetComponentInParent<NodeGraphRoot>();
+
+                if (root == null && _graph != null)
+                {
+                    // TODO: Unload graph properly.
+                    _graph = null;
+                    _view.GraphView.RemoveAllNodeViews();
+                }
 
                 // Don't reload if graph is same as previous graph.
-                if (graph != _graph)
+                if (_graph == null && root != null)
                 {
-                    if (graph != null)
-                    {
-                        Assert.IsNotNull(graph, "Graph was null.");
+                    Assert.IsNotNull(root, "Root was null.");
 
-                        DebugEx.Log<NodeEditorController>("Loading graph...");
+                    _root = root;
 
-                        // Clear existing view.
-                        _view.GraphView.RemoveAllNodeViews();
+                    DebugEx.Log<NodeEditorController>("Loading graph...");
 
-                        _graph = graph;
-                        _graph.Initialize();
-                        _graph.NodeAdded += Graph_NodeAdded;
-                        _graph.NodeRemoved += Graph_NodeRemoved;
-                        _graph.Nodes.ForEach(node => _view.GraphView.AddNodeView(node));
+                    // Clear existing view.
+                    _view.GraphView.RemoveAllNodeViews();
 
-                        _view.GraphView.GraphInfo = _graph.Info;
+                    _graph = new NodeGraph();
+                    _graph.NodeAdded += Graph_NodeAdded;
+                    _graph.NodeRemoved += Graph_NodeRemoved;
+                    _graph.Initialize();
 
-                        DebugEx.Log<NodeEditorController>("Finished loading graph.");
-                    }
-                    else
-                    {
-                        // TOOD: Unload/close graph here.
-                        _graph = null;
-                        _view.GraphView.RemoveAllNodeViews();
-                    }
+                    NodeGraphHelper.RestoreGraph(root.GraphData, _graph);
+
+                    _view.GraphView.GraphInfo = _graph.Info;
+
+                    DebugEx.Log<NodeEditorController>("Finished loading graph.");
                 }
             }
         }
@@ -93,14 +95,18 @@ namespace Framework.NodeEditor
             _graph.RemoveNode(node);
         }
 
-        void GraphView_NodeSelected(Node node)
-        {
-            Selection.activeGameObject = node.gameObject;
-        }
-
         void GraphView_RunGraph()
         {
             _runner.Run(_graph);
+        }
+
+        void GraphView_SaveGraph()
+        {
+            Assert.IsNotNull(_graph, "Graph is null.");
+            Assert.IsNotNull(_root, "Root is null.");
+
+            if (_graph != null && _root != null)
+                _root.GraphData = NodeGraphHelper.SaveGraph(_graph);
         }
         #endregion
 

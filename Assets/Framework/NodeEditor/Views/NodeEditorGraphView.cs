@@ -9,6 +9,7 @@ namespace Framework.NodeEditor
 {
     public class NodeEditorGraphView
     {
+        public event Action SaveGraph;
         public event Action RunGraph;
         public event Action<Node> NodeSelected;
         public event Action<Node> NodeDeleted;
@@ -41,7 +42,7 @@ namespace Framework.NodeEditor
 
             if (!containsNode)
             {
-                var nodeView = new NodeView(node);
+                var nodeView = new NodeView(node, _nodeViews.Count);
                 nodeView.NodeSelected += NodeView_Selected;
                 nodeView.NodeDeleted += NodeView_Deleted;
 
@@ -184,8 +185,15 @@ namespace Framework.NodeEditor
                 DrawField("Node Count", GraphInfo.NodeCount);
                 DrawField("Mouse Pos", _inputListener.MousePosition);
 
+                GUILayout.BeginHorizontal();
+
+                if (GUILayout.Button("Save"))
+                    SaveGraph.InvokeSafe();
+
                 if (GUILayout.Button("Run"))
                     RunGraph.InvokeSafe();
+
+                GUILayout.EndHorizontal();
             }
 
             GUILayout.EndArea();
