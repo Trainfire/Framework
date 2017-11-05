@@ -40,7 +40,7 @@ namespace Framework.NodeEditor
             _view.GraphView.RunGraph += GraphView_RunGraph;
 
             _view.MenuView.Save += SaveGraph;
-            _view.MenuView.Revert += LoadGraphFromSelection;
+            _view.MenuView.Revert += RevertGraph;
 
             Selection.selectionChanged += LoadGraphFromSelection;
         }
@@ -76,6 +76,12 @@ namespace Framework.NodeEditor
 
             if (_graph != null && _graphRoot != null)
                 _graphRoot.GraphData = _graph.GetData();
+        }
+
+        void RevertGraph()
+        {
+            ClearGraph();
+            LoadGraphFromSelection();
         }
 
         void ClearGraph()
@@ -186,7 +192,7 @@ namespace Framework.NodeEditor
             _view.GraphView.RunGraph -= GraphView_RunGraph;
 
             _view.MenuView.Save -= SaveGraph;
-            _view.MenuView.Revert -= LoadGraphFromSelection;
+            _view.MenuView.Revert -= RevertGraph;
 
             Selection.selectionChanged -= LoadGraphFromSelection;
 
