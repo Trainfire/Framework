@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace Framework.NodeEditor
+namespace Framework.NodeSystem
 {
     /// <summary>
     /// Wrapper to expose graph info safely to UI.
@@ -28,7 +28,7 @@ namespace Framework.NodeEditor
 
         public Node GetStartNode()
         {
-            return _graph.Nodes.Find(node => node.GetType() == typeof(NodeEventOnStart));
+            return _graph.Nodes.Find(node => node.GetType() == typeof(EventOnStart));
         }
 
         public Node GetNode(string nodeId)

@@ -1,13 +1,13 @@
 ﻿using UnityEngine;
 using UnityEditor;
 
-namespace Framework.NodeEditor
+namespace Framework.NodeEditor.Views
 {
-    public abstract class View
+    public abstract class BaseView
     {
         protected EditorInputListener InputListener { get; private set; }
 
-        public View()
+        public BaseView()
         {
             InputListener = new EditorInputListener();
         }
@@ -19,5 +19,15 @@ namespace Framework.NodeEditor
         }
 
         protected abstract void OnDraw();
+
+        public void Destroy()
+        {
+            OnDestroy();
+        }
+
+        protected virtual void OnDestroy()
+        {
+
+        }
     }
 }

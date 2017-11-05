@@ -1,9 +1,9 @@
 ﻿using UnityEngine;
 using UnityEditor;
 
-namespace Framework.NodeEditor
+namespace Framework.NodeEditor.Views
 {
-    class NodeConnectionView : View
+    class NodeConnectionView : BaseView
     {
         public Vector2 Start { get; set; }
         public Vector2 End { get; set; }

@@ -2,9 +2,9 @@
 using UnityEditor;
 using System;
 
-namespace Framework.NodeEditor
+namespace Framework.NodeEditor.Views
 {
-    public class NodeEditorMenuView : View
+    public class NodeEditorMenuView : BaseView
     {
         public event Action Save;
         public event Action Revert;

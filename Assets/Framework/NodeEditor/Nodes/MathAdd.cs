@@ -2,12 +2,10 @@
 using UnityEngine;
 using UnityEditor;
 
-namespace Framework.NodeEditor
+namespace Framework.NodeSystem
 {
-    [ExecuteInEditMode]
-    public class MathNodeAdd : Node
+    public class MathAdd : Node
     {
-        [ExecuteInEditMode]
         protected override void OnInitialize()
         {
             AddInputPin<float>("In 1");

@@ -4,10 +4,11 @@ using UnityEditor;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Framework.NodeSystem;
 
-namespace Framework.NodeEditor
+namespace Framework.NodeEditor.Views
 {
-    public class NodeView
+    public class NodeView : BaseView
     {
         public event Action<NodeView> NodeSelected;
         public event Action<NodeView> NodeDeleted;
@@ -50,12 +51,21 @@ namespace Framework.NodeEditor
             _windowId = windowId;
         }
 
-        public void Destroy()
+        protected override void OnDestroy()
         {
+            _inputListener.MouseDown -= InputListener_MouseLeftClicked;
+            _inputListener.DeletePressed -= InputListener_DeletePressed;
+
+            _pinViews.Values.ToList().ForEach(x => x.Destroy());
+            _pinViews.Clear();
+
+            Node.PinAdded -= Node_PinAdded;
+            Node.PinRemoved -= Node_PinRemoved;
+
             Node = null;
         }
 
-        public void Draw()
+        protected override void OnDraw()
         {
             if (Node == null)
                 return;

@@ -2,15 +2,13 @@
 using UnityEngine;
 using UnityEditor;
 
-namespace Framework.NodeEditor
+namespace Framework.NodeSystem
 {
-    [ExecuteInEditMode]
-    public class NodeConversionFloatToString : Node
+    public class ConversionFloatToString : Node
     {
         private NodeValuePin<float> _in;
         private NodeValuePin<string> _out;
 
-        [ExecuteInEditMode]
         protected override void OnInitialize()
         {
             _in = AddInputPin<float>("In");

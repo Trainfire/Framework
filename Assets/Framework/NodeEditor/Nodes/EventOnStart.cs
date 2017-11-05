@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Framework.NodeEditor
+namespace Framework.NodeSystem
 {
-    public class NodeEventOnStart : Node
+    public class EventOnStart : Node
     {
         protected override void OnInitialize()
         {

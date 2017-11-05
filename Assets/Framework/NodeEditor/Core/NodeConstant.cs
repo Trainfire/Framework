@@ -1,6 +1,6 @@
 ﻿using UnityEngine.Assertions;
 
-namespace Framework.NodeEditor
+namespace Framework.NodeSystem
 {
     public enum NodePinType
     {

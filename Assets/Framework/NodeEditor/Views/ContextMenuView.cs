@@ -1,8 +1,9 @@
 ﻿using UnityEngine;
 using UnityEditor;
 using System;
+using Framework.NodeSystem;
 
-namespace Framework.NodeEditor
+namespace Framework.NodeEditor.Views
 {
     public class NodeEditorContextMenu
     {

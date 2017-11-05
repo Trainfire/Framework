@@ -1,9 +1,10 @@
 ﻿using UnityEngine;
 using UnityEditor;
+using Framework.NodeSystem;
 
-namespace Framework.NodeEditor
+namespace Framework.NodeEditor.Views
 {
-    public class NodePinView : View
+    public class NodePinView : BaseView
     {
         public NodePin Pin { get; private set; }
         public Rect LocalRect { get { return Pin.LocalRect; } }
@@ -31,6 +32,11 @@ namespace Framework.NodeEditor
                 Pin.LocalRect = GUILayoutUtility.GetLastRect();
 
             GUILayout.EndHorizontal();
+        }
+
+        protected override void OnDestroy()
+        {
+            Pin = null;
         }
     }
 }

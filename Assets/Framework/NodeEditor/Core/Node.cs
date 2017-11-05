@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Framework.NodeEditor
+namespace Framework.NodeSystem
 {
     public abstract class Node
     {

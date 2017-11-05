@@ -4,8 +4,9 @@ using UnityEditor;
 using System;
 using System.Linq;
 using System.Collections.Generic;
+using Framework.NodeSystem;
 
-namespace Framework.NodeEditor
+namespace Framework.NodeEditor.Views
 {
     public class NodeEditorGraphView
     {
@@ -61,6 +62,7 @@ namespace Framework.NodeEditor
             {
                 var nodeView = _nodeViews[node];
                 nodeView.NodeSelected -= NodeView_Selected;
+                nodeView.NodeDeleted -= NodeView_Deleted;
                 nodeView.Destroy();
 
                 _nodeViews.Remove(node);

@@ -1,8 +1,4 @@
-﻿using UnityEngine;
-using UnityEditor;
-using System;
-
-namespace Framework.NodeEditor
+﻿namespace Framework.NodeEditor.Views
 {
     public class NodeEditorView
     {

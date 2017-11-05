@@ -1,6 +1,8 @@
 ﻿using UnityEngine;
 using UnityEditor;
 using UnityEngine.Assertions;
+using Framework.NodeSystem;
+using Framework.NodeEditor.Views;
 
 namespace Framework.NodeEditor
 {

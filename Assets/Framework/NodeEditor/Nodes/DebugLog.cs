@@ -2,14 +2,12 @@
 using UnityEngine;
 using UnityEditor;
 
-namespace Framework.NodeEditor
+namespace Framework.NodeSystem
 {
-    [ExecuteInEditMode]
-    public class DebugNodeLog : Node
+    public class DebugLog : Node
     {
         NodeValuePin<string> _inLog;
 
-        [ExecuteInEditMode]
         protected override void OnInitialize()
         {
             AddExecuteInPin(OnExecute);
