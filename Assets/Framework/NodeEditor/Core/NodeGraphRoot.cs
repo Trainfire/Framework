@@ -1,7 +1,6 @@
 ﻿using UnityEngine;
-using Framework.NodeSystem;
 
-namespace Framework.NodeEditor
+namespace Framework.NodeSystem
 {
     public class NodeGraphRoot : MonoBehaviour
     {
