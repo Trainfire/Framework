@@ -27,7 +27,7 @@ namespace Framework.NodeEditor
         public event Action<Node> NodeAdded;
         public event Action<Node> NodeRemoved;
 
-        public NodeGraphInfo Info { get; private set; }
+        public NodeGraphHelper Helper { get; private set; }
         public List<Node> Nodes { get; private set; }
         public List<NodeConnection> Connections { get; private set; }
 
@@ -40,7 +40,7 @@ namespace Framework.NodeEditor
         public void Initialize()
         {
             DebugEx.Log<NodeGraph>("Initialized.");
-            Info = new NodeGraphInfo(this);
+            Helper = new NodeGraphHelper(this);
         }
 
         public void AddNode(NodeConstantData constantData)
@@ -102,8 +102,8 @@ namespace Framework.NodeEditor
 
         public void Connect(NodeConnectionData connectionData)
         {
-            var startPin = GetPin(connectionData.SourceNodeId, connectionData.SourcePinId);
-            var endPin = GetPin(connectionData.TargetNodeId, connectionData.TargetPinId);
+            var startPin = Helper.GetPin(connectionData.SourceNodeId, connectionData.SourcePinId);
+            var endPin = Helper.GetPin(connectionData.TargetNodeId, connectionData.TargetPinId);
 
             Connect(new NodeConnection(startPin, endPin));
         }
@@ -120,7 +120,7 @@ namespace Framework.NodeEditor
 
             Connections.Add(connection);
 
-            DebugEx.Log<NodeGraph>("Connected {0}:(1) to {2}:{3}", connection.StartNode.ID, connection.StartPin.Index, connection.EndNode.ID, connection.EndPin.Index);
+            DebugEx.Log<NodeGraph>("Connected {0}:(1) to {2}:{3}", connection.StartNode.Name, connection.StartPin.Index, connection.EndNode.Name, connection.EndPin.Index);
 
             if (connection.StartPin != null && connection.EndPin != null)
                 connection.StartPin.ConnectTo(connection.EndPin);
@@ -135,14 +135,14 @@ namespace Framework.NodeEditor
             if (containsConnection)
             {
                 Connections.Remove(connection);
-                DebugEx.Log<NodeGraph>("Disconnected {0} from {1}.", connection.StartPin.Node.ID, connection.EndPin.Node.ID);
+                DebugEx.Log<NodeGraph>("Disconnected {0} from {1}.", connection.StartPin.Node.Name, connection.EndPin.Node.Name);
             }
         }
 
         public void Disconnect(NodePin pin)
         {
             var connection = Connections
-                .Where(x => x.StartPin.Index == pin.Index || x.EndPin.Index == pin.Index)
+                .Where(x => x.StartNode == pin.Node && x.StartPin == pin || x.EndNode == pin.Node && x.EndPin == pin)
                 .FirstOrDefault();
 
             if (connection != null)
@@ -161,33 +161,5 @@ namespace Framework.NodeEditor
                 NodeAdded.InvokeSafe(node);
             }
         }
-
-#region Helpers
-        public Node GetStartNode()
-        {
-            return Nodes.Find(node => node.GetType() == typeof(NodeEventOnStart));
-        }
-
-        public Node GetNode(string nodeId)
-        {
-            return Nodes.Find(x => x.ID == nodeId);
-        }
-
-        public NodePin GetPin(string nodeId, int pinId)
-        {
-            var node = GetNode(nodeId);
-            if (node != null)
-            {
-                if (node.HasPin(pinId))
-                    return node.Pins[pinId];
-            }
-            return null;
-        }
-
-        public List<T> GetNodes<T>() where T : Node
-        {
-            return Nodes.OfType<T>().ToList();
-        }
-#endregion
     }
 }

@@ -45,7 +45,7 @@ namespace Framework.NodeEditor
                 {
                     // TODO: Unload graph properly.
                     _graph = null;
-                    _view.GraphView.RemoveAllNodeViews();
+                    _view.GraphView.Clear();
                 }
 
                 // Don't reload if graph is same as previous graph.
@@ -58,16 +58,16 @@ namespace Framework.NodeEditor
                     DebugEx.Log<NodeEditorController>("Loading graph...");
 
                     // Clear existing view.
-                    _view.GraphView.RemoveAllNodeViews();
+                    _view.GraphView.Clear();
 
                     _graph = new NodeGraph();
                     _graph.NodeAdded += Graph_NodeAdded;
                     _graph.NodeRemoved += Graph_NodeRemoved;
                     _graph.Initialize();
 
-                    NodeGraphHelper.RestoreGraph(root.GraphData, _graph);
+                    NodeGraphStateManager.RestoreGraph(root.GraphData, _graph);
 
-                    _view.GraphView.GraphInfo = _graph.Info;
+                    _view.GraphView.GraphHelper = _graph.Helper;
 
                     DebugEx.Log<NodeEditorController>("Finished loading graph.");
                 }
@@ -114,7 +114,7 @@ namespace Framework.NodeEditor
             Assert.IsNotNull(_root, "Root is null.");
 
             if (_graph != null && _root != null)
-                _root.GraphData = NodeGraphHelper.SaveGraph(_graph);
+                _root.GraphData = NodeGraphStateManager.SaveGraph(_graph);
         }
         #endregion
 
@@ -141,8 +141,7 @@ namespace Framework.NodeEditor
 
         void GraphView_MouseMiddleClickedPin(NodePin nodePin)
         {
-            if (nodePin.ConnectedPin != null)
-                nodePin.Disconnect();
+            _graph.Disconnect(nodePin);
         }
         #endregion
 

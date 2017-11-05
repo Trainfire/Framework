@@ -18,7 +18,7 @@ namespace Framework.NodeEditor
         public event Action<NodePin> MouseMiddleClickedPin;
         public event Action MouseReleased;
 
-        public NodeGraphInfo GraphInfo { get; set; }
+        public NodeGraphHelper GraphHelper { get; set; }
 
         private EditorInputListener _inputListener;
         private Dictionary<Node, NodeView> _nodeViews;
@@ -68,10 +68,12 @@ namespace Framework.NodeEditor
             }
         }
 
-        public void RemoveAllNodeViews()
+        public void Clear()
         {
-            DebugEx.Log<NodeEditorGraphView>("Removing all nodes from view.");
+            DebugEx.Log<NodeEditorGraphView>("Clearing graph view...");
+
             _nodeViews.ToList().ForEach(x => RemoveNodeView(x.Key));
+            GraphHelper = null;
 
             Assert.IsTrue(_nodeViews.Count == 0);
         }
@@ -138,10 +140,10 @@ namespace Framework.NodeEditor
 
         void DrawConnections()
         {
-            if (GraphInfo == null)
+            if (GraphHelper == null)
                 return;
 
-            GraphInfo.Connections.ForEach(connection =>
+            GraphHelper.Connections.ForEach(connection =>
             {
                 Handles.BeginGUI();
                 Handles.DrawLine(DrawPinConnectionHandle(connection.StartPin), DrawPinConnectionHandle(connection.EndPin));
@@ -172,13 +174,13 @@ namespace Framework.NodeEditor
 
             DrawHeader("Graph Info");
 
-            if (GraphInfo == null)
+            if (GraphHelper == null)
             {
                 DrawField("No graph loaded");
             }
             else
             {
-                DrawField("Node Count", GraphInfo.NodeCount);
+                DrawField("Node Count", GraphHelper.NodeCount);
                 DrawField("Mouse Pos", _inputListener.MousePosition);
 
                 GUILayout.BeginHorizontal();
@@ -194,7 +196,7 @@ namespace Framework.NodeEditor
 
             GUILayout.EndArea();
 
-            if (_selectedNode != null)
+            if (_selectedNode != null && GraphHelper != null)
             {
                 // Node Debug
                 GUILayout.BeginArea(new Rect(new Vector2(Screen.width - 400f, Screen.height - 100f), new Vector2(400f, 1000f)));
@@ -203,7 +205,7 @@ namespace Framework.NodeEditor
 
                 _selectedNode.Pins.ForEach(pin =>
                 {
-                    DrawField(string.Format("{0} (ID: {1}) (Connected: {2})", pin.Name, pin.Index, pin.Connected), pin.ToString());
+                    DrawField(string.Format("{0} (ID: {1}) (Connected: {2})", pin.Name, pin.Index, GraphHelper.IsPinConnected(pin)), pin.ToString());
                 });
 
                 GUILayout.EndArea();

@@ -17,7 +17,7 @@ namespace Framework.NodeEditor
                 return;
             }
 
-            var startNode = graph.GetStartNode();
+            var startNode = graph.Helper.GetStartNode();
 
             if (startNode == null)
             {
