@@ -52,9 +52,7 @@ namespace Framework.NodeEditor.Views
 
         public void RemoveNodeView(Node node)
         {
-            DebugEx.Log<NodeEditorGraphView>("Node was removed.");
-
-            bool containsNode = _nodeViews.ContainsKey(node) && _nodeViews.Count > 0;
+            bool containsNode = _nodeViews.ContainsKey(node);
 
             Assert.IsTrue(containsNode);
 
@@ -66,6 +64,8 @@ namespace Framework.NodeEditor.Views
                 nodeView.Destroy();
 
                 _nodeViews.Remove(node);
+
+                DebugEx.Log<NodeEditorGraphView>("Node was removed.");
             }
         }
 

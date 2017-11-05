@@ -14,12 +14,13 @@ namespace Framework.NodeEditor
         private const string WindowName = "Node Editor";
 
         private NodeEditorView _view;
+        private NodeEditorController _controller;
 
         public NodeEditor()
         {
             Assert.raiseExceptions = true;
             _view = new NodeEditorView();
-            new NodeEditorController(_view);
+            _controller = new NodeEditorController(_view);
         }
 
         void OnGUI()
@@ -38,6 +39,11 @@ namespace Framework.NodeEditor
         public static void ShowWindow()
         {
             EditorWindow.GetWindow<NodeEditor>(WindowName);
+        }
+
+        void OnDestroy()
+        {
+            _controller.Destroy();
         }
     }
 }
