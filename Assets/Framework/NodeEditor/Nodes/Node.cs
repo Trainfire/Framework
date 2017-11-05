@@ -75,6 +75,28 @@ namespace Framework.NodeEditor
             OutputPins.Add(pin);
         }
 
+        protected void RemoveInputPin(int pinIndex)
+        {
+            if (pinIndex <= InputPins.Count && InputPins.Count > 0)
+            {
+                DebugEx.Log<Node>("Remove input pin.");
+                var pin = InputPins[pinIndex];
+                PinRemoved.InvokeSafe(pin);
+                InputPins.Remove(pin);
+            }
+        }
+
+        protected void RemoveOutputPin(int pinIndex)
+        {
+            if (pinIndex <= OutputPins.Count && OutputPins.Count > 0)
+            {
+                DebugEx.Log<Node>("Remove output pin.");
+                var pin = OutputPins[pinIndex];
+                PinRemoved.InvokeSafe(pin);
+                OutputPins.Remove(pin);
+            }
+        }
+
         public bool IsInputPin(NodePin pin)
         {
             return InputPins.Contains(pin);

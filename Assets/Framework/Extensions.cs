@@ -48,6 +48,31 @@ namespace Framework
         }
     }
 
+    static class DictionaryEx
+    {
+        public static void Add<TKey, TValue>(this IDictionary<TKey, TValue> dict, TKey key, TValue value, bool assert)
+        {
+            bool containsKey = dict.ContainsKey(key);
+
+            if (assert)
+                Assert.IsFalse(containsKey);
+
+            if (!containsKey)
+                dict.Add(key, value);
+        }
+
+        public static void Remove<TKey, TValue>(this IDictionary<TKey, TValue> dict, TKey key, TValue value, bool assert)
+        {
+            bool containsKey = dict.ContainsKey(key);
+
+            if (assert)
+                Assert.IsTrue(containsKey);
+
+            if (containsKey)
+                dict.Remove(key);
+        }
+    }
+
     static class ActionEx
     {
         public static void InvokeSafe(this Action action)

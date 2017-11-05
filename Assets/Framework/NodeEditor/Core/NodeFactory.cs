@@ -14,6 +14,7 @@ namespace Framework.NodeEditor
         public NodeFactory()
         {
             _nodeRegistry = new Dictionary<string, Action<NodeGraph>>();
+            _nodeRegistry.Add("Constant", (graph) => graph.AddNode<NodeConstant>("Constant"));
             _nodeRegistry.Add("Math/Add", (graph) => graph.AddNode<MathNodeAdd>("Add"));
             _nodeRegistry.Add("Debug/Log", (graph) => graph.AddNode<DebugNodeLog>("Debug Log"));
             _nodeRegistry.Add("One Out", (graph) => graph.AddNode<OneOutNode>("One Out"));

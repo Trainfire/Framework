@@ -15,6 +15,7 @@ namespace Framework.NodeEditor
         public NodeEditorController(NodeEditorView view)
         {
             _pinConnector = new NodeEditorPinConnector();
+            _pinConnector.ConnectionMade += PinConnector_ConnectionMade;
             _runner = new NodeGraphRunner();
 
             _view = view;
@@ -25,6 +26,7 @@ namespace Framework.NodeEditor
             _view.GraphView.MouseMiddleClickedPin += GraphView_MouseMiddleClickedPin;
             _view.GraphView.MouseReleased += GraphView_MouseReleased;
             _view.GraphView.NodeDeleted += GraphView_NodeDeleted;
+            _view.GraphView.NodeSelected += GraphView_NodeSelected;
             _view.GraphView.RunGraph += GraphView_RunGraph;
             _view.GraphView.SaveGraph += GraphView_SaveGraph;
 
@@ -90,6 +92,12 @@ namespace Framework.NodeEditor
         #endregion
 
         #region Graph View Callbacks
+        void GraphView_NodeSelected(Node node)
+        {
+            if (_root != null)
+                _root.Selection = node;
+        }
+
         void GraphView_NodeDeleted(Node node)
         {
             _graph.RemoveNode(node);
@@ -111,6 +119,11 @@ namespace Framework.NodeEditor
         #endregion
 
         #region Pin Connection Callbacks
+        void PinConnector_ConnectionMade(NodeConnection connection)
+        {
+            _graph.Connect(connection);
+        }
+
         void GraphView_MouseLeftClickedPin(NodePin nodePin)
         {
             _pinConnector.StartConnection(nodePin);
@@ -137,7 +150,7 @@ namespace Framework.NodeEditor
         void ContextMenu_OnClearNodes()
         {
             if (_graph != null)
-                _graph.RemoveAllNodes();
+                _graph.Clear();
         }
 
         void ContextMenu_OnAddNode(string nodeId)

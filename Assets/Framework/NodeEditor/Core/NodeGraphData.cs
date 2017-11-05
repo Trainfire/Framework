@@ -2,6 +2,7 @@
 using UnityEngine.Assertions;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Framework.NodeEditor
 {
@@ -26,6 +27,39 @@ namespace Framework.NodeEditor
     }
 
     [Serializable]
+    public class NodeConstantData : NodeData
+    {
+        public NodePinType ConstantType { get; set; }
+        public string Value { get; set; }
+
+        public static NodeConstantData Convert(NodeConstant constant)
+        {
+            // Convert base node data.
+            var nodeData = NodeData.Convert(constant);
+
+            var constantData = new NodeConstantData()
+            {
+                ClassType = nodeData.ClassType,
+                Name = nodeData.Name,
+                ID = nodeData.ID,
+                Position = nodeData.Position,
+                ConstantType = constant.PinType
+            };
+
+            switch (constant.PinType)
+            {
+                case NodePinType.None: constantData.Value = string.Empty; break;
+                case NodePinType.Float: constantData.Value = constant.GetFloat().ToString(); break;
+                case NodePinType.Int: constantData.Value = constant.GetInt().ToString(); break;
+                case NodePinType.Bool: constantData.Value = constant.GetBool().ToString(); break;
+                case NodePinType.String: constantData.Value = constant.GetString().ToString(); break;
+            };
+
+            return constantData;
+        }
+    }
+
+    [Serializable]
     public class NodePinData
     {
         public string Type { get; set; }
@@ -36,19 +70,19 @@ namespace Framework.NodeEditor
     }
 
     [Serializable]
-    public class NodeGraphConnection
+    public class NodeConnection
     {
-        public string SourceNodeID { get; set; }
-        public int SourcePinIndex { get; set; }
-        public string TargetNodeID { get; set; }
-        public int TargetPinIndex { get; set; }
+        public string SourceNodeId { get; private set; }
+        public int SourcePinId { get; private set; }
+        public string TargetNodeId { get; private set; }
+        public int TargetPinId { get; private set; }
 
-        public NodeGraphConnection(NodePin sourcePin, NodePin targetPin)
+        public NodeConnection(string sourceNodeId, int sourcePinId, string targetNodeId, int targetPinId)
         {
-            SourceNodeID = sourcePin.Node.ID;
-            SourcePinIndex = sourcePin.Index;
-            TargetNodeID = targetPin.Node.ID;
-            TargetPinIndex = targetPin.Index;
+            SourceNodeId = sourceNodeId;
+            SourcePinId = sourcePinId;
+            TargetNodeId = targetNodeId;
+            TargetPinId = targetPinId;
         }
     }
 
@@ -57,13 +91,15 @@ namespace Framework.NodeEditor
     {
         public string ID { get; set; }
         public List<NodeData> Nodes { get; set; }
-        public List<NodePinData> Pins { get; set; }
+        public List<NodeConnection> Connections { get; set; }
+        public List<NodeConstantData> Constants { get; set; }
 
         public NodeGraphData()
         {
             ID = "N/A";
             Nodes = new List<NodeData>();
-            Pins = new List<NodePinData>();
+            Connections = new List<NodeConnection>();
+            Constants = new List<NodeConstantData>();
         }
     }
 
@@ -75,8 +111,21 @@ namespace Framework.NodeEditor
 
             Assert.IsNotNull(graph);
 
-            data.Nodes.ForEach(nodeData => graph.AddNode(nodeData));
-            // TODO: Pins.
+            // TODO: Find a nicer way to do this...
+            var allNodes = data.Nodes.Concat(data.Constants.Cast<NodeData>()).ToList();
+            allNodes.ForEach(nodeData =>
+            {
+                if (nodeData.GetType() == typeof(NodeConstantData))
+                {
+                    graph.AddNode(nodeData as NodeConstantData);
+                }
+                else
+                {
+                    graph.AddNode(nodeData);
+                }
+            });
+
+            data.Connections.ForEach(connectionData => graph.Connect(connectionData));
         }
 
         public static NodeGraphData SaveGraph(NodeGraph graph)
@@ -84,8 +133,21 @@ namespace Framework.NodeEditor
             DebugEx.Log<NodeGraphHelper>("Saving from graph...");
 
             var data = new NodeGraphData();
-            graph.Nodes.ForEach(node => data.Nodes.Add(NodeData.Convert(node)));
-            // TODO: Pins.
+
+            // TODO: Find a nicer way to do this...
+            graph.Nodes.ForEach(node =>
+            {
+                if (node.GetType() == typeof(NodeConstant))
+                {
+                    data.Constants.Add(NodeConstantData.Convert(node as NodeConstant));
+                }
+                else
+                {
+                    data.Nodes.Add(NodeData.Convert(node));
+                }
+            });
+
+            graph.Connections.ForEach(connection => data.Connections.Add(connection));
 
             return data;
         }

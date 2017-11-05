@@ -13,6 +13,7 @@ namespace Framework.NodeEditor
 
         public Node Node { get; private set; }
         public string Name { get; private set; }
+        //public int ID { get { return Index; } } // Just return the index for now.
         public int Index { get; private set; }
         public NodePin ConnectedPin { get; private set; }
 
