@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.Assertions;
 using UnityEditor;
 using System;
 using System.Collections.Generic;
@@ -13,6 +14,7 @@ namespace Framework.NodeEditor
 
         public NodeEditor()
         {
+            Assert.raiseExceptions = true;
             _view = new NodeEditorView();
             new NodeEditorController(_view);
         }

@@ -10,12 +10,13 @@ namespace Framework.NodeEditor
     public class NodePin
     {
         public event Action<NodePin, NodePin> PinConnected;
+        public event Action<NodePin> PinDisconnected;
 
         public Node Node { get; private set; }
         public string Name { get; private set; }
-        //public int ID { get { return Index; } } // Just return the index for now.
         public int Index { get; private set; }
         public NodePin ConnectedPin { get; private set; }
+        public bool Connected { get { return ConnectedPin != null; } }
 
         public Vector2 ScreenPosition { get { return LocalRect.position + Node.Position; } }
         public Rect LocalRect { get; set; }
@@ -56,6 +57,7 @@ namespace Framework.NodeEditor
         public void Disconnect()
         {
             DebugEx.Log<NodePin>("{0} is now disconnected.", Name);
+            PinDisconnected.InvokeSafe(this);
             ConnectedPin = null;
         }
     }

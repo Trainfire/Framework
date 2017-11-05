@@ -7,6 +7,20 @@ using UnityEngine.Assertions;
 
 namespace Framework.NodeEditor
 {
+    public class NodeConnection
+    {
+        public NodePin StartPin { get; private set; }
+        public NodePin EndPin { get; private set; }
+        public Node StartNode { get { return StartPin.Node; } }
+        public Node EndNode { get { return EndPin.Node; } }
+
+        public NodeConnection(NodePin startPin, NodePin endPin)
+        {
+            StartPin = startPin;
+            EndPin = endPin;
+        }
+    }
+
     public class NodeGraph
     {
         public event Action<NodeGraph> GraphDestroyed;
@@ -62,12 +76,13 @@ namespace Framework.NodeEditor
             {
                 DebugEx.Log<NodeGraph>("Removed node.");
                 node.Destroyed -= RemoveNode;
+                node.PinRemoved -= Disconnect;
                 Nodes.Remove(node);
                 NodeRemoved.InvokeSafe(node);
 
                 // TODO: Gracefully handle disconnections...
                 var connections = Connections
-                    .Where(x => x.SourceNodeId == node.ID || x.TargetNodeId == node.ID)
+                    .Where(x => x.StartPin.Node.ID == node.ID || x.EndPin.Node.ID == node.ID)
                     .ToList();
 
                 connections.ForEach(x => Disconnect(x));
@@ -85,32 +100,30 @@ namespace Framework.NodeEditor
             DebugEx.Log<NodeGraph>("Graph cleared.");
         }
 
+        public void Connect(NodeConnectionData connectionData)
+        {
+            var startPin = GetPin(connectionData.SourceNodeId, connectionData.SourcePinId);
+            var endPin = GetPin(connectionData.TargetNodeId, connectionData.TargetPinId);
+
+            Connect(new NodeConnection(startPin, endPin));
+        }
+
         public void Connect(NodeConnection connection)
         {
-            //DebugEx.Log<NodeGraph>("Connected {0}:(1) to {2}:{3}", sourceNode.Name, sourcePin.ID, targetNode.Name, targetNode.ID);
-            //Connect(sourceNode.ID, sourcePin.ID, targetNode.ID, targetPin.ID);
+            bool hasConnection = Connections.Contains(connection);
 
-            bool containsConnection = Connections.Contains(connection);
+            Assert.IsFalse(hasConnection);
+            Assert.IsNotNull(connection.StartPin, "Attempted to connect two pins where the start pin was null.");
+            Assert.IsNotNull(connection.EndPin, "Attempted to connect two pins where the end pin was null.");
+            Assert.IsFalse(connection.StartPin == connection.EndPin, "Attempted to connect a pin to itself.");
+            Assert.IsFalse(connection.StartPin.WillPinConnectionCreateCircularDependency(connection.EndPin), "Pin connection would create a circular dependency!");
 
-            Assert.IsFalse(containsConnection);
+            Connections.Add(connection);
 
-            if (!containsConnection)
-            {
-                Connections.Add(connection);
-                DebugEx.Log<NodeGraph>("Connected {0}:(1) to {2}:{3}", connection.SourceNodeId, connection.SourcePinId, connection.TargetNodeId, connection.TargetPinId);
+            DebugEx.Log<NodeGraph>("Connected {0}:(1) to {2}:{3}", connection.StartNode.ID, connection.StartPin.Index, connection.EndNode.ID, connection.EndPin.Index);
 
-                // TODO: Unsafe code.
-                DebugEx.LogWarning<NodeGraph>("Running unsafe code...");
-
-                return;
-
-                var sourceNode = Nodes.Find(x => x.ID == connection.SourceNodeId);
-                var targetNode = Nodes.Find(x => x.ID == connection.TargetNodeId);
-                var sourcePin = sourceNode.Pins[connection.SourcePinId];
-                var targetPin = targetNode.Pins[connection.TargetPinId];
-
-                sourcePin.ConnectTo(targetPin);
-            }
+            if (connection.StartPin != null && connection.EndPin != null)
+                connection.StartPin.ConnectTo(connection.EndPin);
         }
 
         public void Disconnect(NodeConnection connection)
@@ -122,8 +135,18 @@ namespace Framework.NodeEditor
             if (containsConnection)
             {
                 Connections.Remove(connection);
-                DebugEx.Log<NodeGraph>("Disconnected {0} from {1}.", connection.SourceNodeId, connection.TargetNodeId);
+                DebugEx.Log<NodeGraph>("Disconnected {0} from {1}.", connection.StartPin.Node.ID, connection.EndPin.Node.ID);
             }
+        }
+
+        public void Disconnect(NodePin pin)
+        {
+            var connection = Connections
+                .Where(x => x.StartPin.Index == pin.Index || x.EndPin.Index == pin.Index)
+                .FirstOrDefault();
+
+            if (connection != null)
+                Disconnect(connection);
         }
 
         void RegisterNode(Node node)
@@ -132,20 +155,39 @@ namespace Framework.NodeEditor
             {
                 DebugEx.Log<NodeGraph>("Registered node.");
                 node.Destroyed += RemoveNode;
+                node.PinRemoved += Disconnect;
 
                 Nodes.Add(node);
                 NodeAdded.InvokeSafe(node);
             }
         }
 
+#region Helpers
         public Node GetStartNode()
         {
             return Nodes.Find(node => node.GetType() == typeof(NodeEventOnStart));
+        }
+
+        public Node GetNode(string nodeId)
+        {
+            return Nodes.Find(x => x.ID == nodeId);
+        }
+
+        public NodePin GetPin(string nodeId, int pinId)
+        {
+            var node = GetNode(nodeId);
+            if (node != null)
+            {
+                if (node.HasPin(pinId))
+                    return node.Pins[pinId];
+            }
+            return null;
         }
 
         public List<T> GetNodes<T>() where T : Node
         {
             return Nodes.OfType<T>().ToList();
         }
+#endregion
     }
 }

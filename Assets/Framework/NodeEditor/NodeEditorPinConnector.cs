@@ -7,7 +7,7 @@ namespace Framework.NodeEditor
 {
     class NodeEditorPinConnector
     {
-        public event Action<NodeConnection> ConnectionMade;
+        public event Action<NodeConnectionData> ConnectionMade;
 
         private NodePin _sourcePin;
 
@@ -77,21 +77,13 @@ namespace Framework.NodeEditor
                 if (_sourcePin.GetType() == typeof(NodeExecutePin))
                 {
                     DebugEx.Log<NodeEditorPinConnector>("Connected execution pins.");
-
-                    // TODO: Refactor!
-                    _sourcePin.ConnectTo(targetPin);
-
-                    var nodeConnection = new NodeConnection(_sourcePin.Node.ID, _sourcePin.Index, targetPin.Node.ID, targetPin.Index);
+                    var nodeConnection = new NodeConnectionData(_sourcePin.Node.ID, _sourcePin.Index, targetPin.Node.ID, targetPin.Index);
                     ConnectionMade.InvokeSafe(nodeConnection);
                 }
                 else
                 {
                     DebugEx.Log<NodeEditorPinConnector>("Connected value pins.");
-
-                    // TODO: Refactor!
-                    targetPin.ConnectTo(_sourcePin);
-
-                    var nodeConnection = new NodeConnection(targetPin.Node.ID, targetPin.Index, _sourcePin.Node.ID, _sourcePin.Index);
+                    var nodeConnection = new NodeConnectionData(targetPin.Node.ID, targetPin.Index, _sourcePin.Node.ID, _sourcePin.Index);
                     ConnectionMade.InvokeSafe(nodeConnection);
                 }
 

@@ -138,17 +138,13 @@ namespace Framework.NodeEditor
 
         void DrawConnections()
         {
-            // TEMP: Get all connected pins in graph.
-            var connectedPins = _nodeViews
-                .Keys
-                .SelectMany(node => node.Pins)
-                .Where(pin => pin.ConnectedPin != null)
-                .ToList();
+            if (GraphInfo == null)
+                return;
 
-            connectedPins.ForEach(pin =>
+            GraphInfo.Connections.ForEach(connection =>
             {
                 Handles.BeginGUI();
-                Handles.DrawLine(DrawPinConnectionHandle(pin), DrawPinConnectionHandle(pin.ConnectedPin));
+                Handles.DrawLine(DrawPinConnectionHandle(connection.StartPin), DrawPinConnectionHandle(connection.EndPin));
                 Handles.EndGUI();
             });
         }
@@ -207,7 +203,7 @@ namespace Framework.NodeEditor
 
                 _selectedNode.Pins.ForEach(pin =>
                 {
-                    DrawField(string.Format("{0} (ID: {1})", pin.Name, pin.Index), pin.ToString());
+                    DrawField(string.Format("{0} (ID: {1}) (Connected: {2})", pin.Name, pin.Index, pin.Connected), pin.ToString());
                 });
 
                 GUILayout.EndArea();

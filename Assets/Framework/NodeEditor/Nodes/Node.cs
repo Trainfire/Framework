@@ -81,6 +81,7 @@ namespace Framework.NodeEditor
             {
                 DebugEx.Log<Node>("Remove input pin.");
                 var pin = InputPins[pinIndex];
+                pin.Disconnect();
                 PinRemoved.InvokeSafe(pin);
                 InputPins.Remove(pin);
             }
@@ -92,6 +93,7 @@ namespace Framework.NodeEditor
             {
                 DebugEx.Log<Node>("Remove output pin.");
                 var pin = OutputPins[pinIndex];
+                pin.Disconnect();
                 PinRemoved.InvokeSafe(pin);
                 OutputPins.Remove(pin);
             }
@@ -105,6 +107,11 @@ namespace Framework.NodeEditor
         public bool IsOutputPin(NodePin pin)
         {
             return OutputPins.Contains(pin);
+        }
+
+        public bool HasPin(int pinId)
+        {
+            return pinId < Pins.Count;
         }
 
         public void Execute()

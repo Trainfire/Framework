@@ -70,19 +70,24 @@ namespace Framework.NodeEditor
     }
 
     [Serializable]
-    public class NodeConnection
+    public class NodeConnectionData
     {
         public string SourceNodeId { get; private set; }
         public int SourcePinId { get; private set; }
         public string TargetNodeId { get; private set; }
         public int TargetPinId { get; private set; }
 
-        public NodeConnection(string sourceNodeId, int sourcePinId, string targetNodeId, int targetPinId)
+        public NodeConnectionData(string sourceNodeId, int sourcePinId, string targetNodeId, int targetPinId)
         {
             SourceNodeId = sourceNodeId;
             SourcePinId = sourcePinId;
             TargetNodeId = targetNodeId;
             TargetPinId = targetPinId;
+        }
+
+        public NodeConnectionData(NodePin startPin, NodePin endPin) : this(startPin.Node.ID, startPin.Index, endPin.Node.ID, endPin.Index)
+        {
+
         }
     }
 
@@ -91,14 +96,14 @@ namespace Framework.NodeEditor
     {
         public string ID { get; set; }
         public List<NodeData> Nodes { get; set; }
-        public List<NodeConnection> Connections { get; set; }
+        public List<NodeConnectionData> Connections { get; set; }
         public List<NodeConstantData> Constants { get; set; }
 
         public NodeGraphData()
         {
             ID = "N/A";
             Nodes = new List<NodeData>();
-            Connections = new List<NodeConnection>();
+            Connections = new List<NodeConnectionData>();
             Constants = new List<NodeConstantData>();
         }
     }
@@ -147,7 +152,10 @@ namespace Framework.NodeEditor
                 }
             });
 
-            graph.Connections.ForEach(connection => data.Connections.Add(connection));
+            graph.Connections.ForEach(connection =>
+            {
+                data.Connections.Add(new NodeConnectionData(connection.StartPin, connection.EndPin));
+            });
 
             return data;
         }

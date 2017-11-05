@@ -119,7 +119,7 @@ namespace Framework.NodeEditor
         #endregion
 
         #region Pin Connection Callbacks
-        void PinConnector_ConnectionMade(NodeConnection connection)
+        void PinConnector_ConnectionMade(NodeConnectionData connection)
         {
             _graph.Connect(connection);
         }
