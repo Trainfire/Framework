@@ -9,7 +9,6 @@ namespace Framework.NodeEditor
 {
     public class NodeEditorGraphView
     {
-        public event Action SaveGraph;
         public event Action RunGraph;
         public event Action<Node> NodeSelected;
         public event Action<Node> NodeDeleted;
@@ -184,9 +183,6 @@ namespace Framework.NodeEditor
                 DrawField("Mouse Pos", _inputListener.MousePosition);
 
                 GUILayout.BeginHorizontal();
-
-                if (GUILayout.Button("Save"))
-                    SaveGraph.InvokeSafe();
 
                 if (GUILayout.Button("Run"))
                     RunGraph.InvokeSafe();

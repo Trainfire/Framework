@@ -8,11 +8,13 @@ namespace Framework.NodeEditor
     {
         public NodeEditorGraphView GraphView { get; private set; }
         public NodeEditorContextMenu ContextMenu { get; private set; }
+        public NodeEditorMenuView MenuView { get; private set; }
 
         public NodeEditorView()
         {
             GraphView = new NodeEditorGraphView();
             ContextMenu = new NodeEditorContextMenu();
+            MenuView = new NodeEditorMenuView();
         }
 
         /// <summary>
@@ -21,6 +23,7 @@ namespace Framework.NodeEditor
         public void Draw()
         {
             ContextMenu.Draw();
+            MenuView.Draw();
         }
 
         /// <summary>

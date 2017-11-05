@@ -9,10 +9,10 @@ namespace Framework.NodeEditor
     [Serializable]
     public class NodeData
     {
-        public string ClassType { get; set; }
-        public string Name { get; set; }
-        public string ID { get; set; }
-        public Vector2 Position { get; set; }
+        public string ClassType;
+        public string Name;
+        public string ID;
+        public Vector2 Position;
 
         public static NodeData Convert(Node node)
         {
@@ -29,8 +29,8 @@ namespace Framework.NodeEditor
     [Serializable]
     public class NodeConstantData : NodeData
     {
-        public NodePinType ConstantType { get; set; }
-        public string Value { get; set; }
+        public NodePinType ConstantType;
+        public string Value;
 
         public static NodeConstantData Convert(NodeConstant constant)
         {
@@ -62,20 +62,20 @@ namespace Framework.NodeEditor
     [Serializable]
     public class NodePinData
     {
-        public string Type { get; set; }
-        public string Name { get; set; }
-        public string ID { get; set; }
-        public int Index { get; set; }
-        public string ConnectedPin { get; set; }
+        public string Type;
+        public string Name;
+        public string ID;
+        public int Index;
+        public string ConnectedPin;
     }
 
     [Serializable]
     public class NodeConnectionData
     {
-        public string SourceNodeId { get; private set; }
-        public int SourcePinId { get; private set; }
-        public string TargetNodeId { get; private set; }
-        public int TargetPinId { get; private set; }
+        public string SourceNodeId;
+        public int SourcePinId;
+        public string TargetNodeId;
+        public int TargetPinId;
 
         public NodeConnectionData(string sourceNodeId, int sourcePinId, string targetNodeId, int targetPinId)
         {
@@ -94,10 +94,10 @@ namespace Framework.NodeEditor
     [Serializable]
     public class NodeGraphData
     {
-        public string ID { get; set; }
-        public List<NodeData> Nodes { get; set; }
-        public List<NodeConnectionData> Connections { get; set; }
-        public List<NodeConstantData> Constants { get; set; }
+        public string ID;
+        public List<NodeData> Nodes;
+        public List<NodeConnectionData> Connections;
+        public List<NodeConstantData> Constants;
 
         public NodeGraphData()
         {
@@ -105,6 +105,14 @@ namespace Framework.NodeEditor
             Nodes = new List<NodeData>();
             Connections = new List<NodeConnectionData>();
             Constants = new List<NodeConstantData>();
+        }
+
+        public NodeGraphData(NodeGraphData original)
+        {
+            ID = original.ID;
+            Nodes = original.Nodes;
+            Connections = original.Connections;
+            Constants = original.Constants;
         }
     }
 }

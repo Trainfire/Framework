@@ -24,23 +24,43 @@ namespace Framework.NodeEditor
     public class NodeGraph
     {
         public event Action<NodeGraph> GraphDestroyed;
+        public event Action<NodeGraph> StateChanged;
         public event Action<Node> NodeAdded;
         public event Action<Node> NodeRemoved;
 
         public NodeGraphHelper Helper { get; private set; }
         public List<Node> Nodes { get; private set; }
         public List<NodeConnection> Connections { get; private set; }
+        public bool IsDirty { get; private set; }
 
         public NodeGraph()
         {
             Nodes = new List<Node>();
             Connections = new List<NodeConnection>();
+            Helper = new NodeGraphHelper(this);
         }
 
-        public void Initialize()
+        public void SetData(NodeGraphData graphData)
         {
-            DebugEx.Log<NodeGraph>("Initialized.");
-            Helper = new NodeGraphHelper(this);
+            DebugEx.Log<NodeGraph>("Initializing...");
+
+            DebugEx.Log<NodeGraph>("Reading from graph data...");
+
+            // TODO: Find a nicer way to do this...
+            var allNodes = graphData.Nodes.Concat(graphData.Constants.Cast<NodeData>()).ToList();
+            allNodes.ForEach(nodeData =>
+            {
+                if (nodeData.GetType() == typeof(NodeConstantData))
+                {
+                    AddNode(nodeData as NodeConstantData);
+                }
+                else
+                {
+                    AddNode(nodeData);
+                }
+            });
+
+            graphData.Connections.ForEach(connectionData => Connect(connectionData));
         }
 
         public void AddNode(NodeConstantData constantData)
@@ -64,7 +84,19 @@ namespace Framework.NodeEditor
             var nodeType = Type.GetType(nodeData.ClassType);
             var node = Activator.CreateInstance(nodeType) as Node;
             node.Initialize(nodeData);
-            RegisterNode(node);
+
+            if (!Nodes.Contains(node))
+            {
+                DebugEx.Log<NodeGraph>("Registered node.");
+                node.Destroyed += RemoveNode;
+                node.PinRemoved += Disconnect;
+
+                Nodes.Add(node);
+                NodeAdded.InvokeSafe(node);
+
+                StateChanged.InvokeSafe(this);
+            }
+
             return node;
         }
 
@@ -135,6 +167,7 @@ namespace Framework.NodeEditor
             if (containsConnection)
             {
                 Connections.Remove(connection);
+                StateChanged.InvokeSafe(this);
                 DebugEx.Log<NodeGraph>("Disconnected {0} from {1}.", connection.StartPin.Node.Name, connection.EndPin.Node.Name);
             }
         }
@@ -149,17 +182,31 @@ namespace Framework.NodeEditor
                 Disconnect(connection);
         }
 
-        void RegisterNode(Node node)
+        public NodeGraphData GetData()
         {
-            if (!Nodes.Contains(node))
-            {
-                DebugEx.Log<NodeGraph>("Registered node.");
-                node.Destroyed += RemoveNode;
-                node.PinRemoved += Disconnect;
+            DebugEx.Log<NodeGraph>("Serializing graph state...");
 
-                Nodes.Add(node);
-                NodeAdded.InvokeSafe(node);
-            }
+            var data = new NodeGraphData();
+
+            // TODO: Find a nicer way to do this...
+            Nodes.ForEach(node =>
+            {
+                if (node.GetType() == typeof(NodeConstant))
+                {
+                    data.Constants.Add(NodeConstantData.Convert(node as NodeConstant));
+                }
+                else
+                {
+                    data.Nodes.Add(NodeData.Convert(node));
+                }
+            });
+
+            Connections.ForEach(connection =>
+            {
+                data.Connections.Add(new NodeConnectionData(connection.StartPin, connection.EndPin));
+            });
+
+            return data;
         }
     }
 }

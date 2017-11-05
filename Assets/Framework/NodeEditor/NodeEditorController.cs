@@ -19,8 +19,10 @@ namespace Framework.NodeEditor
             _runner = new NodeGraphRunner();
 
             _view = view;
+
             _view.ContextMenu.OnAddNode += ContextMenu_OnAddNode;
             _view.ContextMenu.OnClearNodes += ContextMenu_OnClearNodes;
+
             _view.GraphView.MouseLeftClickedPin += GraphView_MouseLeftClickedPin;
             _view.GraphView.MouseLeftReleasedOverPin += GraphView_MouseLeftReleasedOverPin;
             _view.GraphView.MouseMiddleClickedPin += GraphView_MouseMiddleClickedPin;
@@ -28,15 +30,17 @@ namespace Framework.NodeEditor
             _view.GraphView.NodeDeleted += GraphView_NodeDeleted;
             _view.GraphView.NodeSelected += GraphView_NodeSelected;
             _view.GraphView.RunGraph += GraphView_RunGraph;
-            _view.GraphView.SaveGraph += GraphView_SaveGraph;
 
-            Selection.selectionChanged += GetGraphFromSelection;
+            _view.MenuView.Save += SaveGraph;
+            _view.MenuView.Revert += RevertGraph;
+
+            Selection.selectionChanged += RevertGraph;
         }
 
-        void GetGraphFromSelection()
+        void RevertGraph()
         {
             var selection = Selection.activeGameObject;
-            
+
             if (selection != null)
             {
                 var root = selection.GetComponentInParent<NodeGraphRoot>();
@@ -63,18 +67,36 @@ namespace Framework.NodeEditor
                     _graph = new NodeGraph();
                     _graph.NodeAdded += Graph_NodeAdded;
                     _graph.NodeRemoved += Graph_NodeRemoved;
-                    _graph.Initialize();
-
-                    NodeGraphStateManager.RestoreGraph(root.GraphData, _graph);
+                    _graph.StateChanged += Graph_StateChanged;
 
                     _view.GraphView.GraphHelper = _graph.Helper;
 
                     DebugEx.Log<NodeEditorController>("Finished loading graph.");
                 }
+
+                if (_graph != null)
+                {
+                    var editingGraphData = new NodeGraphData(_root.GraphData);
+                    _graph.SetData(editingGraphData);
+                }
             }
         }
 
+        void SaveGraph()
+        {
+            Assert.IsNotNull(_graph, "Graph is null.");
+            Assert.IsNotNull(_root, "Root is null.");
+
+            if (_graph != null && _root != null)
+                _root.GraphData = _graph.GetData();
+        }
+
         #region Graph Callbacks
+        void Graph_StateChanged(NodeGraph graph)
+        {
+            _view.MenuView.GraphDirty = true;
+        }
+
         void Graph_NodeRemoved(Node node)
         {
             _view.GraphView.RemoveNodeView(node);
@@ -106,15 +128,6 @@ namespace Framework.NodeEditor
         void GraphView_RunGraph()
         {
             _runner.Run(_graph);
-        }
-
-        void GraphView_SaveGraph()
-        {
-            Assert.IsNotNull(_graph, "Graph is null.");
-            Assert.IsNotNull(_root, "Root is null.");
-
-            if (_graph != null && _root != null)
-                _root.GraphData = NodeGraphStateManager.SaveGraph(_graph);
         }
         #endregion
 

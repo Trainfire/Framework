@@ -8,6 +8,8 @@ namespace Framework.NodeEditor
 {
     public class NodeEditor : EditorWindow
     {
+        public static string DefaultFilePath { get { return Application.dataPath + "/testGraph.nodegraph"; } }
+
         private const string WindowName = "Node Editor";
 
         private NodeEditorView _view;
