@@ -52,7 +52,7 @@ namespace Framework.NodeEditor
                 case NodePinType.Float: constantData.Value = constant.GetFloat().ToString(); break;
                 case NodePinType.Int: constantData.Value = constant.GetInt().ToString(); break;
                 case NodePinType.Bool: constantData.Value = constant.GetBool().ToString(); break;
-                case NodePinType.String: constantData.Value = constant.GetString().ToString(); break;
+                case NodePinType.String: constantData.Value = constant.GetString(); break;
             };
 
             return constantData;
