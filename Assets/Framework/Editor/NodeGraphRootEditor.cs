@@ -31,9 +31,9 @@ namespace Framework.NodeEditor
             switch (constant.PinType)
             {
                 case NodePinType.None: EditorGUILayout.LabelField(prefix, "No Type"); break;
-                case NodePinType.Int: constant.SetInt(EditorGUILayout.IntField(prefix, constant.GetInt())); break;
-                case NodePinType.Float: constant.SetFloat(EditorGUILayout.FloatField(prefix, constant.GetFloat())); break;
-                case NodePinType.String: constant.SetString(EditorGUILayout.TextField(prefix, constant.GetString())); break;
+                case NodePinType.Int: constant.SetInt(EditorGUILayout.DelayedIntField(prefix, constant.GetInt())); break;
+                case NodePinType.Float: constant.SetFloat(EditorGUILayout.DelayedFloatField(prefix, constant.GetFloat())); break;
+                case NodePinType.String: constant.SetString(EditorGUILayout.DelayedTextField(prefix, constant.GetString())); break;
                 case NodePinType.Bool: constant.SetBool(EditorGUILayout.Toggle(prefix, constant.GetBool())); break;
             }
         }

@@ -42,7 +42,9 @@ namespace Framework.NodeSystem
         void UpdatePin()
         {
             DebugEx.Log<NodeConstant>("Updating pin...");
-            RemoveOutputPin(0);
+
+            if (HasPin(0))
+                RemoveOutputPin(0);
 
             const string pinName = "Out";
 
@@ -61,6 +63,8 @@ namespace Framework.NodeSystem
                     AddOutputPin<string>(pinName);
                     break;
             }
+
+            TriggerChange();
         }
 
         public void Set(NodeConstantData data)
@@ -74,8 +78,6 @@ namespace Framework.NodeSystem
                 case NodePinType.Bool: SetBool(bool.Parse(data.Value)); break;
                 case NodePinType.String: SetString(data.Value); break;
             }
-
-            TriggerChange();
         }
 
         public int GetInt() { return GetValue<int>(NodePinType.Int); }
@@ -100,7 +102,14 @@ namespace Framework.NodeSystem
             Assert.IsTrue(_pinType == pinTypeQualifier);
 
             if (_pinType == pinTypeQualifier)
-                (OutputPins[0] as NodeValuePin<T>).Value = value;
+            {
+                var outValue = (OutputPins[0] as NodeValuePin<T>).Value;
+                if (!outValue.Equals(value))
+                {
+                    (OutputPins[0] as NodeValuePin<T>).Value = value;
+                    TriggerChange();
+                }
+            }
         }
     }
 }
