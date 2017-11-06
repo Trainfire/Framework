@@ -17,11 +17,11 @@ namespace Framework.NodeEditor.Views
         {
             GUILayout.BeginHorizontal();
 
+            if (GUILayout.Button("Save Changes"))
+                Save.InvokeSafe();
+
             if (_graphDirty)
             {
-                if (GUILayout.Button("Save Changes"))
-                    Save.InvokeSafe();
-
                 if (GUILayout.Button("Revert Changes"))
                     Revert.InvokeSafe();
             }

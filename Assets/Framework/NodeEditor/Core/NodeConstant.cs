@@ -74,6 +74,8 @@ namespace Framework.NodeSystem
                 case NodePinType.Bool: SetBool(bool.Parse(data.Value)); break;
                 case NodePinType.String: SetString(data.Value); break;
             }
+
+            TriggerChange();
         }
 
         public int GetInt() { return GetValue<int>(NodePinType.Int); }

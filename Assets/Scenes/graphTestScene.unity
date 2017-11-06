@@ -139,6 +139,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e379bc8adf6823d49831cb5afc5669f3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  GraphData:
+    ID: N/A
+    Nodes:
+    - ClassType: Framework.NodeSystem.MathAdd
+      Name: Add
+      ID: 90502cb6-1b8b-4a81-ae01-7d7b762f73e0
+      Position: {x: 750, y: 110}
+    Connections: []
+    Constants:
+    - ClassType: Framework.NodeSystem.NodeConstant
+      Name: Constant
+      ID: e3eea611-d561-4804-b743-b38917fd9b27
+      Position: {x: 851, y: 215}
+      ConstantType: 2
+      Value: 0
 --- !u!4 &1252769731
 Transform:
   m_ObjectHideFlags: 0

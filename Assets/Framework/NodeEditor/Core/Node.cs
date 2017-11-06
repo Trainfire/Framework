@@ -7,9 +7,9 @@ namespace Framework.NodeSystem
 {
     public abstract class Node
     {
+        public event Action<Node> Changed;
         public event Action<NodePin> PinAdded;
         public event Action<NodePin> PinRemoved;
-
         public event Action<Node> Destroyed;
 
         public List<NodePin> Pins { get { return InputPins.Concat(OutputPins).ToList(); } }
@@ -18,7 +18,23 @@ namespace Framework.NodeSystem
 
         public string Name { get; private set; }
         public string ID { get; private set; }
-        public Vector2 Position { get; set; }
+
+        private Vector2 _position;
+        public Vector2 Position
+        {
+            get { return _position; }
+            set
+            {
+                // Don't trigger if position is the same.
+                if (value != Position)
+                {
+                    _position = value;
+
+                    // TODO: Only trigger after the mouse has been released?
+                    //TriggerChange();
+                }
+            }
+        }
 
         public Node()
         {
@@ -82,6 +98,7 @@ namespace Framework.NodeSystem
                 DebugEx.Log<Node>("Remove input pin.");
                 var pin = InputPins[pinIndex];
                 PinRemoved.InvokeSafe(pin);
+                TriggerChange();
                 InputPins.Remove(pin);
             }
         }
@@ -93,8 +110,14 @@ namespace Framework.NodeSystem
                 DebugEx.Log<Node>("Remove output pin.");
                 var pin = OutputPins[pinIndex];
                 PinRemoved.InvokeSafe(pin);
+                TriggerChange();
                 OutputPins.Remove(pin);
             }
+        }
+
+        protected void TriggerChange()
+        {
+            Changed.InvokeSafe(this);
         }
 
         public bool IsInputPin(NodePin pin)

@@ -7,44 +7,39 @@ using UnityEngine.Assertions;
 
 namespace Framework.NodeSystem
 {
-    public class NodeConnection
-    {
-        public NodePin StartPin { get; private set; }
-        public NodePin EndPin { get; private set; }
-        public Node StartNode { get { return StartPin.Node; } }
-        public Node EndNode { get { return EndPin.Node; } }
-
-        public NodeConnection(NodePin startPin, NodePin endPin)
-        {
-            StartPin = startPin;
-            EndPin = endPin;
-        }
-    }
-
     public class NodeGraph
     {
-        public event Action<NodeGraph> GraphDestroyed;
-        public event Action<NodeGraph> StateChanged;
+        public event Action<NodeGraph> PostLoad;
+        public event Action<NodeGraph> PreUnload;
+        public event Action<NodeGraph> PostUnload;
+        public event Action<NodeGraph> Edited;
+        public event Action<NodeGraph> Saved;
+
         public event Action<Node> NodeAdded;
         public event Action<Node> NodeRemoved;
 
+        public NodeGraphState State { get; private set; }
         public NodeGraphHelper Helper { get; private set; }
         public List<Node> Nodes { get; private set; }
         public List<NodeConnection> Connections { get; private set; }
-        public bool IsDirty { get; private set; }
+
+        private NodeGraphData _editingGraphData;
 
         public NodeGraph()
         {
             Nodes = new List<Node>();
             Connections = new List<NodeConnection>();
+            State = new NodeGraphState(this);
             Helper = new NodeGraphHelper(this);
         }
 
-        public void SetData(NodeGraphData graphData)
+        public void Load(NodeGraphData graphData)
         {
             DebugEx.Log<NodeGraph>("Initializing...");
 
             DebugEx.Log<NodeGraph>("Reading from graph data...");
+
+            _editingGraphData = graphData;
 
             // TODO: Find a nicer way to do this...
             var allNodes = graphData.Nodes.Concat(graphData.Constants.Cast<NodeData>()).ToList();
@@ -61,6 +56,30 @@ namespace Framework.NodeSystem
             });
 
             graphData.Connections.ForEach(connectionData => Connect(connectionData));
+
+            PostLoad.InvokeSafe(this);
+        }
+
+        public void Unload()
+        {
+            PreUnload.InvokeSafe(this);
+
+            var nodesToClear = Nodes.ToList();
+            nodesToClear.ForEach(x => RemoveNode(x));
+
+            var connectionsToClear = Connections.ToList();
+            Connections.ForEach(x => Disconnect(x));
+
+            PostUnload.InvokeSafe(this);
+
+            DebugEx.Log<NodeGraph>("Graph cleared.");
+        }
+
+        public void Revert()
+        {
+            DebugEx.Log<NodeGraph>("Reverting graph...");
+            Unload();
+            Load(_editingGraphData);
         }
 
         public void AddNode(NodeConstantData constantData)
@@ -89,12 +108,13 @@ namespace Framework.NodeSystem
             {
                 DebugEx.Log<NodeGraph>("Registered node.");
                 node.Destroyed += RemoveNode;
-                node.PinRemoved += Disconnect;
+                node.Changed += Node_Changed;
+                node.PinRemoved += Node_PinRemoved;
 
                 Nodes.Add(node);
                 NodeAdded.InvokeSafe(node);
 
-                StateChanged.InvokeSafe(this);
+                Edited.InvokeSafe(this);
             }
 
             return node;
@@ -108,7 +128,8 @@ namespace Framework.NodeSystem
             {
                 DebugEx.Log<NodeGraph>("Removed node.");
                 node.Destroyed -= RemoveNode;
-                node.PinRemoved -= Disconnect;
+                node.Changed -= Node_Changed;
+                node.PinRemoved -= Node_PinRemoved;
                 Nodes.Remove(node);
                 NodeRemoved.InvokeSafe(node);
 
@@ -118,18 +139,9 @@ namespace Framework.NodeSystem
                     .ToList();
 
                 connections.ForEach(x => Disconnect(x));
+
+                Edited.InvokeSafe(this);
             }
-        }
-
-        public void Clear()
-        {
-            var nodesToClear = Nodes.ToList();
-            nodesToClear.ForEach(x => RemoveNode(x));
-
-            var connectionsToClear = Connections.ToList();
-            Connections.ForEach(x => Disconnect(x));
-
-            DebugEx.Log<NodeGraph>("Graph cleared.");
         }
 
         public void Connect(NodeConnectionData connectionData)
@@ -155,7 +167,10 @@ namespace Framework.NodeSystem
             DebugEx.Log<NodeGraph>("Connected {0}:(1) to {2}:{3}", connection.StartNode.Name, connection.StartPin.Index, connection.EndNode.Name, connection.EndPin.Index);
 
             if (connection.StartPin != null && connection.EndPin != null)
+            {
                 connection.StartPin.ConnectTo(connection.EndPin);
+                Edited.InvokeSafe(this);
+            }
         }
 
         public void Disconnect(NodeConnection connection)
@@ -167,9 +182,13 @@ namespace Framework.NodeSystem
             if (containsConnection)
             {
                 Connections.Remove(connection);
-                StateChanged.InvokeSafe(this);
+                Edited.InvokeSafe(this);
                 DebugEx.Log<NodeGraph>("Disconnected {0} from {1}.", connection.StartPin.Node.Name, connection.EndPin.Node.Name);
+
+                Edited.InvokeSafe(this);
             }
+
+            Edited.InvokeSafe(this);
         }
 
         public void Disconnect(NodePin pin)
@@ -179,10 +198,13 @@ namespace Framework.NodeSystem
                 .FirstOrDefault();
 
             if (connection != null)
+            {
                 Disconnect(connection);
+                Edited.InvokeSafe(this);
+            }
         }
 
-        public NodeGraphData GetData()
+        public NodeGraphData Save()
         {
             DebugEx.Log<NodeGraph>("Serializing graph state...");
 
@@ -206,7 +228,23 @@ namespace Framework.NodeSystem
                 data.Connections.Add(new NodeConnectionData(connection.StartPin, connection.EndPin));
             });
 
+            Saved.InvokeSafe(this);
+
             return data;
         }
+
+        #region Callbacks
+        void Node_Changed(Node node)
+        {
+            DebugEx.Log<NodeGraph>("Node {0} changed.", node.Name);
+            Edited.InvokeSafe(this);
+        }
+
+        void Node_PinRemoved(NodePin pin)
+        {
+            Disconnect(pin);
+            Edited.InvokeSafe(this);
+        }
+#endregion
     }
 }

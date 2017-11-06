@@ -24,7 +24,7 @@ namespace Framework.NodeEditor
             _graph = new NodeGraph();
             _graph.NodeAdded += Graph_NodeAdded;
             _graph.NodeRemoved += Graph_NodeRemoved;
-            _graph.StateChanged += Graph_StateChanged;
+            _graph.State.Changed += GraphState_Changed;
 
             _view = view;
 
@@ -47,6 +47,9 @@ namespace Framework.NodeEditor
 
         void LoadGraphFromSelection()
         {
+            if (Selection.activeGameObject == null)
+                return;
+
             var graphRootFromSelection = Selection.activeGameObject.GetComponentInParent<NodeGraphRoot>();
 
             bool selectionChanged = graphRootFromSelection == null || graphRootFromSelection != _graphRoot;
@@ -62,7 +65,7 @@ namespace Framework.NodeEditor
 
                 // Copy from existing graph data.
                 var editingGraphData = new NodeGraphData(_graphRoot.GraphData);
-                _graph.SetData(editingGraphData);
+                _graph.Load(editingGraphData);
 
                 // TODO: Move into constructor.
                 _view.GraphView.GraphHelper = _graph.Helper;
@@ -75,25 +78,24 @@ namespace Framework.NodeEditor
             Assert.IsNotNull(_graphRoot, "Root is null.");
 
             if (_graph != null && _graphRoot != null)
-                _graphRoot.GraphData = _graph.GetData();
+                _graphRoot.GraphData = _graph.Save();
         }
 
         void RevertGraph()
         {
-            ClearGraph();
-            LoadGraphFromSelection();
+            _graph.Revert();
         }
 
         void ClearGraph()
         {
-            _graph.Clear();
+            _graph.Unload();
             _view.GraphView.Clear();
         }
 
         #region Graph Callbacks
-        void Graph_StateChanged(NodeGraph graph)
+        void GraphState_Changed(NodeGraphState graphState)
         {
-            _view.MenuView.GraphDirty = true;
+            _view.MenuView.GraphDirty = graphState.IsDirty;
         }
 
         void Graph_NodeRemoved(Node node)
@@ -161,7 +163,7 @@ namespace Framework.NodeEditor
         void ContextMenu_OnClearNodes()
         {
             if (_graph != null)
-                _graph.Clear();
+                _graph.Unload();
         }
 
         void ContextMenu_OnAddNode(string nodeId)
@@ -178,7 +180,7 @@ namespace Framework.NodeEditor
         {
             _graph.NodeAdded -= Graph_NodeAdded;
             _graph.NodeRemoved -= Graph_NodeRemoved;
-            _graph.StateChanged -= Graph_StateChanged;
+            _graph.State.Changed -= GraphState_Changed;
 
             _view.ContextMenu.OnAddNode -= ContextMenu_OnAddNode;
             _view.ContextMenu.OnClearNodes -= ContextMenu_OnClearNodes;
