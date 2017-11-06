@@ -10,11 +10,17 @@ namespace Framework.NodeEditor.Views
         public event Action Revert;
         public event Action Run;
 
+        private bool _graphLoaded;
+        public bool GraphLoaded { set { _graphLoaded = value; } }
+
         private bool _graphDirty;
         public bool GraphDirty { set { _graphDirty = value; } }
 
         protected override void OnDraw()
         {
+            if (!_graphLoaded)
+                return;
+
             GUILayout.BeginHorizontal();
 
             if (GUILayout.Button("Save Changes"))

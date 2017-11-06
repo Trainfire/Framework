@@ -9,6 +9,7 @@ namespace Framework.NodeEditor
     class NodeEditorController
     {
         private NodeGraphRunner _runner;
+        private NodeGraphState _graphState;
         private NodeGraph _graph;
         private NodeGraphRoot _graphRoot;
         private NodeEditorPinConnector _pinConnector;
@@ -24,7 +25,9 @@ namespace Framework.NodeEditor
             _graph = new NodeGraph();
             _graph.NodeAdded += Graph_NodeAdded;
             _graph.NodeRemoved += Graph_NodeRemoved;
-            _graph.State.Changed += GraphState_Changed;
+
+            _graphState = new NodeGraphState(_graph);
+            _graphState.Changed += GraphState_Changed;
 
             _view = view;
 
@@ -78,12 +81,16 @@ namespace Framework.NodeEditor
             Assert.IsNotNull(_graphRoot, "Root is null.");
 
             if (_graph != null && _graphRoot != null)
-                _graphRoot.GraphData = _graph.Save();
+            {
+                _graphRoot.GraphData = NodeGraphHelper.GetGraphData(_graph);
+                _graph.Load(_graphRoot.GraphData);
+            }
+                
         }
 
         void RevertGraph()
         {
-            _graph.Revert();
+            _graphState.RevertToLastGraph();
         }
 
         void ClearGraph()
@@ -92,12 +99,15 @@ namespace Framework.NodeEditor
             _view.GraphView.Clear();
         }
 
-        #region Graph Callbacks
+        #region State Callbacks
         void GraphState_Changed(NodeGraphState graphState)
         {
             _view.MenuView.GraphDirty = graphState.IsDirty;
+            _view.MenuView.GraphLoaded = graphState.GraphLoaded;
         }
+        #endregion
 
+        #region Graph Callbacks
         void Graph_NodeRemoved(Node node)
         {
             _view.GraphView.RemoveNodeView(node);
@@ -180,7 +190,7 @@ namespace Framework.NodeEditor
         {
             _graph.NodeAdded -= Graph_NodeAdded;
             _graph.NodeRemoved -= Graph_NodeRemoved;
-            _graph.State.Changed -= GraphState_Changed;
+            _graphState.Changed -= GraphState_Changed;
 
             _view.ContextMenu.OnAddNode -= ContextMenu_OnAddNode;
             _view.ContextMenu.OnClearNodes -= ContextMenu_OnClearNodes;

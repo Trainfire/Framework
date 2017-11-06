@@ -4,7 +4,7 @@ using System.Linq;
 namespace Framework.NodeSystem
 {
     /// <summary>
-    /// Wrapper to expose graph info safely to UI.
+    /// Wrapper to expose graph info safely.
     /// </summary>
     public class NodeGraphHelper
     {
@@ -50,6 +50,33 @@ namespace Framework.NodeSystem
         public List<T> GetNodes<T>() where T : Node
         {
             return _graph.Nodes.OfType<T>().ToList();
+        }
+
+        public static NodeGraphData GetGraphData(NodeGraph graph)
+        {
+            DebugEx.Log<NodeGraphState>("Serializing graph state...");
+
+            var outGraphData = new NodeGraphData();
+
+            // TODO: Find a nicer way to do this...
+            graph.Nodes.ForEach(node =>
+            {
+                if (node.GetType() == typeof(NodeConstant))
+                {
+                    outGraphData.Constants.Add(NodeConstantData.Convert(node as NodeConstant));
+                }
+                else
+                {
+                    outGraphData.Nodes.Add(NodeData.Convert(node));
+                }
+            });
+
+            graph.Connections.ForEach(connection =>
+            {
+                outGraphData.Connections.Add(new NodeConnectionData(connection.StartPin, connection.EndPin));
+            });
+
+            return outGraphData;
         }
     }
 }

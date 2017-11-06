@@ -12,6 +12,12 @@ namespace Framework.NodeSystem
         public bool GraphLoaded { get; private set; }
 
         private NodeGraph _graph;
+        private NodeGraphData _lastGraphData;
+
+        /// <summary>
+        /// Returns a copy of the last graph data.
+        /// </summary>
+        public NodeGraphData LastGraphData { get { return new NodeGraphData(_lastGraphData); } }
 
         public NodeGraphState(NodeGraph graph)
         {
@@ -19,22 +25,26 @@ namespace Framework.NodeSystem
 
             _graph.PostLoad += Graph_PostLoad;
             _graph.PreUnload += Graph_PreUnload;
-            _graph.Saved += Graph_Saved;
             _graph.Edited += Graph_Edited;
+        }
+
+        public void RevertToLastGraph()
+        {
+            _graph.Load(_lastGraphData);
         }
 
         public void Destroy()
         {
             _graph.PostLoad -= Graph_PostLoad;
             _graph.PreUnload -= Graph_PreUnload;
-            _graph.Saved -= Graph_Saved;
             _graph.Edited -= Graph_Edited;
         }
 
-        void Graph_PostLoad(NodeGraph graph)
+        void Graph_PostLoad(NodeGraph graph, NodeGraphData graphData)
         {
             GraphLoaded = true;
-            DebugEx.Log<NodeGraphState>("Graph is now loaded.");
+            _lastGraphData = graphData;
+            DebugEx.Log<NodeGraphState>("Graph is now loaded. Will now listen for state changes...");
             Changed.InvokeSafe(this);
         }
 
@@ -42,7 +52,8 @@ namespace Framework.NodeSystem
         {
             IsDirty = false;
             GraphLoaded = false;
-            DebugEx.Log<NodeGraphState>("Graph is unloading...");
+            DebugEx.Log<NodeGraphState>("Graph is unloading. No longer listening to state changes...");
+            Changed.InvokeSafe(this);
         }
 
         void Graph_Saved(NodeGraph graph)

@@ -9,27 +9,22 @@ namespace Framework.NodeSystem
 {
     public class NodeGraph
     {
-        public event Action<NodeGraph> PostLoad;
+        public event Action<NodeGraph, NodeGraphData> PostLoad;
         public event Action<NodeGraph> PreUnload;
         public event Action<NodeGraph> PostUnload;
         public event Action<NodeGraph> Edited;
-        public event Action<NodeGraph> Saved;
 
         public event Action<Node> NodeAdded;
         public event Action<Node> NodeRemoved;
 
-        public NodeGraphState State { get; private set; }
         public NodeGraphHelper Helper { get; private set; }
         public List<Node> Nodes { get; private set; }
         public List<NodeConnection> Connections { get; private set; }
-
-        private NodeGraphData _editingGraphData;
 
         public NodeGraph()
         {
             Nodes = new List<Node>();
             Connections = new List<NodeConnection>();
-            State = new NodeGraphState(this);
             Helper = new NodeGraphHelper(this);
         }
 
@@ -37,9 +32,9 @@ namespace Framework.NodeSystem
         {
             DebugEx.Log<NodeGraph>("Initializing...");
 
-            DebugEx.Log<NodeGraph>("Reading from graph data...");
+            Unload();
 
-            _editingGraphData = graphData;
+            DebugEx.Log<NodeGraph>("Reading from graph data...");
 
             // TODO: Find a nicer way to do this...
             var allNodes = graphData.Nodes.Concat(graphData.Constants.Cast<NodeData>()).ToList();
@@ -57,7 +52,7 @@ namespace Framework.NodeSystem
 
             graphData.Connections.ForEach(connectionData => Connect(connectionData));
 
-            PostLoad.InvokeSafe(this);
+            PostLoad.InvokeSafe(this, graphData);
         }
 
         public void Unload()
@@ -73,13 +68,6 @@ namespace Framework.NodeSystem
             PostUnload.InvokeSafe(this);
 
             DebugEx.Log<NodeGraph>("Graph cleared.");
-        }
-
-        public void Revert()
-        {
-            DebugEx.Log<NodeGraph>("Reverting graph...");
-            Unload();
-            Load(_editingGraphData);
         }
 
         public void AddNode(NodeConstantData constantData)
@@ -202,35 +190,6 @@ namespace Framework.NodeSystem
                 Disconnect(connection);
                 Edited.InvokeSafe(this);
             }
-        }
-
-        public NodeGraphData Save()
-        {
-            DebugEx.Log<NodeGraph>("Serializing graph state...");
-
-            var data = new NodeGraphData();
-
-            // TODO: Find a nicer way to do this...
-            Nodes.ForEach(node =>
-            {
-                if (node.GetType() == typeof(NodeConstant))
-                {
-                    data.Constants.Add(NodeConstantData.Convert(node as NodeConstant));
-                }
-                else
-                {
-                    data.Nodes.Add(NodeData.Convert(node));
-                }
-            });
-
-            Connections.ForEach(connection =>
-            {
-                data.Connections.Add(new NodeConnectionData(connection.StartPin, connection.EndPin));
-            });
-
-            Saved.InvokeSafe(this);
-
-            return data;
         }
 
         #region Callbacks
