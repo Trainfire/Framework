@@ -55,6 +55,8 @@ namespace Framework.NodeEditor
             // Copy from existing graph data.
             var editingGraphData = new NodeGraphData(graphData);
             _graph.Load(editingGraphData);
+
+            _view.GraphView.GraphHelper = _graph.Helper;
         }
 
         void Save()
