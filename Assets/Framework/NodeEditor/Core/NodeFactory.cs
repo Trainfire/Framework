@@ -14,10 +14,9 @@ namespace Framework.NodeSystem
         public NodeFactory()
         {
             _nodeRegistry = new Dictionary<string, Action<NodeGraph>>();
-            _nodeRegistry.Add("Constant", (graph) => graph.AddNode<NodeConstant>("Constant"));
-            _nodeRegistry.Add("Math/Add", (graph) => graph.AddNode<MathAdd>("Add"));
-            _nodeRegistry.Add("Debug/Log", (graph) => graph.AddNode<DebugLog>("Debug Log"));
-            _nodeRegistry.Add("Event/On Start", (graph) => graph.AddNode<EventOnStart>("On Start"));
+            _nodeRegistry.Add("Core/Start", (graph) => graph.AddNode<CoreStart>("Start"));
+            _nodeRegistry.Add("Core/Debug Log", (graph) => graph.AddNode<CoreDebugLog>("Debug Log"));
+            _nodeRegistry.Add("Misc/Constant", (graph) => graph.AddNode<NodeConstant>("Constant"));
             _nodeRegistry.Add("Conversion/Float to String", (graph) => graph.AddNode<ConversionFloatToString>("Float to String"));
         }
 

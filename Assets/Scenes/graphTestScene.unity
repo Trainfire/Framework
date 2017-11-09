@@ -141,19 +141,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   GraphData:
     ID: N/A
-    Nodes:
-    - ClassType: Framework.NodeSystem.MathAdd
-      Name: Add
-      ID: 90502cb6-1b8b-4a81-ae01-7d7b762f73e0
-      Position: {x: 260, y: 140}
+    Nodes: []
     Connections: []
-    Constants:
-    - ClassType: Framework.NodeSystem.NodeConstant
-      Name: Constant
-      ID: e3eea611-d561-4804-b743-b38917fd9b27
-      Position: {x: 566, y: 293}
-      ConstantType: 2
-      Value: 0
+    Constants: []
 --- !u!4 &1252769731
 Transform:
   m_ObjectHideFlags: 0

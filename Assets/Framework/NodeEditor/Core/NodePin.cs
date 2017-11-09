@@ -59,7 +59,10 @@ namespace Framework.NodeSystem
             DebugEx.Log<NodePin>("{0} is now disconnected.", Name);
             PinDisconnected.InvokeSafe(this);
             ConnectedPin = null;
+            OnDisconnect();
         }
+
+        protected virtual void OnDisconnect() { }
     }
 
     public class NodeValuePin<T> : NodePin
@@ -104,6 +107,11 @@ namespace Framework.NodeSystem
             }
         }
 
+        protected override void OnDisconnect()
+        {
+            _value = default(T);
+        }
+
         public override string ToString()
         {
             return _value != null ? _value.ToString() : string.Empty;
@@ -112,19 +120,9 @@ namespace Framework.NodeSystem
 
     public class NodeExecutePin : NodePin
     {
-        private Action _onExecute;
-
-        public NodeExecutePin(string name, int index, Node node, Action onExecute) : base(name, index, node)
+        public NodeExecutePin(string name, int index, Node node) : base(name, index, node)
         {
-            _onExecute = onExecute;
-        }
 
-        public void Execute()
-        {
-            if (_onExecute == null)
-                DebugEx.LogWarning<NodeExecutePin>("Cannot execute pin '{0}' on node '{1}'.", Name, Node.Name);
-
-            _onExecute.InvokeSafe();
         }
 
         public override string ToString()

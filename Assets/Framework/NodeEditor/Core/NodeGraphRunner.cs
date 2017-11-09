@@ -7,6 +7,11 @@ namespace Framework.NodeSystem
 {
     public class NodeGraphRunner
     {
+        private const int MaxExecutions = 256;
+
+        private NodeGraph _graph;
+        private int _executions;
+
         public NodeGraphRunner() { }
 
         public void Run(NodeGraph graph)
@@ -17,7 +22,9 @@ namespace Framework.NodeSystem
                 return;
             }
 
-            var startNode = graph.Helper.GetStartNode();
+            _graph = graph;
+
+            var startNode = graph.Helper.GetNode<CoreStart>();
 
             if (startNode == null)
             {
@@ -35,7 +42,34 @@ namespace Framework.NodeSystem
 
             DebugEx.Log<NodeGraphRunner>("Executing...");
 
-            executePin.ConnectedPin.Node.Execute();
+            MoveNext(startNode as NodeExecute);
+        }
+
+        void MoveNext(NodeExecute nodeExecute)
+        {
+            DebugEx.Log<NodeGraphRunner>("Move next: {0} ({1})", nodeExecute.Name, nodeExecute.ID);
+
+            nodeExecute.Execute(new NodeExecuteParameters());
+
+            _executions++;
+
+            if (_executions == MaxExecutions)
+            {
+                DebugEx.LogWarning<NodeGraphRunner>("Max executions have been reached!");
+                return;
+            }
+            else if (nodeExecute.OutputPins.Count > 0)
+            {
+                var connection = _graph.Helper.GetConnectionFromStartPin(nodeExecute.OutputPins[0]);
+                if (connection != null)
+                {
+                    MoveNext(connection.EndNode as NodeExecute);
+                }
+                else
+                {
+                    DebugEx.Log<NodeGraphRunner>("Finished execution of all nodes.");
+                }
+            }
         }
     }
 }

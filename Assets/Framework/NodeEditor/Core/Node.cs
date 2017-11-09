@@ -12,7 +12,7 @@ namespace Framework.NodeSystem
         public event Action<NodePin> PinRemoved;
         public event Action<Node> Destroyed;
 
-        public List<NodePin> Pins { get { return InputPins.Concat(OutputPins).ToList(); } }
+        public List<NodePin> Pins { get; private set; }
         public List<NodePin> InputPins { get; private set; }
         public List<NodePin> OutputPins { get; private set; }
 
@@ -38,6 +38,7 @@ namespace Framework.NodeSystem
 
         public Node()
         {
+            Pins = new List<NodePin>();
             InputPins = new List<NodePin>();
             OutputPins = new List<NodePin>();   
         }
@@ -77,18 +78,19 @@ namespace Framework.NodeSystem
             return pin;
         }
 
-        protected void AddExecuteInPin(Action onExecute)
+        protected void AddExecuteInPin()
         {
-            var pin = new NodeExecutePin("In", Pins.Count, this, onExecute);
+            var pin = new NodeExecutePin("In", Pins.Count, this);
             RegisterPin(pin);
             InputPins.Add(pin);
         }
 
-        protected void AddExecuteOutPin()
+        protected NodeExecutePin AddExecuteOutPin()
         {
-            var pin = new NodeExecutePin("Out", Pins.Count, this, null);
+            var pin = new NodeExecutePin("Out", Pins.Count, this);
             RegisterPin(pin);
             OutputPins.Add(pin);
+            return pin;
         }
 
         protected void RemoveInputPin(int pinIndex)
@@ -97,8 +99,7 @@ namespace Framework.NodeSystem
             {
                 DebugEx.Log<Node>("Remove input pin.");
                 var pin = InputPins[pinIndex];
-                PinRemoved.InvokeSafe(pin);
-                TriggerChange();
+                RemovePin(pin);
                 InputPins.Remove(pin);
             }
         }
@@ -109,8 +110,7 @@ namespace Framework.NodeSystem
             {
                 DebugEx.Log<Node>("Remove output pin.");
                 var pin = OutputPins[pinIndex];
-                PinRemoved.InvokeSafe(pin);
-                TriggerChange();
+                RemovePin(pin);
                 OutputPins.Remove(pin);
             }
         }
@@ -135,16 +135,17 @@ namespace Framework.NodeSystem
             return pinId < Pins.Count;
         }
 
-        public void Execute()
-        {
-            OnExecute();
-        }
-
-        protected virtual void OnExecute() { }
-
         void RegisterPin(NodePin pin)
         {
+            Pins.Add(pin);
             PinAdded.InvokeSafe(pin);
+        }
+
+        void RemovePin(NodePin pin)
+        {
+            Pins.Remove(pin);
+            PinRemoved.InvokeSafe(pin);
+            TriggerChange();
         }
     }
 }

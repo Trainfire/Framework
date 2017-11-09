@@ -26,14 +26,29 @@ namespace Framework.NodeSystem
             return Connections.Any(connection => connection.StartPin == pin || connection.EndPin == pin);
         }
 
-        public Node GetStartNode()
+        public Node GetNode<T>() where T : Node
         {
-            return _graph.Nodes.Find(node => node.GetType() == typeof(EventOnStart));
+            return _graph.Nodes.Find(x => x.GetType() == typeof(T)) as T;
+        }
+
+        public List<T> GetNodes<T>() where T : Node
+        {
+            return _graph.Nodes.OfType<T>().ToList();
         }
 
         public Node GetNode(string nodeId)
         {
             return _graph.Nodes.Find(x => x.ID == nodeId);
+        }
+
+        public NodeConnection GetConnection(NodePin pin)
+        {
+            return _graph.Connections.ToList().Where(x => x.StartPin == pin || x.EndPin == pin).FirstOrDefault();
+        }
+
+        public NodeConnection GetConnectionFromStartPin(NodePin startPin)
+        {
+            return _graph.Connections.ToList().Where(x => x.StartPin == startPin).FirstOrDefault();
         }
 
         public NodePin GetPin(string nodeId, int pinId)
@@ -45,11 +60,6 @@ namespace Framework.NodeSystem
                     return node.Pins[pinId];
             }
             return null;
-        }
-
-        public List<T> GetNodes<T>() where T : Node
-        {
-            return _graph.Nodes.OfType<T>().ToList();
         }
 
         public static NodeGraphData GetGraphData(NodeGraph graph)
