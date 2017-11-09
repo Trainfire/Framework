@@ -1,4 +1,5 @@
-﻿using UnityEngine.Assertions;
+﻿using System;
+using UnityEngine.Assertions;
 
 namespace Framework.NodeSystem
 {
@@ -33,6 +34,8 @@ namespace Framework.NodeSystem
                 UpdatePin();
             }
         }
+
+        private object _cachedValue;
 
         protected override void OnInitialize()
         {
@@ -86,14 +89,15 @@ namespace Framework.NodeSystem
         public float GetFloat() { return GetValue<float>(NodePinType.Float); }
         public void SetFloat(float value) { SetValue(NodePinType.Float, value); }
 
-        public string GetString() { return GetValue<string>(NodePinType.String); }
+        public string GetString() { return GetValue<string>(NodePinType.String, () => string.Empty); }
         public void SetString(string value) { SetValue(NodePinType.String, value); }
 
         public bool GetBool() { return GetValue<bool>(NodePinType.Bool); }
         public void SetBool(bool value) { SetValue(NodePinType.Bool, value); }
 
-        T GetValue<T>(NodePinType pinTypeQualifier)
+        T GetValue<T>(NodePinType pinTypeQualifier, Func<T> getDefault = null)
         {
+            //var defaultValue = getDefault != null ? getDefault() : default(T);
             return _pinType == pinTypeQualifier ? (OutputPins[0] as NodeValuePin<T>).Value : default(T);
         }
 
@@ -104,12 +108,16 @@ namespace Framework.NodeSystem
             if (_pinType == pinTypeQualifier)
             {
                 var outValue = (OutputPins[0] as NodeValuePin<T>).Value;
-                if (!outValue.Equals(value))
+                if (outValue == null || !outValue.Equals(value))
                 {
                     (OutputPins[0] as NodeValuePin<T>).Value = value;
-                    TriggerChange();
+
+                    if (_cachedValue != null && !value.Equals(_cachedValue))
+                        TriggerChange();
                 }
             }
+
+            _cachedValue = value;
         }
     }
 }
