@@ -27,12 +27,8 @@ namespace Framework.NodeEditor.Views
         private EditorInputListener _inputListener;
         private Dictionary<NodePin, NodePinView> _pinViews;
 
-        private readonly Vector2 NodeSize;
-
         public NodeView(Node node, int windowId)
         {
-            NodeSize = new Vector2(100f, 100f);
-
             _pinViews = new Dictionary<NodePin, NodePinView>();
 
             _inputListener = new EditorInputListener();
@@ -45,8 +41,6 @@ namespace Framework.NodeEditor.Views
 
             // Restore pins.
             Node.Pins.ForEach(pin => _pinViews.Add(pin, new NodePinView(pin)));
-
-            _rect = new Rect(Node.Position, NodeSize);
 
             _windowId = windowId;
         }
@@ -72,8 +66,13 @@ namespace Framework.NodeEditor.Views
             if (Node == null)
                 return;
 
+            const float headerHeight = 21f;
+            const float pinHeight = 24f;
+            var height = (Node.Pins.Count * pinHeight) + headerHeight;
+            var viewSize = new Vector2(100f, height);
+
             // Subtract offset due to inverted co-ordinates.
-            _rect = new Rect(Node.Position.x - offset.x, Node.Position.y - offset.y, _rect.width, _rect.height);
+            _rect = new Rect(Node.Position.x - offset.x, Node.Position.y - offset.y, viewSize.x, viewSize.y);
             _rect = GUI.Window(_windowId, _rect, InternalDraw, Node.Name);
 
             // Set node position to untransformed position.

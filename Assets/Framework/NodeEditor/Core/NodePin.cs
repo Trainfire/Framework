@@ -6,8 +6,7 @@ using System.Linq;
 
 namespace Framework.NodeSystem
 {
-    [Serializable]
-    public class NodePin
+    public abstract class NodePin
     {
         public event Action<NodePin, NodePin> PinConnected;
         public event Action<NodePin> PinDisconnected;
@@ -46,7 +45,6 @@ namespace Framework.NodeSystem
         {
             DebugEx.Log<NodePin>("{0} is now disconnected.", Name);
             PinDisconnected.InvokeSafe(this);
-            //ConnectedPin = null;
             OnDisconnect();
         }
 
@@ -108,11 +106,9 @@ namespace Framework.NodeSystem
 
         }
 
-        //public override string ToString()
-        //{
-        //    if (ConnectedPin != null)
-        //        return string.Format("{0} ({1})", ConnectedPin.Name, ConnectedPin.Node.Name);
-        //    return string.Empty;
-        //}
+        public override string ToString()
+        {
+            return "Execute";
+        }
     }
 }

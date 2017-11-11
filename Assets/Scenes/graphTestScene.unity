@@ -112,6 +112,55 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &342616620
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 342616622}
+  - component: {fileID: 342616621}
+  m_Layer: 0
+  m_Name: GameObject (1)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &342616621
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 342616620}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e379bc8adf6823d49831cb5afc5669f3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  GraphData:
+    ID: N/A
+    Nodes:
+    - ClassType: Framework.NodeSystem.CoreStart
+      Name: Start
+      ID: d3e18b08-e5db-49fa-9031-f9ac371d9eac
+      Position: {x: 277, y: 76}
+    Connections: []
+    Constants: []
+--- !u!4 &342616622
+Transform:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 342616620}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 3
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1252769729
 GameObject:
   m_ObjectHideFlags: 0
@@ -141,9 +190,57 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   GraphData:
     ID: N/A
-    Nodes: []
-    Connections: []
-    Constants: []
+    Nodes:
+    - ClassType: Framework.NodeSystem.ConversionFloatToString
+      Name: Float to String
+      ID: d0e54b59-26c0-41df-96a4-1aefc72a84ea
+      Position: {x: 494, y: 242}
+    - ClassType: Framework.NodeSystem.CoreStart
+      Name: Start
+      ID: d3e18b08-e5db-49fa-9031-f9ac371d9eac
+      Position: {x: 97, y: 78}
+    - ClassType: Framework.NodeSystem.CoreDebugLog
+      Name: Debug Log
+      ID: 023d8186-f12a-48fe-8f1b-c7cbf588563f
+      Position: {x: 696, y: 97}
+    - ClassType: Framework.NodeSystem.MathAdd
+      Name: Add
+      ID: 884b18dc-e0b5-402e-ad50-a1cb952a11d3
+      Position: {x: 319, y: 227}
+    Connections:
+    - SourceNodeId: d3e18b08-e5db-49fa-9031-f9ac371d9eac
+      SourcePinId: 1
+      TargetNodeId: 023d8186-f12a-48fe-8f1b-c7cbf588563f
+      TargetPinId: 0
+    - SourceNodeId: 023d8186-f12a-48fe-8f1b-c7cbf588563f
+      SourcePinId: 2
+      TargetNodeId: d0e54b59-26c0-41df-96a4-1aefc72a84ea
+      TargetPinId: 1
+    - SourceNodeId: d0e54b59-26c0-41df-96a4-1aefc72a84ea
+      SourcePinId: 0
+      TargetNodeId: 884b18dc-e0b5-402e-ad50-a1cb952a11d3
+      TargetPinId: 2
+    - SourceNodeId: 884b18dc-e0b5-402e-ad50-a1cb952a11d3
+      SourcePinId: 0
+      TargetNodeId: 2074526f-15d3-4600-b2c6-2e6a57bbae8d
+      TargetPinId: 0
+    - SourceNodeId: 884b18dc-e0b5-402e-ad50-a1cb952a11d3
+      SourcePinId: 1
+      TargetNodeId: 597ca5b5-6b94-4393-bf25-d3aed3b6a561
+      TargetPinId: 0
+    Constants:
+    - ClassType: Framework.NodeSystem.NodeConstant
+      Name: Constant
+      ID: 2074526f-15d3-4600-b2c6-2e6a57bbae8d
+      Position: {x: 80, y: 226}
+      ConstantType: 1
+      Value: 2
+    - ClassType: Framework.NodeSystem.NodeConstant
+      Name: Constant
+      ID: 597ca5b5-6b94-4393-bf25-d3aed3b6a561
+      Position: {x: 100, y: 301}
+      ConstantType: 1
+      Value: 34
 --- !u!4 &1252769731
 Transform:
   m_ObjectHideFlags: 0
