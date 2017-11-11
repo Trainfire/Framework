@@ -26,7 +26,7 @@ namespace Framework.NodeSystem
             return Connections.Any(connection => connection.StartPin == pin || connection.EndPin == pin);
         }
 
-        public Node GetNode<T>() where T : Node
+        public T GetNode<T>() where T : Node
         {
             return _graph.Nodes.Find(x => x.GetType() == typeof(T)) as T;
         }

@@ -15,8 +15,6 @@ namespace Framework.NodeSystem
         public Node Node { get; private set; }
         public string Name { get; private set; }
         public int Index { get; private set; }
-        public NodePin ConnectedPin { get; private set; }
-        public bool Connected { get { return ConnectedPin != null; } }
 
         public Vector2 ScreenPosition { get { return LocalRect.position + Node.Position; } }
         public Rect LocalRect { get; set; }
@@ -26,14 +24,6 @@ namespace Framework.NodeSystem
             Index = index;
             Name = name;
             Node = node;
-        }
-
-        public bool WillPinConnectionCreateCircularDependency(NodePin targetPin)
-        {
-            // Pin cannot be connected to a node that has connections to this pin's node.
-            return Node.InputPins
-                .Where(pin => pin.ConnectedPin != null)
-                .Any(pin => pin.ConnectedPin.Node == targetPin.Node);
         }
 
         public bool ArePinsCompatible(NodePin pin)
@@ -48,8 +38,6 @@ namespace Framework.NodeSystem
             if (ArePinsCompatible(targetPin))
             {
                 DebugEx.Log<NodePin>("{0} is now connected {1}", Name, targetPin.Name);
-                ConnectedPin = targetPin;
-
                 PinConnected.InvokeSafe(this, targetPin);
             }
         }
@@ -58,9 +46,11 @@ namespace Framework.NodeSystem
         {
             DebugEx.Log<NodePin>("{0} is now disconnected.", Name);
             PinDisconnected.InvokeSafe(this);
-            ConnectedPin = null;
+            //ConnectedPin = null;
             OnDisconnect();
         }
+
+        public virtual void SetValueFromPin(NodePin pin) { }
 
         protected virtual void OnDisconnect() { }
     }
@@ -69,42 +59,35 @@ namespace Framework.NodeSystem
     {
         public NodeValuePin(string name, int index, Node node) : base(name, index, node) { }
 
-        public event Action<T> OnSet;
-        public event Action OnGet;
-
         private T _value;
         public T Value
         {
             get
             {
-                OnGet.InvokeSafe();
-
                 if (_value == null)
                     _value = default(T);
 
-                if (this.ConnectedPin == null)
-                    return _value;
-
-                NodeValuePin<T> connectedValuePin = null;
-                try
-                {
-                    connectedValuePin = this.ConnectedPin as NodeValuePin<T>;
-                }
-                catch (Exception ex)
-                {
-                    DebugEx.Log<NodeValuePin<T>>(ex.Message);
-                }
-
-                _value = connectedValuePin.Value;
-
-                //return connectedValuePin != null ? connectedValuePin.Value : _value;
                 return _value;
             }
             set
             {
                 _value = value;
-                OnSet.InvokeSafe(_value);
             }
+        }
+
+        public override void SetValueFromPin(NodePin pin)
+        {
+            NodeValuePin<T> convertedPin = null;
+            try
+            {
+                convertedPin = pin as NodeValuePin<T>;
+            }
+            catch (Exception ex)
+            {
+                DebugEx.LogError<NodePin>(ex.Message);
+            }
+
+            _value = convertedPin.Value;
         }
 
         protected override void OnDisconnect()
@@ -125,11 +108,11 @@ namespace Framework.NodeSystem
 
         }
 
-        public override string ToString()
-        {
-            if (ConnectedPin != null)
-                return string.Format("{0} ({1})", ConnectedPin.Name, ConnectedPin.Node.Name);
-            return string.Empty;
-        }
+        //public override string ToString()
+        //{
+        //    if (ConnectedPin != null)
+        //        return string.Format("{0} ({1})", ConnectedPin.Name, ConnectedPin.Node.Name);
+        //    return string.Empty;
+        //}
     }
 }

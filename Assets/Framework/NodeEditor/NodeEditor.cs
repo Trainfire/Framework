@@ -139,7 +139,7 @@ namespace Framework.NodeEditor
 
         void GraphView_MouseLeftReleasedOverPin(NodePin nodePin)
         {
-            _pinConnector.AttemptMakeConnection(nodePin);
+            _pinConnector.Connect(nodePin);
         }
 
         void GraphView_MouseReleased()

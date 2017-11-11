@@ -56,11 +56,7 @@ namespace Framework.NodeSystem
 
         protected virtual void OnInitialize() { }
 
-        [ExecuteInEditMode]
-        public void OnDestroy()
-        {
-            Destroyed.InvokeSafe(this);
-        }
+        public virtual void Calculate() { }
 
         protected NodeValuePin<T> AddInputPin<T>(string name)
         {

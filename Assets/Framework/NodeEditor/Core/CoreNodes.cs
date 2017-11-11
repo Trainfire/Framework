@@ -18,18 +18,27 @@
             }
             else
             {
-                DebugEx.Log<CoreDebugLog>("Nowt connected.");
+                DebugEx.Log<CoreDebugLog>("Value is null.");
             }
         }
     }
 
     public class MathAdd : Node
     {
+        private NodeValuePin<float> _in1;
+        private NodeValuePin<float> _in2;
+        private NodeValuePin<float> _out;
+
         protected override void OnInitialize()
         {
-            AddInputPin<float>("In 1");
-            AddInputPin<float>("In 2");
-            AddOutputPin<float>("Result");
+            _in1 = AddInputPin<float>("In 1");
+            _in2 = AddInputPin<float>("In 2");
+            _out = AddOutputPin<float>("Result");
+        }
+
+        public override void Calculate()
+        {
+            _out.Value = _in1.Value + _in2.Value;
         }
     }
 
@@ -42,12 +51,9 @@
         {
             _in = AddInputPin<float>("In");
             _out = AddOutputPin<string>("Out");
-
-            _in.Value = 64f;
-            _out.OnGet += NodeConversionFloatToString_OnGet;
         }
 
-        void NodeConversionFloatToString_OnGet()
+        public override void Calculate()
         {
             _out.Value = _in.Value.ToString();
         }

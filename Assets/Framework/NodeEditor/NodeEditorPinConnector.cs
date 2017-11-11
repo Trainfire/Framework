@@ -36,7 +36,7 @@ namespace Framework.NodeEditor
             _sourcePin = null;
         }
 
-        public void AttemptMakeConnection(NodePin targetPin)
+        public void Connect(NodePin targetPin)
         {
             if (targetPin == null)
             {
@@ -56,19 +56,13 @@ namespace Framework.NodeEditor
                 return;
             }
 
-            if (_sourcePin.WillPinConnectionCreateCircularDependency(targetPin))
-            {
-                DebugEx.LogWarning<NodeEditorPinConnector>("Pin connection would create a circular dependency!");
-                return;
-            }
-
             if (targetPin.ArePinsCompatible(_sourcePin))
             {
                 DebugEx.Log<NodeEditorPinConnector>("Connecting pin '{0}' in '{1}' to '{2}' in '{3}'",
                     _sourcePin.Name,
-                    _sourcePin.Node.ID,
+                    _sourcePin.Node.Name,
                     targetPin.Name,
-                    targetPin.Node.ID);
+                    targetPin.Node.Name);
 
                 // Execution pins flow left right.
                 // Value pins flow right to left.

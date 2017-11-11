@@ -32,22 +32,34 @@ namespace Framework.NodeSystem
                 return;
             }
 
-            // TODO: Weird logic here.Just call StartNode.Execute() ?
-            var executePin = startNode.OutputPins[0] as NodeExecutePin;
-            if (executePin.ConnectedPin == null)
-            {
-                DebugEx.LogError<NodeGraphRunner>("Cannot run graph as start node is not connected.");
-                return;
-            }
-
             DebugEx.Log<NodeGraphRunner>("Executing...");
 
-            MoveNext(startNode as NodeExecute);
+            MoveNext(startNode);
+        }
+
+        void Prepare(Node node)
+        {
+            DebugEx.Log<NodeGraphRunner>("Preparing node '{0}'...", node.Name);
+
+            foreach (var inputPin in node.InputPins)
+            {
+                var graphConnection = _graph.Helper.GetConnectionFromStartPin(inputPin);
+                if (graphConnection != null)
+                {
+                    Prepare(graphConnection.EndNode);
+                    inputPin.SetValueFromPin(graphConnection.EndPin);
+                }
+            }
+
+            DebugEx.Log<NodeGraphRunner>("Calculating node '{0}'...", node.Name);
+            node.Calculate();
         }
 
         void MoveNext(NodeExecute nodeExecute)
         {
             DebugEx.Log<NodeGraphRunner>("Move next: {0} ({1})", nodeExecute.Name, nodeExecute.ID);
+
+            Prepare(nodeExecute);
 
             nodeExecute.Execute(new NodeExecuteParameters());
 

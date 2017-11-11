@@ -148,7 +148,7 @@ namespace Framework.NodeSystem
             Assert.IsNotNull(connection.StartPin, "Attempted to connect two pins where the start pin was null.");
             Assert.IsNotNull(connection.EndPin, "Attempted to connect two pins where the end pin was null.");
             Assert.IsFalse(connection.StartPin == connection.EndPin, "Attempted to connect a pin to itself.");
-            Assert.IsFalse(connection.StartPin.WillPinConnectionCreateCircularDependency(connection.EndPin), "Pin connection would create a circular dependency!");
+            //Assert.IsFalse(connection.StartPin.WillPinConnectionCreateCircularDependency(connection.EndPin), "Pin connection would create a circular dependency!");
 
             Connections.Add(connection);
 
@@ -170,13 +170,11 @@ namespace Framework.NodeSystem
             if (containsConnection)
             {
                 Connections.Remove(connection);
-                Edited.InvokeSafe(this);
+                connection.StartPin.Disconnect();
+                connection.EndPin.Disconnect();
                 DebugEx.Log<NodeGraph>("Disconnected {0} from {1}.", connection.StartPin.Node.Name, connection.EndPin.Node.Name);
-
                 Edited.InvokeSafe(this);
             }
-
-            Edited.InvokeSafe(this);
         }
 
         public void Disconnect(NodePin pin)
@@ -186,10 +184,7 @@ namespace Framework.NodeSystem
                 .FirstOrDefault();
 
             if (connection != null)
-            {
                 Disconnect(connection);
-                Edited.InvokeSafe(this);
-            }
         }
 
         #region Callbacks
