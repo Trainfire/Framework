@@ -19,10 +19,13 @@ namespace Framework.NodeEditor.Views
         public event Action MouseReleased;
 
         public NodeGraphHelper GraphHelper { get; set; }
+        public Rect WindowSize { get; set; }
 
         private EditorInputListener _inputListener;
         private Dictionary<Node, NodeView> _nodeViews;
         private Node _selectedNode;
+
+        private Vector2 _scrollPosition;
 
         public NodeEditorGraphView()
         {
@@ -129,14 +132,19 @@ namespace Framework.NodeEditor.Views
         {
             _inputListener.ProcessEvents();
 
-            DrawDebug();
+            _scrollPosition = GUI.BeginScrollView(new Rect(0, 0, WindowSize.width, WindowSize.height), _scrollPosition, new Rect(0, 0, 2000f, 2000f), true, true);
+
             DrawNodes();
             DrawConnections();
+
+            GUI.EndScrollView();
+
+            DrawDebug();
         }
 
         void DrawNodes()
         {
-            _nodeViews.Values.ToList().ForEach(x => x.Draw());
+            _nodeViews.Values.ToList().ForEach(x => x.Draw(_scrollPosition));
         }
 
         void DrawConnections()
@@ -171,7 +179,7 @@ namespace Framework.NodeEditor.Views
 
         void DrawDebug()
         {
-            GUILayout.BeginArea(new Rect(new Vector2(0f, Screen.height - 100f), new Vector2(400f, 1000f)));
+            GUILayout.BeginArea(new Rect(new Vector2(0f, Screen.height - 120f), new Vector2(400f, 1000f)));
 
             DrawHeader("Graph Info");
 
@@ -197,7 +205,7 @@ namespace Framework.NodeEditor.Views
             if (_selectedNode != null && GraphHelper != null)
             {
                 // Node Debug
-                GUILayout.BeginArea(new Rect(new Vector2(Screen.width - 400f, Screen.height - 100f), new Vector2(400f, 1000f)));
+                GUILayout.BeginArea(new Rect(new Vector2(Screen.width - 400f, Screen.height - 120f), new Vector2(400f, 1000f)));
 
                 DrawHeader("Selected Node: " + _selectedNode.Name);
 

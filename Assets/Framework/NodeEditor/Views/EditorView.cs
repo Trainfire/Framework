@@ -1,4 +1,6 @@
-﻿namespace Framework.NodeEditor.Views
+﻿using UnityEngine;
+
+namespace Framework.NodeEditor.Views
 {
     public class NodeEditorView
     {

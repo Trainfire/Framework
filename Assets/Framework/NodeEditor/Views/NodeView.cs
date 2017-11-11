@@ -65,13 +65,19 @@ namespace Framework.NodeEditor.Views
             Node = null;
         }
 
-        protected override void OnDraw()
+        protected override void OnDraw() { }
+
+        public void Draw(Vector2 offset)
         {
             if (Node == null)
                 return;
 
+            // Subtract offset due to inverted co-ordinates.
+            _rect = new Rect(Node.Position.x - offset.x, Node.Position.y - offset.y, _rect.width, _rect.height);
             _rect = GUI.Window(_windowId, _rect, InternalDraw, Node.Name);
-            Node.Position = _rect.position;
+
+            // Set node position to untransformed position.
+            Node.Position = _rect.position + offset;
         }
 
         void InternalDraw(int windowId)

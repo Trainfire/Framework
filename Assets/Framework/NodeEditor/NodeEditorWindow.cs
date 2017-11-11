@@ -27,6 +27,7 @@ namespace Framework.NodeEditor
 
         void OnGUI()
         {
+            _view.GraphView.WindowSize = position;
             _view.Draw();
 
             // TEMP: Need to move this...somehow.
