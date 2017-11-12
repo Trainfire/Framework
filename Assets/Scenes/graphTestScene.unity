@@ -234,7 +234,7 @@ MonoBehaviour:
       ID: 2074526f-15d3-4600-b2c6-2e6a57bbae8d
       Position: {x: 80, y: 226}
       ConstantType: 1
-      Value: 2
+      Value: 4
     - ClassType: Framework.NodeSystem.NodeConstant
       Name: Constant
       ID: 597ca5b5-6b94-4393-bf25-d3aed3b6a561

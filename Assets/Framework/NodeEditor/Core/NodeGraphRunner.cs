@@ -92,6 +92,7 @@ namespace Framework.NodeSystem
 
     public class NodeExecution
     {
+        public Node StartNode { get; private set; }
         public bool Completed { get; private set; }
 
         private NodeGraphHelper _graphHelper;
@@ -107,10 +108,10 @@ namespace Framework.NodeSystem
 
         public void Start(Node startNode)
         {
-            _stack = new Stack<NodeExecutionGroup>();
+            StartNode = startNode;
 
-            // Auto-iterate on start node.
-            _stack.Push(new NodeExecutionGroup(startNode, _graphHelper));
+            _stack = new Stack<NodeExecutionGroup>();
+            _stack.Push(new NodeExecutionGroup(0, startNode, _graphHelper)); // Auto-iterate on start node.
 
             if (_autoIterate)
                 Iterate();
@@ -133,10 +134,7 @@ namespace Framework.NodeSystem
             }
             else if (currentGroup.Finished)
             {
-                // Node is prepared. Calculate it.
-                currentGroup.Node.Calculate();
-
-                // Pop from stack.
+                currentGroup.Node.Calculate(); // Node is prepared. Calculate it.
                 _stack.Pop();
             }
 
@@ -148,45 +146,75 @@ namespace Framework.NodeSystem
     public class NodeExecutionGroup
     {
         public Node Node { get; private set; }
+        public NodeConnection CurrentConnection { get; private set; }
         public NodeExecutionGroup SubGroup { get; private set; }
+        public int Depth { get; private set; }
         public bool Finished { get; private set; }
 
         private NodeGraphHelper _graphHelper;
         private int _currentPin;
         private int _pinCount;
 
-        public NodeExecutionGroup(Node node, NodeGraphHelper graphHelper)
+        public NodeExecutionGroup(int depth, Node node, NodeGraphHelper graphHelper)
         {
+            Depth = depth;
             Node = node;
 
             _graphHelper = graphHelper;
             _pinCount = node.InputPins.Count;
+
+            // Early out.
+            if (_pinCount == 0)
+                Finished = true;
         }
 
         public void Iterate()
         {
-            // NB: Nodes such as constants have no input pins so no sub-groups will ever be created for them.
-            if (_pinCount != 0)
+            if (_currentPin == _pinCount || _pinCount == 0)
+            {
+                Log("Finished iterating on node '{0}'.", Node.Name);
+                SubGroup = null;
+                Finished = true;
+                return;
+            }
+
+            Log("Iterate on pin '{0}' on '{1}'...", Node.InputPins[_currentPin].Name, Node.Name);
+
+            if (SubGroup != null)
+            {
+                if (SubGroup.Finished)
+                {
+                    Log("Subgroup '{0}' has finished. Setting pin value for '{1}' on '{2}'...",
+                        SubGroup.Node.Name, 
+                        CurrentConnection.StartNode.InputPins[_currentPin].Name,
+                        CurrentConnection.StartNode.Name);
+                    CurrentConnection.StartPin.SetValueFromPin(CurrentConnection.EndPin);
+                    SubGroup = null;
+                }
+            }
+            else
             {
                 var pin = Node.InputPins[_currentPin];
-                var connection = _graphHelper.GetConnectionFromStartPin(pin);
-                if (connection != null)
+                CurrentConnection = _graphHelper.GetConnectionFromStartPin(pin);
+                if (CurrentConnection != null)
                 {
-                    SubGroup = new NodeExecutionGroup(connection.EndNode, _graphHelper);
+                    SubGroup = new NodeExecutionGroup(Depth + 1, CurrentConnection.EndNode, _graphHelper);
                 }
                 else
                 {
                     SubGroup = null;
                 }
+            }
 
+            // Not waiting for anything, so iterate pin.
+            if (SubGroup == null)
                 _currentPin++;
-            }
+        }
 
-            if (_currentPin == _pinCount || _pinCount == 0)
-            {
-                SubGroup = null;
-                Finished = true;
-            }
+        void Log(string message, params object[] args)
+        {
+            var prefix = string.Format("Depth: {0} - ", Depth);
+            DebugEx.Log<NodeExecutionGroup>(prefix + message, args);
         }
     }
 }
