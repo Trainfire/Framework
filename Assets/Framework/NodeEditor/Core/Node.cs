@@ -131,6 +131,11 @@ namespace Framework.NodeSystem
             return pinId < Pins.Count;
         }
 
+        public bool HasExecutePins()
+        {
+            return Pins.Any(x => x.GetType() == typeof(NodeExecutePin));
+        }
+
         void RegisterPin(NodePin pin)
         {
             Pins.Add(pin);

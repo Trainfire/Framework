@@ -8,7 +8,7 @@
         }
     }
 
-    public class CoreDebugLog : NodeExecute1In<string>
+    public class CoreDebugLog : NodeExecute1In1Out<string>
     {
         public override void Execute(NodeExecuteParameters parameters)
         {
@@ -20,6 +20,8 @@
             {
                 DebugEx.Log<CoreDebugLog>("Value is null.");
             }
+
+            Out.Value = In.Value;
         }
     }
 
