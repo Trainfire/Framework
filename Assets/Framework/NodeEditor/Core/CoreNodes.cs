@@ -8,7 +8,7 @@
         }
     }
 
-    public class CoreDebugLog : NodeExecute1In1Out<string>
+    public class CoreDebugLog : NodeExecute1In1Out<string, string>
     {
         public override void Execute(NodeExecuteParameters parameters)
         {
@@ -25,39 +25,57 @@
         }
     }
 
-    public class MathAdd : Node
+    public class MathAdd : Node2In1Out<float, float, float>
     {
-        private NodeValuePin<float> _in1;
-        private NodeValuePin<float> _in2;
-        private NodeValuePin<float> _out;
+        public override void Calculate() { Out.Value = In1.Value + In2.Value; }
+    }
 
-        protected override void OnInitialize()
-        {
-            _in1 = AddInputPin<float>("In 1");
-            _in2 = AddInputPin<float>("In 2");
-            _out = AddOutputPin<float>("Result");
-        }
+    public class MathSubtract : Node2In1Out<float, float, float>
+    {
+        public override void Calculate() { Out.Value = In1.Value - In2.Value; }
+    }
 
+    public class MathMultiply : Node2In1Out<float, float, float>
+    {
+        public override void Calculate() { Out.Value = In1.Value * In2.Value; }
+    }
+
+    public class MathDivide : Node2In1Out<float, float, float>
+    {
+        public override void Calculate() { Out.Value = In1.Value / In2.Value; }
+    }
+
+    public class ConversionToString<TIn> : Node1In1Out<TIn, string>
+    {
+        public override void Calculate() { Out.Value = In.ToString(); }
+    }
+
+    public class LogicSelect : Node3In1Out<bool, string, string, string>
+    {
         public override void Calculate()
         {
-            _out.Value = _in1.Value + _in2.Value;
+            bool condition = In1.Value;
+            Out.Value = condition ? In2.Value : In3.Value;
         }
     }
 
-    public class ConversionFloatToString : Node
+    public class LogicEquals : Node2In1Out<int, int, bool>
     {
-        private NodeValuePin<float> _in;
-        private NodeValuePin<string> _out;
+        public override void Calculate() { Out.Value = In1.Value == In2.Value; }
+    }
 
-        protected override void OnInitialize()
-        {
-            _in = AddInputPin<float>("In");
-            _out = AddOutputPin<string>("Out");
-        }
+    public class LogicNot : Node1In1Out<bool, bool>
+    {
+        public override void Calculate() { Out.Value = !In.Value; }
+    }
 
-        public override void Calculate()
-        {
-            _out.Value = _in.Value.ToString();
-        }
+    public class LogicAnd : Node2In1Out<bool, bool, bool>
+    {
+        public override void Calculate() { Out.Value = In1.Value && In2.Value; }
+    }
+
+    public class LogicOr : Node2In1Out<bool, bool, bool>
+    {
+        public override void Calculate() { Out.Value = In1.Value || In2.Value; }
     }
 }
