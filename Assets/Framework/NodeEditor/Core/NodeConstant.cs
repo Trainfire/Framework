@@ -3,7 +3,7 @@ using UnityEngine.Assertions;
 
 namespace Framework.NodeSystem
 {
-    public enum NodePinType
+    public enum NodeConstantType
     {
         None,
         Float,
@@ -14,8 +14,8 @@ namespace Framework.NodeSystem
 
     public class NodeConstant : Node
     {
-        private NodePinType _pinType;
-        public NodePinType PinType
+        private NodeConstantType _pinType;
+        public NodeConstantType PinType
         {
             get
             {
@@ -53,16 +53,16 @@ namespace Framework.NodeSystem
 
             switch (_pinType)
             {
-                case NodePinType.Float:
+                case NodeConstantType.Float:
                     AddOutputPin<float>(pinName);
                     break;
-                case NodePinType.Int:
+                case NodeConstantType.Int:
                     AddOutputPin<int>(pinName);
                     break;
-                case NodePinType.Bool:
+                case NodeConstantType.Bool:
                     AddOutputPin<bool>(pinName);
                     break;
-                case NodePinType.String:
+                case NodeConstantType.String:
                     AddOutputPin<string>(pinName);
                     break;
             }
@@ -76,32 +76,32 @@ namespace Framework.NodeSystem
 
             switch (PinType)
             {
-                case NodePinType.Float: SetFloat(float.Parse(data.Value)); break;
-                case NodePinType.Int: SetInt(int.Parse(data.Value)); break;
-                case NodePinType.Bool: SetBool(bool.Parse(data.Value)); break;
-                case NodePinType.String: SetString(data.Value); break;
+                case NodeConstantType.Float: SetFloat(float.Parse(data.Value)); break;
+                case NodeConstantType.Int: SetInt(int.Parse(data.Value)); break;
+                case NodeConstantType.Bool: SetBool(bool.Parse(data.Value)); break;
+                case NodeConstantType.String: SetString(data.Value); break;
             }
         }
 
-        public int GetInt() { return GetValue<int>(NodePinType.Int); }
-        public void SetInt(int value) { SetValue(NodePinType.Int, value); }
+        public int GetInt() { return GetValue<int>(NodeConstantType.Int); }
+        public void SetInt(int value) { SetValue(NodeConstantType.Int, value); }
 
-        public float GetFloat() { return GetValue<float>(NodePinType.Float); }
-        public void SetFloat(float value) { SetValue(NodePinType.Float, value); }
+        public float GetFloat() { return GetValue<float>(NodeConstantType.Float); }
+        public void SetFloat(float value) { SetValue(NodeConstantType.Float, value); }
 
-        public string GetString() { return GetValue<string>(NodePinType.String, () => string.Empty); }
-        public void SetString(string value) { SetValue(NodePinType.String, value); }
+        public string GetString() { return GetValue<string>(NodeConstantType.String, () => string.Empty); }
+        public void SetString(string value) { SetValue(NodeConstantType.String, value); }
 
-        public bool GetBool() { return GetValue<bool>(NodePinType.Bool); }
-        public void SetBool(bool value) { SetValue(NodePinType.Bool, value); }
+        public bool GetBool() { return GetValue<bool>(NodeConstantType.Bool); }
+        public void SetBool(bool value) { SetValue(NodeConstantType.Bool, value); }
 
-        T GetValue<T>(NodePinType pinTypeQualifier, Func<T> getDefault = null)
+        T GetValue<T>(NodeConstantType pinTypeQualifier, Func<T> getDefault = null)
         {
             //var defaultValue = getDefault != null ? getDefault() : default(T);
             return _pinType == pinTypeQualifier ? (OutputPins[0] as NodeValuePin<T>).Value : default(T);
         }
 
-        void SetValue<T>(NodePinType pinTypeQualifier, T value)
+        void SetValue<T>(NodeConstantType pinTypeQualifier, T value)
         {
             Assert.IsTrue(_pinType == pinTypeQualifier);
 

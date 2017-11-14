@@ -29,7 +29,7 @@ namespace Framework.NodeSystem
     [Serializable]
     public class NodeConstantData : NodeData
     {
-        public NodePinType ConstantType;
+        public NodeConstantType ConstantType;
         public string Value;
 
         public static NodeConstantData Convert(NodeConstant constant)
@@ -48,11 +48,11 @@ namespace Framework.NodeSystem
 
             switch (constant.PinType)
             {
-                case NodePinType.None: constantData.Value = string.Empty; break;
-                case NodePinType.Float: constantData.Value = constant.GetFloat().ToString(); break;
-                case NodePinType.Int: constantData.Value = constant.GetInt().ToString(); break;
-                case NodePinType.Bool: constantData.Value = constant.GetBool().ToString(); break;
-                case NodePinType.String: constantData.Value = constant.GetString(); break;
+                case NodeConstantType.None: constantData.Value = string.Empty; break;
+                case NodeConstantType.Float: constantData.Value = constant.GetFloat().ToString(); break;
+                case NodeConstantType.Int: constantData.Value = constant.GetInt().ToString(); break;
+                case NodeConstantType.Bool: constantData.Value = constant.GetBool().ToString(); break;
+                case NodeConstantType.String: constantData.Value = constant.GetString(); break;
             };
 
             return constantData;

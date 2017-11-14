@@ -18,24 +18,18 @@ namespace Framework.NodeEditor.Views
         private const float PinSize = 10f;
 
         private bool _isInputPin;
-        private int _pinIndex;
 
         public NodePinView(NodePin nodePin) : base()
         {
             Pin = nodePin;
 
             _isInputPin = nodePin.Node.IsInputPin(Pin);
-            _pinIndex = _isInputPin ? Pin.Node.InputPins.IndexOf(Pin) : Pin.Node.OutputPins.IndexOf(Pin);
         }
 
         protected override void OnDraw()
         {
             if (Pin == null)
                 return;
-
-            var startingBg = GUI.backgroundColor;
-
-            GUI.backgroundColor = LocalRect.Contains(InputListener.MousePosition) ? Color.gray : startingBg;
 
             GUILayout.BeginHorizontal();
 
@@ -55,17 +49,30 @@ namespace Framework.NodeEditor.Views
             }
 
             GUILayout.EndHorizontal();
-
-            GUI.backgroundColor = startingBg;
         }
 
         void DrawPin()
         {
+            var startingBg = GUI.backgroundColor;
+
+            var color = NodeEditorHelper.GetPinColor(Pin.Type);
+
+            // Highlight
+            if (LocalRect.Contains(InputListener.MousePosition))
+            {
+                var highlightAdd = 0.4f;
+                color = new Color(color.r + highlightAdd, color.g + highlightAdd, color.b + highlightAdd);
+            }
+
+            GUI.backgroundColor = color;
+
             GUILayout.Box("", GUILayout.Width(PinSize), GUILayout.Height(PinSize));
 
             // Only cache Rect on Repaint event.
             if (Event.current.type == EventType.Repaint)
                 Pin.LocalRect = GUILayoutUtility.GetLastRect();
+
+            GUI.backgroundColor = startingBg;
         }
 
         void DrawLabel()

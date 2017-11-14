@@ -6,6 +6,17 @@ using System.Linq;
 
 namespace Framework.NodeSystem
 {
+    public enum NodePinType
+    {
+        None,
+        Execute,
+        Object,
+        Float,
+        Int,
+        Bool,
+        String,
+    }
+
     public abstract class NodePin
     {
         public event Action<NodePin, NodePin> PinConnected;
@@ -17,6 +28,8 @@ namespace Framework.NodeSystem
 
         public Vector2 ScreenPosition { get { return LocalRect.position + Node.Position; } }
         public Rect LocalRect { get; set; }
+
+        public abstract NodePinType Type { get; }
 
         public NodePin(string name, int index, Node node)
         {
@@ -56,6 +69,32 @@ namespace Framework.NodeSystem
     public class NodeValuePin<T> : NodePin
     {
         public NodeValuePin(string name, int index, Node node) : base(name, index, node) { }
+
+        public override NodePinType Type
+        {
+            get
+            {
+                // NB: Naive approach but it'll do for now...
+                if (typeof(T) == typeof(float))
+                {
+                    return NodePinType.Float;
+                }
+                else if (typeof(T) == typeof(int))
+                {
+                    return NodePinType.Int;
+                }
+                else if (typeof(T) == typeof(bool))
+                {
+                    return NodePinType.Bool;
+                }
+                else if (typeof(T) == typeof(string))
+                {
+                    return NodePinType.String;
+                }
+
+                return NodePinType.None;
+            }
+        }
 
         private T _value;
         public T Value
@@ -101,14 +140,8 @@ namespace Framework.NodeSystem
 
     public class NodeExecutePin : NodePin
     {
-        public NodeExecutePin(string name, int index, Node node) : base(name, index, node)
-        {
-
-        }
-
-        public override string ToString()
-        {
-            return "Execute";
-        }
+        public NodeExecutePin(string name, int index, Node node) : base(name, index, node) { }
+        public override NodePinType Type { get { return NodePinType.Execute; } }
+        public override string ToString() { return "Execute"; }
     }
 }
