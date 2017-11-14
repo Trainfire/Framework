@@ -61,7 +61,7 @@ namespace Framework
                 dict.Add(key, value);
         }
 
-        public static void Remove<TKey, TValue>(this IDictionary<TKey, TValue> dict, TKey key, TValue value, bool assert)
+        public static void Remove<TKey, TValue>(this IDictionary<TKey, TValue> dict, TKey key, bool assert)
         {
             bool containsKey = dict.ContainsKey(key);
 

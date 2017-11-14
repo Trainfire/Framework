@@ -14,17 +14,12 @@ namespace Framework.NodeEditor.Views
         public event Action<NodeView> NodeDeleted;
 
         public Node Node { get; private set; }
-        public List<NodePinView> PinViews
-        {
-            get
-            {
-                return _pinViews.Values.ToList();
-            }
-        }
+        public List<NodePinView> PinViews { get { return _pinViews.Values.ToList(); } }
 
         private int _windowId;
         private Rect _rect;
         private EditorInputListener _inputListener;
+        private Node _node;
         private Dictionary<NodePin, NodePinView> _pinViews;
 
         public NodeView(Node node, int windowId)
@@ -36,11 +31,11 @@ namespace Framework.NodeEditor.Views
             _inputListener.DeletePressed += InputListener_DeletePressed;
 
             Node = node;
-            Node.PinAdded += Node_PinAdded;
-            Node.PinRemoved += Node_PinRemoved;
+            Node.PinAdded += AddPin;
+            Node.PinRemoved += RemovePin;
 
             // Restore pins.
-            Node.Pins.ForEach(pin => _pinViews.Add(pin, new NodePinView(pin)));
+            Node.Pins.ForEach(pin => AddPin(pin));
 
             _windowId = windowId;
         }
@@ -53,8 +48,8 @@ namespace Framework.NodeEditor.Views
             _pinViews.Values.ToList().ForEach(x => x.Destroy());
             _pinViews.Clear();
 
-            Node.PinAdded -= Node_PinAdded;
-            Node.PinRemoved -= Node_PinRemoved;
+            Node.PinAdded -= AddPin;
+            Node.PinRemoved -= RemovePin;
 
             Node = null;
         }
@@ -86,11 +81,21 @@ namespace Framework.NodeEditor.Views
             if (Node == null)
                 return;
 
-            // Draw.
-            _pinViews
-                .Values
-                .ToList()
-                .ForEach(x => x.Draw());
+            GUILayout.BeginHorizontal();
+
+            // Inputs
+            GUILayout.BeginVertical();
+            if (Node.InputPins.Count != 0)
+                Node.InputPins.ForEach(pin => _pinViews[pin].Draw());
+            GUILayout.EndVertical();
+
+            // Outputs
+            GUILayout.BeginVertical();
+            if (Node.OutputPins.Count != 0)
+                Node.OutputPins.ForEach(pin => _pinViews[pin].Draw());
+            GUILayout.EndVertical();
+
+            GUILayout.EndHorizontal();
 
             if (GetPinUnderMouse() == null)
                 GUI.DragWindow();
@@ -125,14 +130,14 @@ namespace Framework.NodeEditor.Views
             NodeDeleted.InvokeSafe(this);
         }
 
-        void Node_PinRemoved(NodePin pin)
+        void RemovePin(NodePin pin)
         {
-            _pinViews.Remove(pin);
+            _pinViews.Remove(pin, true);
         }
 
-        void Node_PinAdded(NodePin pin)
+        void AddPin(NodePin pin)
         {
-            _pinViews.Add(pin, new NodePinView(pin));
+            _pinViews.Add(pin, new NodePinView(pin), true);
         }
     }
 }
