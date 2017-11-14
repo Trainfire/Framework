@@ -20,6 +20,8 @@ namespace Framework.NodeEditor
         {
             _pinConnector = new NodeEditorPinConnector();
             _pinConnector.ConnectionMade += PinConnector_ConnectionMade;
+            _pinConnector.ConnectionStarted += PinConnector_ConnectionStarted;
+            _pinConnector.ConnectionCancelled += PinConnector_ConnectionCancelled;
 
             _runner = new NodeGraphRunner();
 
@@ -127,8 +129,19 @@ namespace Framework.NodeEditor
         #endregion
 
         #region Pin Connection Callbacks
+        void PinConnector_ConnectionStarted(NodePin pin)
+        {
+            _view.ConnectorView.EnterDrawState(pin);
+        }
+
+        void PinConnector_ConnectionCancelled(NodePin obj)
+        {
+            _view.ConnectorView.EndDrawState();
+        }
+
         void PinConnector_ConnectionMade(NodeConnectionData connection)
         {
+            _view.ConnectorView.EndDrawState();
             _graph.Connect(connection);
         }
 
@@ -175,6 +188,10 @@ namespace Framework.NodeEditor
             _graph.NodeAdded -= Graph_NodeAdded;
             _graph.NodeRemoved -= Graph_NodeRemoved;
             _graphState.Changed -= GraphState_Changed;
+
+            _pinConnector.ConnectionMade -= PinConnector_ConnectionMade;
+            _pinConnector.ConnectionStarted -= PinConnector_ConnectionStarted;
+            _pinConnector.ConnectionCancelled -= PinConnector_ConnectionCancelled;
 
             _view.ContextMenu.OnAddNode -= ContextMenu_OnAddNode;
             _view.ContextMenu.OnClearNodes -= ContextMenu_OnClearNodes;

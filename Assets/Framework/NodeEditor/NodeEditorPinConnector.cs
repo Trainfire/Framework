@@ -5,6 +5,8 @@ namespace Framework.NodeEditor
 {
     class NodeEditorPinConnector
     {
+        public event Action<NodePin> ConnectionStarted;
+        public event Action<NodePin> ConnectionCancelled;
         public event Action<NodeConnectionData> ConnectionMade;
 
         private NodePin _sourcePin;
@@ -24,6 +26,7 @@ namespace Framework.NodeEditor
             else
             {
                 DebugEx.Log<NodeEditorPinConnector>("Start connection from pin '{0}'", sourcePin.Name);
+                ConnectionStarted.InvokeSafe(sourcePin);
             }
         }
 
@@ -33,6 +36,7 @@ namespace Framework.NodeEditor
                 return;
 
             DebugEx.Log<NodeEditorPinConnector>("Cancelling connection.");
+            ConnectionCancelled.InvokeSafe(_sourcePin);
             _sourcePin = null;
         }
 
