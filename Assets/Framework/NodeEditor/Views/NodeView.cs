@@ -61,10 +61,12 @@ namespace Framework.NodeEditor.Views
             if (Node == null)
                 return;
 
-            const float headerHeight = 21f;
-            const float pinHeight = 24f;
-            var height = (Node.Pins.Count * pinHeight) + headerHeight;
-            var viewSize = new Vector2(100f, height);
+            // NB: A whole bunch of hacks.
+            const float nodeWidth = 100f;
+            const float headerHeight = 20f;
+            const float pinHeight = 20f;
+            var height = (Math.Max(Node.InputPins.Count, Node.OutputPins.Count) * pinHeight) + headerHeight;
+            var viewSize = new Vector2(nodeWidth, height);
 
             // Subtract offset due to inverted co-ordinates.
             _rect = new Rect(Node.Position.x - offset.x, Node.Position.y - offset.y, viewSize.x, viewSize.y);
