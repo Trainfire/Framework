@@ -152,29 +152,7 @@ namespace Framework.NodeEditor.Views
             if (GraphHelper == null)
                 return;
 
-            GraphHelper.Connections.ForEach(connection =>
-            {
-                Handles.BeginGUI();
-                Handles.DrawLine(DrawPinConnectionHandle(connection.StartPin), DrawPinConnectionHandle(connection.EndPin));
-                Handles.EndGUI();
-            });
-        }
-
-        Vector2 DrawPinConnectionHandle(NodePin pin)
-        {
-            Vector2 position = pin.ScreenPosition;
-
-            // Adjust for pin position using magic numbers. ;)
-            position.x += pin.Node.IsOutputPin(pin) ? pin.LocalRect.width : -15f;
-            position.y += pin.LocalRect.height * 0.5f;
-
-            // Draw handle.
-            const float size = 10f;
-            var handlePosition = position - new Vector2(size * 0.5f, size * 0.5f);
-            var rect = new Rect(handlePosition, new Vector2(size, size));
-            GUI.Box(rect, "");
-
-            return position;
+            GraphHelper.Connections.ForEach(connection => NodeEditorHelper.DrawConnection(connection));
         }
 
         void DrawDebug()

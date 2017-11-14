@@ -21,7 +21,7 @@ namespace Framework.NodeEditor.Views
         void DrawConnectionEnd(Vector2 position)
         {
             const float size = 10f;
-            position = position - new Vector2(size * 0.5f, size * 0.5f);
+            //position = position;
             var rect = new Rect(position, new Vector2(size, size));
             GUI.Box(rect, "");
         }
