@@ -24,7 +24,7 @@ namespace Framework.NodeEditor
 
         void GraphView_MouseLeftClickedPin(NodePin nodePin)
         {
-            if (nodePin.Node.IsInputPin(nodePin))
+            if (nodePin.IsInput())
             {
                 DebugEx.Log<NodeEditorPinConnector>("Modifying a connection...");
 
@@ -34,8 +34,9 @@ namespace Framework.NodeEditor
                 {
                     _modifyingConnection.Hide();
 
-                    // TODO: Pass in correct pin depending on execution flow.
-                    _view.ConnectorView.EnterDrawState(_modifyingConnection.EndPin);
+                    // Executes flow left to right so get the correct starting pin.
+                    var startPin = nodePin.Type == NodePinType.Execute ? _modifyingConnection.StartPin : _modifyingConnection.EndPin;
+                    _view.ConnectorView.EnterDrawState(startPin);
                 }
             }
             else
@@ -96,7 +97,7 @@ namespace Framework.NodeEditor
                     targetPin.Name,
                     targetPin.Node.Name);
 
-                NodeConnectionData connectionData = null;
+                NodeConnection connection = null;
                 NodePin startPin = null;
                 NodePin endPin = null;
 
@@ -133,15 +134,15 @@ namespace Framework.NodeEditor
                     }
                 }
 
-                connectionData = new NodeConnectionData(startPin, endPin);
+                connection = new NodeConnection(startPin, endPin);
 
                 if (IsModifyingConnection())
                 {
-                    _graph.Replace(_modifyingConnection, connectionData);
+                    _graph.Replace(_modifyingConnection, connection);
                 }
                 else
                 {
-                    _graph.Connect(connectionData);
+                    _graph.Connect(connection);
                 }
 
                 _view.ConnectorView.EndDrawState();

@@ -19,9 +19,6 @@ namespace Framework.NodeSystem
 
     public abstract class NodePin
     {
-        public event Action<NodePin, NodePin> PinConnected;
-        public event Action<NodePin> PinDisconnected;
-
         public Node Node { get; private set; }
         public string Name { get; private set; }
         public int Index { get; private set; }
@@ -43,22 +40,14 @@ namespace Framework.NodeSystem
             return pin.GetType() == this.GetType();
         }
 
-        public void ConnectTo(NodePin targetPin)
+        public bool IsInput()
         {
-            Assert.IsTrue(ArePinsCompatible(targetPin));
-
-            if (ArePinsCompatible(targetPin))
-            {
-                DebugEx.Log<NodePin>("{0} is now connected {1}", Name, targetPin.Name);
-                PinConnected.InvokeSafe(this, targetPin);
-            }
+            return Node.IsInputPin(this);
         }
 
-        public void Disconnect()
+        public bool IsOutput()
         {
-            DebugEx.Log<NodePin>("{0} is now disconnected.", Name);
-            PinDisconnected.InvokeSafe(this);
-            OnDisconnect();
+            return Node.IsOutputPin(this);
         }
 
         public virtual void SetValueFromPin(NodePin pin) { }

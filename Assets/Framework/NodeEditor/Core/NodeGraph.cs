@@ -136,12 +136,12 @@ namespace Framework.NodeSystem
         /// <summary>
         /// Replaces an existing connection with a new connection. This will create a single state change to the graph.
         /// </summary>
-        public void Replace(NodeConnection oldConnection, NodeConnectionData newConnection)
+        public void Replace(NodeConnection oldConnection, NodeConnection newConnection)
         {
             if (Connections.Contains(oldConnection))
             {
                 DebugEx.Log<NodeGraph>("Replacing a connection...");
-                RemoveConnection(oldConnection);
+                Connections.Remove(oldConnection);
                 Connect(newConnection);
                 DebugEx.Log<NodeGraph>("Connection replaced.");
             }
@@ -169,13 +169,24 @@ namespace Framework.NodeSystem
             Assert.IsFalse(connection.StartPin == connection.EndPin, "Attempted to connect a pin to itself.");
             //Assert.IsFalse(connection.StartPin.WillPinConnectionCreateCircularDependency(connection.EndPin), "Pin connection would create a circular dependency!");
 
-            Connections.Add(connection);
-
             DebugEx.Log<NodeGraph>("Connected {0}:(1) to {2}:{3}", connection.StartNode.Name, connection.StartPin.Index, connection.EndNode.Name, connection.EndPin.Index);
 
             if (connection.StartPin != null && connection.EndPin != null)
             {
-                connection.StartPin.ConnectTo(connection.EndPin);
+                NodeConnection existingConnection = null;
+
+                if (connection.StartPin.IsInput())
+                    existingConnection = Helper.GetConnection(connection.StartPin);
+
+                if (connection.EndPin.IsOutput())
+                    existingConnection = Helper.GetConnection(connection.StartPin);
+
+                // Input pins can never have multiple connections. Remove it.
+                if (existingConnection != null)
+                    Connections.Remove(existingConnection);
+
+                Connections.Add(connection);
+
                 Edited.InvokeSafe(this);
             }
         }
@@ -188,7 +199,7 @@ namespace Framework.NodeSystem
 
             if (containsConnection)
             {
-                RemoveConnection(connection);
+                Connections.Remove(connection);
                 DebugEx.Log<NodeGraph>("Disconnected {0} from {1}.", connection.StartPin.Node.Name, connection.EndPin.Node.Name);
                 Edited.InvokeSafe(this);
             }
@@ -202,13 +213,6 @@ namespace Framework.NodeSystem
 
             if (connection != null)
                 Disconnect(connection);
-        }
-
-        void RemoveConnection(NodeConnection connection)
-        {
-            Connections.Remove(connection);
-            connection.StartPin.Disconnect();
-            connection.EndPin.Disconnect();
         }
 
         #region Callbacks

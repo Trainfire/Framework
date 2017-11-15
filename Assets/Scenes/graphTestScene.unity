@@ -145,24 +145,28 @@ MonoBehaviour:
     - ClassType: Framework.NodeSystem.CoreStart
       Name: Start
       ID: d3e18b08-e5db-49fa-9031-f9ac371d9eac
-      Position: {x: 127, y: 99}
+      Position: {x: 116, y: 79}
     - ClassType: Framework.NodeSystem.CoreDebugLog
       Name: Debug Log
       ID: b9c6299d-78b1-424b-8ae1-52e2804055e9
-      Position: {x: 616, y: 151}
+      Position: {x: 666, y: 69}
     - ClassType: Framework.NodeSystem.MathAdd
       Name: Add
       ID: 68428058-6516-4935-8965-d63d8c987a73
-      Position: {x: 294, y: 237}
+      Position: {x: 293, y: 125}
     - ClassType: Framework.NodeSystem.ConversionToString`1[System.Single]
       Name: Float to String
       ID: 2d77096c-36ef-4136-92a6-51655859b55c
-      Position: {x: 453, y: 238}
+      Position: {x: 466, y: 173}
     Connections:
     - SourceNodeId: d3e18b08-e5db-49fa-9031-f9ac371d9eac
       SourcePinId: 1
       TargetNodeId: b9c6299d-78b1-424b-8ae1-52e2804055e9
       TargetPinId: 0
+    - SourceNodeId: b9c6299d-78b1-424b-8ae1-52e2804055e9
+      SourcePinId: 2
+      TargetNodeId: 2d77096c-36ef-4136-92a6-51655859b55c
+      TargetPinId: 1
     - SourceNodeId: 68428058-6516-4935-8965-d63d8c987a73
       SourcePinId: 0
       TargetNodeId: 58e03fa7-7561-4f41-b9c0-35f84a5d2ae5
@@ -173,19 +177,15 @@ MonoBehaviour:
       TargetPinId: 0
     - SourceNodeId: 2d77096c-36ef-4136-92a6-51655859b55c
       SourcePinId: 0
-      TargetNodeId: 68428058-6516-4935-8965-d63d8c987a73
-      TargetPinId: 2
-    - SourceNodeId: b9c6299d-78b1-424b-8ae1-52e2804055e9
-      SourcePinId: 2
-      TargetNodeId: 2d77096c-36ef-4136-92a6-51655859b55c
-      TargetPinId: 1
+      TargetNodeId: 58e03fa7-7561-4f41-b9c0-35f84a5d2ae5
+      TargetPinId: 0
     Constants:
     - ClassType: Framework.NodeSystem.NodeConstant
       Name: Constant
       ID: 58e03fa7-7561-4f41-b9c0-35f84a5d2ae5
-      Position: {x: 108, y: 261}
+      Position: {x: 61, y: 160}
       ConstantType: 1
-      Value: 2
+      Value: 4
 --- !u!4 &342616622
 Transform:
   m_ObjectHideFlags: 0
