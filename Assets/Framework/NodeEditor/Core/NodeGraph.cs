@@ -133,6 +133,24 @@ namespace Framework.NodeSystem
             }
         }
 
+        /// <summary>
+        /// Replaces an existing connection with a new connection. This will create a single state change to the graph.
+        /// </summary>
+        public void Replace(NodeConnection oldConnection, NodeConnectionData newConnection)
+        {
+            if (Connections.Contains(oldConnection))
+            {
+                DebugEx.Log<NodeGraph>("Replacing a connection...");
+                RemoveConnection(oldConnection);
+                Connect(newConnection);
+                DebugEx.Log<NodeGraph>("Connection replaced.");
+            }
+            else
+            {
+                DebugEx.LogWarning<NodeGraph>("Cannot replace connection as the old connection is not a part of this graph.");
+            }
+        }
+
         public void Connect(NodeConnectionData connectionData)
         {
             var startPin = Helper.GetPin(connectionData.SourceNodeId, connectionData.SourcePinId);
@@ -170,9 +188,7 @@ namespace Framework.NodeSystem
 
             if (containsConnection)
             {
-                Connections.Remove(connection);
-                connection.StartPin.Disconnect();
-                connection.EndPin.Disconnect();
+                RemoveConnection(connection);
                 DebugEx.Log<NodeGraph>("Disconnected {0} from {1}.", connection.StartPin.Node.Name, connection.EndPin.Node.Name);
                 Edited.InvokeSafe(this);
             }
@@ -188,6 +204,13 @@ namespace Framework.NodeSystem
                 Disconnect(connection);
         }
 
+        void RemoveConnection(NodeConnection connection)
+        {
+            Connections.Remove(connection);
+            connection.StartPin.Disconnect();
+            connection.EndPin.Disconnect();
+        }
+
         #region Callbacks
         void Node_Changed(Node node)
         {
@@ -200,6 +223,6 @@ namespace Framework.NodeSystem
             Disconnect(pin);
             Edited.InvokeSafe(this);
         }
-#endregion
+        #endregion
     }
 }

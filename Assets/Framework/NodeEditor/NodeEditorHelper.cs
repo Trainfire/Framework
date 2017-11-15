@@ -27,6 +27,9 @@ namespace Framework.NodeEditor
 
         public static void DrawConnection(NodeConnection connection)
         {
+            if (connection.Hidden)
+                return;
+
             var start = GetPinPosition(connection.StartPin);
             var end = GetPinPosition(connection.EndPin);
             var color = NodeEditorHelper.GetPinColor(connection.StartPin.Type);

@@ -18,10 +18,9 @@ namespace Framework.NodeEditor
 
         public NodeEditor(NodeEditorView view)
         {
-            _pinConnector = new NodeEditorPinConnector();
-            _pinConnector.ConnectionMade += PinConnector_ConnectionMade;
-            _pinConnector.ConnectionStarted += PinConnector_ConnectionStarted;
-            _pinConnector.ConnectionCancelled += PinConnector_ConnectionCancelled;
+            //_pinConnector.ConnectionMade += PinConnector_ConnectionMade;
+            //_pinConnector.ConnectionStarted += PinConnector_ConnectionStarted;
+            //_pinConnector.ConnectionCancelled += PinConnector_ConnectionCancelled;
 
             _runner = new NodeGraphRunner();
 
@@ -38,16 +37,14 @@ namespace Framework.NodeEditor
             _view.ContextMenu.OnClearNodes += ContextMenu_OnClearNodes;
 
             _view.GraphView.GraphHelper = _graph.Helper;
-            _view.GraphView.MouseLeftClickedPin += GraphView_MouseLeftClickedPin;
-            _view.GraphView.MouseLeftReleasedOverPin += GraphView_MouseLeftReleasedOverPin;
-            _view.GraphView.MouseMiddleClickedPin += GraphView_MouseMiddleClickedPin;
-            _view.GraphView.MouseReleased += GraphView_MouseReleased;
             _view.GraphView.NodeSelected += GraphView_NodeSelected;
             _view.GraphView.NodeDeleted += GraphView_NodeDeleted;
             _view.GraphView.RunGraph += GraphView_RunGraph;
 
             _view.MenuView.Save += Save;
             _view.MenuView.Revert += RevertGraph;
+
+            _pinConnector = new NodeEditorPinConnector(_graph, _view);
         }
 
         public void Load(NodeGraphData graphData)
@@ -128,44 +125,6 @@ namespace Framework.NodeEditor
         }
         #endregion
 
-        #region Pin Connection Callbacks
-        void PinConnector_ConnectionStarted(NodePin pin)
-        {
-            _view.ConnectorView.EnterDrawState(pin);
-        }
-
-        void PinConnector_ConnectionCancelled(NodePin obj)
-        {
-            _view.ConnectorView.EndDrawState();
-        }
-
-        void PinConnector_ConnectionMade(NodeConnectionData connection)
-        {
-            _view.ConnectorView.EndDrawState();
-            _graph.Connect(connection);
-        }
-
-        void GraphView_MouseLeftClickedPin(NodePin nodePin)
-        {
-            _pinConnector.StartConnection(nodePin);
-        }
-
-        void GraphView_MouseLeftReleasedOverPin(NodePin nodePin)
-        {
-            _pinConnector.Connect(nodePin);
-        }
-
-        void GraphView_MouseReleased()
-        {
-            _pinConnector.CancelConnection();
-        }
-
-        void GraphView_MouseMiddleClickedPin(NodePin nodePin)
-        {
-            _graph.Disconnect(nodePin);
-        }
-        #endregion
-
         #region Context Menu
         void ContextMenu_OnClearNodes()
         {
@@ -189,17 +148,9 @@ namespace Framework.NodeEditor
             _graph.NodeRemoved -= Graph_NodeRemoved;
             _graphState.Changed -= GraphState_Changed;
 
-            _pinConnector.ConnectionMade -= PinConnector_ConnectionMade;
-            _pinConnector.ConnectionStarted -= PinConnector_ConnectionStarted;
-            _pinConnector.ConnectionCancelled -= PinConnector_ConnectionCancelled;
-
             _view.ContextMenu.OnAddNode -= ContextMenu_OnAddNode;
             _view.ContextMenu.OnClearNodes -= ContextMenu_OnClearNodes;
 
-            _view.GraphView.MouseLeftClickedPin -= GraphView_MouseLeftClickedPin;
-            _view.GraphView.MouseLeftReleasedOverPin -= GraphView_MouseLeftReleasedOverPin;
-            _view.GraphView.MouseMiddleClickedPin -= GraphView_MouseMiddleClickedPin;
-            _view.GraphView.MouseReleased -= GraphView_MouseReleased;
             _view.GraphView.NodeSelected -= GraphView_NodeSelected;
             _view.GraphView.NodeDeleted -= GraphView_NodeDeleted;
             _view.GraphView.RunGraph -= GraphView_RunGraph;

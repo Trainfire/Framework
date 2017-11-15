@@ -5,6 +5,8 @@ namespace Framework.NodeSystem
 {
     public class NodeConnection
     {
+        public bool Hidden { get; private set; }
+
         public NodePin StartPin { get; private set; }
         public NodePin EndPin { get; private set; }
         public Node StartNode { get { return StartPin.Node; } }
@@ -14,6 +16,16 @@ namespace Framework.NodeSystem
         {
             StartPin = startPin;
             EndPin = endPin;
+        }
+
+        public void Hide()
+        {
+            Hidden = true;
+        }
+
+        public void Show()
+        {
+            Hidden = false;
         }
     }
 }

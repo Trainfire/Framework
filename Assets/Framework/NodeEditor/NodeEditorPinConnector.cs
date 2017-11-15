@@ -1,62 +1,90 @@
 ﻿using System;
 using Framework.NodeSystem;
+using Framework.NodeEditor.Views;
 
 namespace Framework.NodeEditor
 {
-    class NodeEditorPinConnector
+    public class NodeEditorPinConnector
     {
-        public event Action<NodePin> ConnectionStarted;
-        public event Action<NodePin> ConnectionCancelled;
-        public event Action<NodeConnectionData> ConnectionMade;
+        private NodeGraph _graph;
+        private NodeEditorView _view;
 
+        private NodeConnection _modifyingConnection;
         private NodePin _sourcePin;
 
-        public void StartConnection(NodePin sourcePin)
+        public NodeEditorPinConnector(NodeGraph graph, NodeEditorView view)
         {
-            if (sourcePin == null)
-                return;
+            _graph = graph;
 
-            _sourcePin = sourcePin;
+            _view = view;
+            _view.GraphView.MouseLeftClickedPin += GraphView_MouseLeftClickedPin;
+            _view.GraphView.MouseLeftReleasedOverPin += GraphView_MouseLeftReleasedOverPin;
+            _view.GraphView.MouseReleased += GraphView_MouseReleased;
+        }
 
-            if (sourcePin.Node.IsInputPin(_sourcePin))
+        void GraphView_MouseLeftClickedPin(NodePin nodePin)
+        {
+            if (nodePin.Node.IsInputPin(nodePin))
             {
-                DebugEx.LogWarning<NodeEditorPinConnector>("Attempted to start a connection from an Input pin!");
-                _sourcePin = null;
+                DebugEx.Log<NodeEditorPinConnector>("Modifying a connection...");
+
+                _modifyingConnection = _graph.Helper.GetConnection(nodePin);
+
+                if (_modifyingConnection != null)
+                {
+                    _modifyingConnection.Hide();
+
+                    // TODO: Pass in correct pin depending on execution flow.
+                    _view.ConnectorView.EnterDrawState(_modifyingConnection.EndPin);
+                }
             }
             else
             {
-                DebugEx.Log<NodeEditorPinConnector>("Start connection from pin '{0}'", sourcePin.Name);
-                ConnectionStarted.InvokeSafe(sourcePin);
+                DebugEx.Log<NodeEditorPinConnector>("Creating a new connection...");
+                _view.ConnectorView.EnterDrawState(nodePin);
             }
+
+            _sourcePin = nodePin;
         }
 
-        public void CancelConnection()
+        void GraphView_MouseReleased()
         {
-            if (_sourcePin == null)
-                return;
+            DebugEx.Log<NodeEditorPinConnector>("MouseReleased");
 
-            DebugEx.Log<NodeEditorPinConnector>("Cancelling connection.");
-            ConnectionCancelled.InvokeSafe(_sourcePin);
+            if (_modifyingConnection != null)
+            {
+                DebugEx.Log<NodeEditorPinConnector>("Removing a modified connection.");
+                _graph.Disconnect(_modifyingConnection);
+            }
+            else
+            {
+                DebugEx.Log<NodeEditorPinConnector>("Cancelling a new connection.");
+            }
+
+            _view.ConnectorView.EndDrawState();
+            _modifyingConnection = null;
             _sourcePin = null;
         }
 
-        public void Connect(NodePin targetPin)
+        void GraphView_MouseLeftReleasedOverPin(NodePin targetPin)
         {
+            DebugEx.Log<NodeEditorPinConnector>("MouseLeftReleased");
+
             if (targetPin == null)
             {
-                DebugEx.LogWarning<NodeEditorPinConnector>("Cannot make connection as target pin is null.");
+                DebugEx.LogWarning<NodeEditorPinConnector>("Cannot make a new connection as target pin is null.");
                 return;
             }
 
             if (_sourcePin == null)
             {
-                DebugEx.LogWarning<NodeEditorPinConnector>("Cannot make connection as source pin is null.");
+                DebugEx.LogWarning<NodeEditorPinConnector>("Cannot make a new connection as source pin is null.");
                 return;
             }
 
-            if (targetPin.Node == _sourcePin.Node)
+            if (!IsModifyingConnection() && targetPin.Node == _sourcePin.Node)
             {
-                DebugEx.LogWarning<NodeEditorPinConnector>("Attempt to connect a pin to itself!");
+                DebugEx.LogWarning<NodeEditorPinConnector>("Attempted to connect a pin to itself!");
                 return;
             }
 
@@ -68,23 +96,64 @@ namespace Framework.NodeEditor
                     targetPin.Name,
                     targetPin.Node.Name);
 
+                NodeConnectionData connectionData = null;
+                NodePin startPin = null;
+                NodePin endPin = null;
+
                 // Execution pins flow left right.
                 // Value pins flow right to left.
                 if (_sourcePin.GetType() == typeof(NodeExecutePin))
                 {
                     DebugEx.Log<NodeEditorPinConnector>("Connected execution pins.");
-                    var nodeConnection = new NodeConnectionData(_sourcePin.Node.ID, _sourcePin.Index, targetPin.Node.ID, targetPin.Index);
-                    ConnectionMade.InvokeSafe(nodeConnection);
+
+                    if (IsModifyingConnection())
+                    {
+                        startPin = _modifyingConnection.StartPin;
+                        endPin = _sourcePin;
+                    }
+                    else
+                    {
+                        startPin = _sourcePin;
+                        endPin = targetPin;
+                    }
                 }
                 else
                 {
                     DebugEx.Log<NodeEditorPinConnector>("Connected value pins.");
-                    var nodeConnection = new NodeConnectionData(targetPin.Node.ID, targetPin.Index, _sourcePin.Node.ID, _sourcePin.Index);
-                    ConnectionMade.InvokeSafe(nodeConnection);
+
+                    if (IsModifyingConnection())
+                    {
+                        startPin = targetPin;
+                        endPin = _modifyingConnection.EndPin;
+                    }
+                    else
+                    {
+                        startPin = targetPin;
+                        endPin = _sourcePin;
+                    }
                 }
 
+                connectionData = new NodeConnectionData(startPin, endPin);
+
+                if (IsModifyingConnection())
+                {
+                    _graph.Replace(_modifyingConnection, connectionData);
+                }
+                else
+                {
+                    _graph.Connect(connectionData);
+                }
+
+                _view.ConnectorView.EndDrawState();
+
+                _modifyingConnection = null;
                 _sourcePin = null;
             }
+        }
+
+        bool IsModifyingConnection()
+        {
+            return _modifyingConnection != null;
         }
     }
 }
