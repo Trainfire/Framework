@@ -35,7 +35,7 @@ namespace Framework.NodeEditor
                     _modifyingConnection.Hide();
 
                     // Executes flow left to right so get the correct starting pin.
-                    var startPin = nodePin.Type == NodePinType.Execute ? _modifyingConnection.StartPin : _modifyingConnection.EndPin;
+                    var startPin = nodePin.WrappedType == typeof(NodePinTypeExecute) ? _modifyingConnection.StartPin : _modifyingConnection.EndPin;
                     _view.ConnectorView.EnterDrawState(startPin);
                 }
             }

@@ -1,11 +1,26 @@
 ﻿using UnityEngine;
 using UnityEditor;
+using System.Collections.Generic;
 using Framework.NodeSystem;
+using System;
 
 namespace Framework.NodeEditor
 {
     public static class NodeEditorHelper
     {
+        private static Dictionary<Type, Color> _colorRegistry;
+
+        static NodeEditorHelper()
+        {
+            _colorRegistry = new Dictionary<Type, Color>();
+            _colorRegistry.Add(typeof(NodePinTypeNone), Color.white);
+            _colorRegistry.Add(typeof(NodePinTypeExecute), new Color(0.8f, 0f, 0f));
+            _colorRegistry.Add(typeof(float), new Color(0f, 0.8f, 0f));
+            _colorRegistry.Add(typeof(int), new Color(0.259f, 0.525f, 0.957f));
+            _colorRegistry.Add(typeof(bool), Color.yellow);
+            _colorRegistry.Add(typeof(string), new Color(0.2f, 0.2f, 0.2f));
+        }
+
         public static Color GetPinColor(NodePin pin)
         {
             return GetPinColor(pin.Type);
@@ -13,16 +28,7 @@ namespace Framework.NodeEditor
 
         public static Color GetPinColor(NodePinType pinType)
         {
-            switch (pinType)
-            {
-                case NodePinType.Execute: return new Color(0.8f, 0f, 0f);
-                case NodePinType.Object: return Color.white;
-                case NodePinType.Float: return new Color(0f, 0.8f, 0f);
-                case NodePinType.Int: return new Color(0.259f, 0.525f, 0.957f);
-                case NodePinType.Bool: return Color.yellow;
-                case NodePinType.String: return new Color(0.2f, 0.2f, 0.2f);
-                default: return Color.white;
-            }
+            return _colorRegistry[pinType.WrappedType];
         }
 
         public static void DrawConnection(NodeConnection connection)
