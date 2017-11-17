@@ -7,12 +7,14 @@ namespace Framework.NodeSystem
 {
     public class NodePinType
     {
+        public string Name { get; private set; }
         public Type WrappedType { get; private set; }
         public bool IsConstant { get; private set; }
         public List<Type> CompatibleTypes { get; private set; } 
 
-        public NodePinType(Type type, bool isConstant, params Type[] compatibleTypes)
+        public NodePinType(string name, Type type, bool isConstant, params Type[] compatibleTypes)
         {
+            Name = name;
             WrappedType = type;
             IsConstant = isConstant;
 
@@ -33,7 +35,7 @@ namespace Framework.NodeSystem
     class NodePinTypeNone { }
     class NodePinTypeExecute { }
 
-    static class NodePinTypeRegistry
+    public static class NodePinTypeRegistry
     {
         private static Dictionary<Type, NodePinType> _registry;
 
@@ -41,28 +43,33 @@ namespace Framework.NodeSystem
         {
             _registry = new Dictionary<Type, NodePinType>();
 
-            RegisterConstant<float>(typeof(int));
-            RegisterConstant<int>();
-            RegisterConstant<bool>();
-            RegisterConstant<string>();
+            RegisterConstant<float>("Float", typeof(int));
+            RegisterConstant<int>("Int");
+            RegisterConstant<bool>("Bool");
+            RegisterConstant<string>("String");
 
-            Register<NodePinTypeNone>();
-            Register<NodePinTypeExecute>();
+            Register<NodePinTypeNone>("None");
+            Register<NodePinTypeExecute>("Execute");
         }
 
-        static void Register<T>()
+        static void Register<T>(string name)
         {
-            _registry.Add(typeof(T), new NodePinType(typeof(T), false));
+            _registry.Add(typeof(T), new NodePinType(name, typeof(T), false));
         }
 
-        static void RegisterConstant<T>(params Type[] compatibleTypes)
+        static void RegisterConstant<T>(string name, params Type[] compatibleTypes)
         {
-            _registry.Add(typeof(T), new NodePinType(typeof(T), true, compatibleTypes));
+            _registry.Add(typeof(T), new NodePinType(name, typeof(T), true, compatibleTypes));
         }
 
         public static NodePinType Get<T>()
         {
             return _registry[typeof(T)]; 
+        }
+
+        public static List<NodePinType> GetConstants()
+        {
+            return _registry.Values.Where(x => x.IsConstant).ToList();
         }
     }
 }
