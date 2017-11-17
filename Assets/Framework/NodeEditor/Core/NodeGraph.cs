@@ -173,17 +173,17 @@ namespace Framework.NodeSystem
 
             if (connection.StartPin != null && connection.EndPin != null)
             {
-                NodeConnection existingConnection = null;
+                List<NodeConnection> existingConnection = null;
 
                 if (connection.StartPin.IsInput())
-                    existingConnection = Helper.GetConnection(connection.StartPin);
+                    existingConnection = Helper.GetConnections(connection.StartPin);
 
                 if (connection.EndPin.IsOutput())
-                    existingConnection = Helper.GetConnection(connection.StartPin);
+                    existingConnection = Helper.GetConnections(connection.StartPin);
 
                 // Input pins can never have multiple connections. Remove it.
                 if (existingConnection != null)
-                    Connections.Remove(existingConnection);
+                    existingConnection.ForEach(x => Connections.Remove(x));
 
                 Connections.Add(connection);
 
@@ -209,10 +209,10 @@ namespace Framework.NodeSystem
         {
             var connection = Connections
                 .Where(x => x.StartNode == pin.Node && x.StartPin == pin || x.EndNode == pin.Node && x.EndPin == pin)
-                .FirstOrDefault();
+                .ToList();
 
-            if (connection != null)
-                Disconnect(connection);
+            if (connection.Count != 0)
+                connection.ForEach(x => Disconnect(x));
         }
 
         #region Callbacks

@@ -46,6 +46,11 @@ namespace Framework.NodeSystem
             return _graph.Connections.ToList().Where(x => x.StartPin == pin || x.EndPin == pin).FirstOrDefault();
         }
 
+        public List<NodeConnection> GetConnections(NodePin pin)
+        {
+            return _graph.Connections.ToList().Where(x => x.StartPin == pin || x.EndPin == pin).ToList();
+        }
+
         public NodeConnection GetConnectionFromStartPin(NodePin startPin)
         {
             return _graph.Connections.ToList().Where(x => x.StartPin == startPin).FirstOrDefault();
