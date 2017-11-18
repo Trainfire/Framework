@@ -2,7 +2,7 @@
 {
     public class CoreStart : NodeExecute
     {
-        public override void Execute(NodeExecuteParameters parameters)
+        public override void Execute()
         {
             DebugEx.Log<CoreStart>("Executing...");
         }
@@ -10,7 +10,7 @@
 
     public class CoreDebugLog : NodeExecute1In1Out<string, string>
     {
-        public override void Execute(NodeExecuteParameters parameters)
+        public override void Execute()
         {
             if (In.Value != null)
             {

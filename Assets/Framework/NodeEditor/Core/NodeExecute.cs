@@ -2,14 +2,9 @@
 
 namespace Framework.NodeSystem
 {
-    public class NodeExecuteParameters
-    {
-
-    }
-
     public abstract class NodeExecute : Node
     {
-        protected NodeExecutePin ExecuteOut { get; private set; }
+        public NodeExecutePin ExecuteOut { get; private set; }
 
         protected override void OnInitialize()
         {
@@ -17,7 +12,7 @@ namespace Framework.NodeSystem
             ExecuteOut = AddExecuteOutPin();
         }
 
-        public abstract void Execute(NodeExecuteParameters parameters);
+        public abstract void Execute();
     }
 
     public abstract class NodeExecute1In<T> : NodeExecute
@@ -30,7 +25,7 @@ namespace Framework.NodeSystem
             In = AddInputPin<T>("In");
         }
 
-        public override abstract void Execute(NodeExecuteParameters parameters);
+        public override abstract void Execute();
     }
 
     public abstract class NodeExecute1In1Out<TIn, TOut> : NodeExecute
@@ -45,7 +40,7 @@ namespace Framework.NodeSystem
             Out = AddOutputPin<TOut>("Out");
         }
 
-        public override abstract void Execute(NodeExecuteParameters parameters);
+        public override abstract void Execute();
     }
 
     public abstract class Node1In1Out<TIn, TOut> : Node

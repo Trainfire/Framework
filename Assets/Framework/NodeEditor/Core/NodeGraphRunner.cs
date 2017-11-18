@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using UnityEngine.Assertions;
+﻿using UnityEngine.Assertions;
 
 namespace Framework.NodeSystem
 {
@@ -11,10 +7,9 @@ namespace Framework.NodeSystem
         private const int MaxExecutions = 256;
 
         private NodeGraph _graph;
-        private NodeExecution _execution;
+        private NodeRunner _runner;
+        private NodeExecute _currentNode;
         private int _executions;
-
-        public NodeGraphRunner() { }
 
         public void Run(NodeGraph graph)
         {
@@ -25,6 +20,7 @@ namespace Framework.NodeSystem
             }
 
             _graph = graph;
+            _runner = new NodeRunner(_graph.Helper, true);
 
             var startNode = graph.Helper.GetNode<CoreStart>();
 
@@ -36,37 +32,20 @@ namespace Framework.NodeSystem
 
             DebugEx.Log<NodeGraphRunner>("Executing...");
 
-            MoveNext(startNode);
+            _currentNode = startNode;
+            MoveNext();
         }
 
-        void Prepare(Node node)
+        void MoveNext()
         {
-            DebugEx.Log<NodeGraphRunner>("Preparing node '{0}'...", node.Name);
+            Assert.IsNotNull(_currentNode);
 
-            foreach (var inputPin in node.InputPins)
-            {
-                var graphConnection = _graph.Helper.GetConnectionFromStartPin(inputPin);
-                if (graphConnection != null)
-                {
-                    Prepare(graphConnection.EndNode);
-                    inputPin.SetValueFromPin(graphConnection.EndPin);
-                }
-            }
+            DebugEx.Log<NodeGraphRunner>("Move next: {0} ({1})", _currentNode.Name, _currentNode.ID);
 
-            DebugEx.Log<NodeGraphRunner>("Calculating node '{0}'...", node.Name);
-            node.Calculate();
-        }
+            // Run through all the nodes connected to the current node to prepare it for execution.
+            _runner.StartFrom(_currentNode);
 
-        void MoveNext(NodeExecute nodeExecute)
-        {
-            DebugEx.Log<NodeGraphRunner>("Move next: {0} ({1})", nodeExecute.Name, nodeExecute.ID);
-
-            if (_execution == null)
-                _execution = new NodeExecution(_graph.Helper, true);
-
-            _execution.Start(nodeExecute);
-
-            nodeExecute.Execute(new NodeExecuteParameters());
+            _currentNode.Execute();
 
             _executions++;
 
@@ -75,12 +54,13 @@ namespace Framework.NodeSystem
                 DebugEx.LogWarning<NodeGraphRunner>("Max executions have been reached!");
                 return;
             }
-            else if (nodeExecute.OutputPins.Count > 0)
+            else
             {
-                var connection = _graph.Helper.GetConnectionFromStartPin(nodeExecute.OutputPins[0]);
+                var connection = _graph.Helper.GetConnectionFromStartPin(_currentNode.ExecuteOut);
                 if (connection != null)
                 {
-                    MoveNext(connection.EndNode as NodeExecute);
+                    _currentNode = connection.EndNode as NodeExecute;
+                    MoveNext();
                 }
                 else
                 {

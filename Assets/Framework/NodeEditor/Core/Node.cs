@@ -74,11 +74,12 @@ namespace Framework.NodeSystem
             return pin;
         }
 
-        protected void AddExecuteInPin()
+        protected NodeExecutePin AddExecuteInPin()
         {
             var pin = new NodeExecutePin("In", Pins.Count, this);
             RegisterPin(pin);
             InputPins.Add(pin);
+            return pin;
         }
 
         protected NodeExecutePin AddExecuteOutPin()

@@ -2,7 +2,7 @@
 
 namespace Framework.NodeSystem
 {
-    public class NodeExecution
+    public class NodeRunner
     {
         public Node StartNode { get; private set; }
         public bool Completed { get; private set; }
@@ -12,13 +12,13 @@ namespace Framework.NodeSystem
 
         private Stack<NodeExecutionGroup> _stack;
 
-        public NodeExecution(NodeGraphHelper graphHelper, bool autoIterate = false)
+        public NodeRunner(NodeGraphHelper graphHelper, bool autoIterate = false)
         {
             _graphHelper = graphHelper;
             _autoIterate = autoIterate;
         }
 
-        public void Start(Node startNode)
+        public void StartFrom(Node startNode)
         {
             StartNode = startNode;
 
