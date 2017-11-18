@@ -58,33 +58,33 @@ namespace Framework.NodeSystem
 
         public virtual void Calculate() { }
 
-        protected NodeValuePin<T> AddInputPin<T>(string name)
+        protected NodePin<T> AddInputPin<T>(string name)
         {
-            var pin = new NodeValuePin<T>(name, Pins.Count, this);
+            var pin = new NodePin<T>(name, Pins.Count, this);
             RegisterPin(pin);
             InputPins.Add(pin);
             return pin;
         }
 
-        protected NodeValuePin<T> AddOutputPin<T>(string name)
+        protected NodePin<T> AddOutputPin<T>(string name)
         {
-            var pin = new NodeValuePin<T>(name, Pins.Count, this);
+            var pin = new NodePin<T>(name, Pins.Count, this);
             RegisterPin(pin);
             OutputPins.Add(pin);
             return pin;
         }
 
-        protected NodeExecutePin AddExecuteInPin()
+        protected NodePin<NodePinTypeExecute> AddExecuteInPin()
         {
-            var pin = new NodeExecutePin("In", Pins.Count, this);
+            var pin = new NodePin<NodePinTypeExecute>("In", Pins.Count, this);
             RegisterPin(pin);
             InputPins.Add(pin);
             return pin;
         }
 
-        protected NodeExecutePin AddExecuteOutPin()
+        protected NodePin<NodePinTypeExecute> AddExecuteOutPin()
         {
-            var pin = new NodeExecutePin("Out", Pins.Count, this);
+            var pin = new NodePin<NodePinTypeExecute>("Out", Pins.Count, this);
             RegisterPin(pin);
             OutputPins.Add(pin);
             return pin;
@@ -134,7 +134,7 @@ namespace Framework.NodeSystem
 
         public bool HasExecutePins()
         {
-            return Pins.Any(x => x.GetType() == typeof(NodeExecutePin));
+            return Pins.Any(x => x.WrappedType == typeof(NodePinTypeExecute));
         }
 
         void RegisterPin(NodePin pin)

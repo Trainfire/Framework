@@ -98,7 +98,7 @@ namespace Framework.NodeSystem
         T GetValue<T>(NodeConstantType pinTypeQualifier, Func<T> getDefault = null)
         {
             //var defaultValue = getDefault != null ? getDefault() : default(T);
-            return _pinType == pinTypeQualifier ? (OutputPins[0] as NodeValuePin<T>).Value : default(T);
+            return _pinType == pinTypeQualifier ? (OutputPins[0] as NodePin<T>).Value : default(T);
         }
 
         void SetValue<T>(NodeConstantType pinTypeQualifier, T value)
@@ -107,10 +107,10 @@ namespace Framework.NodeSystem
 
             if (_pinType == pinTypeQualifier)
             {
-                var outValue = (OutputPins[0] as NodeValuePin<T>).Value;
+                var outValue = (OutputPins[0] as NodePin<T>).Value;
                 if (outValue == null || !outValue.Equals(value))
                 {
-                    (OutputPins[0] as NodeValuePin<T>).Value = value;
+                    (OutputPins[0] as NodePin<T>).Value = value;
 
                     if (_cachedValue != null && !value.Equals(_cachedValue))
                         TriggerChange();

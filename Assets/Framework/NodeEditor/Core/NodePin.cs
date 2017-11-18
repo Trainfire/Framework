@@ -45,9 +45,9 @@ namespace Framework.NodeSystem
         protected virtual void OnDisconnect() { }
     }
 
-    public class NodeValuePin<T> : NodePin
+    public class NodePin<T> : NodePin
     {
-        public NodeValuePin(string name, int index, Node node) : base(name, index, node) { }
+        public NodePin(string name, int index, Node node) : base(name, index, node) { }
 
         public override NodePinType Type { get { return NodePinTypeRegistry.Get<T>(); } }
 
@@ -69,10 +69,10 @@ namespace Framework.NodeSystem
 
         public override void SetValueFromPin(NodePin pin)
         {
-            NodeValuePin<T> convertedPin = null;
+            NodePin<T> convertedPin = null;
             try
             {
-                convertedPin = pin as NodeValuePin<T>;
+                convertedPin = pin as NodePin<T>;
             }
             catch (Exception ex)
             {
@@ -91,12 +91,5 @@ namespace Framework.NodeSystem
         {
             return _value != null ? _value.ToString() : string.Empty;
         }
-    }
-
-    public class NodeExecutePin : NodePin
-    {
-        public NodeExecutePin(string name, int index, Node node) : base(name, index, node) { }
-        public override NodePinType Type { get { return NodePinTypeRegistry.Get<NodePinTypeExecute>(); } }
-        public override string ToString() { return "Execute"; }
     }
 }

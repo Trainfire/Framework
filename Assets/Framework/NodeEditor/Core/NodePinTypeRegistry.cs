@@ -32,8 +32,8 @@ namespace Framework.NodeSystem
         }
     }
 
-    class NodePinTypeNone { }
-    class NodePinTypeExecute { }
+    public class NodePinTypeNone { }
+    public class NodePinTypeExecute { }
 
     public static class NodePinTypeRegistry
     {

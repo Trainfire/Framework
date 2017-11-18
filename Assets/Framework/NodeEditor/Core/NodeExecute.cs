@@ -4,7 +4,7 @@ namespace Framework.NodeSystem
 {
     public abstract class NodeExecute : Node
     {
-        public NodeExecutePin ExecuteOut { get; private set; }
+        public NodePin<NodePinTypeExecute> ExecuteOut { get; private set; }
 
         protected override void OnInitialize()
         {
@@ -17,7 +17,7 @@ namespace Framework.NodeSystem
 
     public abstract class NodeExecute1In<T> : NodeExecute
     {
-        protected NodeValuePin<T> In { get; private set; }
+        protected NodePin<T> In { get; private set; }
 
         protected override void OnInitialize()
         {
@@ -30,8 +30,8 @@ namespace Framework.NodeSystem
 
     public abstract class NodeExecute1In1Out<TIn, TOut> : NodeExecute
     {
-        protected NodeValuePin<TIn> In { get; private set; }
-        protected NodeValuePin<TOut> Out { get; private set; }
+        protected NodePin<TIn> In { get; private set; }
+        protected NodePin<TOut> Out { get; private set; }
 
         protected override void OnInitialize()
         {
@@ -45,8 +45,8 @@ namespace Framework.NodeSystem
 
     public abstract class Node1In1Out<TIn, TOut> : Node
     {
-        protected NodeValuePin<TIn> In { get; private set; }
-        protected NodeValuePin<TOut> Out { get; private set; }
+        protected NodePin<TIn> In { get; private set; }
+        protected NodePin<TOut> Out { get; private set; }
 
         protected override void OnInitialize()
         {
@@ -58,9 +58,9 @@ namespace Framework.NodeSystem
 
     public abstract class Node2In1Out<TIn1, TIn2, TOut> : Node
     {
-        protected NodeValuePin<TIn1> In1 { get; private set; }
-        protected NodeValuePin<TIn2> In2 { get; private set; }
-        protected NodeValuePin<TOut> Out { get; private set; }
+        protected NodePin<TIn1> In1 { get; private set; }
+        protected NodePin<TIn2> In2 { get; private set; }
+        protected NodePin<TOut> Out { get; private set; }
 
         protected override void OnInitialize()
         {
@@ -73,10 +73,10 @@ namespace Framework.NodeSystem
 
     public abstract class Node3In1Out<TIn1, TIn2, TIn3, TOut> : Node
     {
-        protected NodeValuePin<TIn1> In1 { get; private set; }
-        protected NodeValuePin<TIn2> In2 { get; private set; }
-        protected NodeValuePin<TIn3> In3 { get; private set; }
-        protected NodeValuePin<TOut> Out { get; private set; }
+        protected NodePin<TIn1> In1 { get; private set; }
+        protected NodePin<TIn2> In2 { get; private set; }
+        protected NodePin<TIn3> In3 { get; private set; }
+        protected NodePin<TOut> Out { get; private set; }
 
         protected override void OnInitialize()
         {

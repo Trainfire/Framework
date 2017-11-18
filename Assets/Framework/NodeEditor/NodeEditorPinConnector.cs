@@ -103,7 +103,7 @@ namespace Framework.NodeEditor
 
                 // Execution pins flow left right.
                 // Value pins flow right to left.
-                if (_sourcePin.GetType() == typeof(NodeExecutePin))
+                if (_sourcePin.WrappedType == typeof(NodePinTypeExecute))
                 {
                     DebugEx.Log<NodeEditorPinConnector>("Connected execution pins.");
 
