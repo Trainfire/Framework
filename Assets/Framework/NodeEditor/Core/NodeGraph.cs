@@ -188,6 +188,9 @@ namespace Framework.NodeSystem
                 Connections.Add(connection);
 
                 Edited.InvokeSafe(this);
+
+                connection.StartPin.Connect(connection.EndPin);
+                connection.EndPin.Connect(connection.StartPin);
             }
         }
 

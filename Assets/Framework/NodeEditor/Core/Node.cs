@@ -117,6 +117,8 @@ namespace Framework.NodeSystem
             Changed.InvokeSafe(this);
         }
 
+        protected virtual void OnPinConnected(NodePinConnectEvent pinConnectEvent) { }
+
         public bool IsInputPin(NodePin pin)
         {
             return InputPins.Contains(pin);
@@ -141,12 +143,14 @@ namespace Framework.NodeSystem
         {
             Pins.Add(pin);
             PinAdded.InvokeSafe(pin);
+            pin.Connected += OnPinConnected;
         }
 
         void RemovePin(NodePin pin)
         {
             Pins.Remove(pin);
             PinRemoved.InvokeSafe(pin);
+            pin.Connected -= OnPinConnected;
             TriggerChange();
         }
     }

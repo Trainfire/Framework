@@ -6,8 +6,23 @@ using System.Linq;
 
 namespace Framework.NodeSystem
 {
+    public class NodePinConnectEvent
+    {
+        public NodePin Pin { get; private set; }
+        public NodePin OtherPin { get; private set; }
+
+        public NodePinConnectEvent(NodePin pin, NodePin otherPin)
+        {
+            Pin = pin;
+            OtherPin = otherPin;
+        }
+    }
+
     public abstract class NodePin
     {
+        public event Action<NodePinConnectEvent> Connected;
+        public event Action<NodePin> Disconnected;
+
         public Node Node { get; private set; }
         public string Name { get; private set; }
         public int Index { get; private set; }
@@ -23,6 +38,17 @@ namespace Framework.NodeSystem
             Index = index;
             Name = name;
             Node = node;
+        }
+
+        public void Connect(NodePin otherPin)
+        {
+            Connected.InvokeSafe(new NodePinConnectEvent(this, otherPin));
+        }
+
+        public void Disconnect()
+        {
+            Disconnected.InvokeSafe(this);
+            OnDisconnect();
         }
 
         public bool ArePinsCompatible(NodePin pin)
