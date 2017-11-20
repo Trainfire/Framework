@@ -34,6 +34,7 @@ namespace Framework.NodeSystem
             _nodeRegistry.Add("Math/Divide", (graph) => graph.AddNode<MathDivide>("Divide"));
 
             _nodeRegistry.Add("Misc/Constant", (graph) => graph.AddNode<NodeConstant>("Constant"));
+            _nodeRegistry.Add("Misc/Dynamic Node (Test)", (graph) => graph.AddNode<DynamicNode>("Dynamic Node"));
         }
 
         public void Instantiate(string id, NodeGraph graph)

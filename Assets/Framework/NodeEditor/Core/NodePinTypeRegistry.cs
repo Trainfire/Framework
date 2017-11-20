@@ -34,6 +34,7 @@ namespace Framework.NodeSystem
 
     public class NodePinTypeNone { }
     public class NodePinTypeExecute { }
+    public class NodePinTypeAny { }
 
     public static class NodePinTypeRegistry
     {
@@ -50,6 +51,7 @@ namespace Framework.NodeSystem
 
             Register<NodePinTypeNone>("None");
             Register<NodePinTypeExecute>("Execute");
+            Register<NodePinTypeAny>("Any");
         }
 
         static void Register<T>(string name)

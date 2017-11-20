@@ -28,7 +28,7 @@ namespace Framework.NodeEditor
 
         public static Color GetPinColor(NodePinType pinType)
         {
-            return _colorRegistry[pinType.WrappedType];
+            return _colorRegistry.ContainsKey(pinType.WrappedType) ? _colorRegistry[pinType.WrappedType] : Color.white;
         }
 
         public static void DrawConnection(NodeConnection connection)

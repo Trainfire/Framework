@@ -53,7 +53,7 @@ namespace Framework.NodeSystem
 
         public bool ArePinsCompatible(NodePin pin)
         {
-            return pin.GetType() == this.GetType();
+            return pin.WrappedType == this.WrappedType || this.WrappedType == typeof(NodePinTypeAny);
         }
 
         public bool IsInput()

@@ -189,7 +189,7 @@ namespace Framework.NodeEditor.Views
 
                 _selectedNode.Pins.ForEach(pin =>
                 {
-                    DrawField(string.Format("{0} (ID: {1}) (Connected: {2})", pin.Name, pin.Index, GraphHelper.IsPinConnected(pin)), pin.ToString());
+                    DrawField(string.Format("{0} (ID: {1}) (Connected: {2}) (Is Input?: {3})", pin.Name, pin.Index, GraphHelper.IsPinConnected(pin), pin.IsInput()), pin.ToString());
                 });
 
                 GUILayout.EndArea();

@@ -25,6 +25,35 @@
         }
     }
 
+    public class DynamicNode : Node
+    {
+        NodePin In;
+        NodePin Out;
+
+        protected override void OnInitialize()
+        {
+            base.OnInitialize();
+            In = AddInputPin<NodePinTypeAny>("In");
+        }
+
+        protected override void OnPinConnected(NodePinConnectEvent pinConnectEvent)
+        {
+            if (In.WrappedType != typeof(NodePinTypeAny))
+                return;
+
+            if (pinConnectEvent.OtherPin.WrappedType == typeof(float))
+            {
+                RemoveInputPin(0);
+                In = AddInputPin<float>("In");
+            }
+            else if (pinConnectEvent.OtherPin.WrappedType == typeof(int))
+            {
+                RemoveInputPin(0);
+                In = AddInputPin<int>("In");
+            }
+        }
+    }
+
     public class MathAdd : Node2In1Out<float, float, float>
     {
         public override void Calculate() { Out.Value = In1.Value + In2.Value; }

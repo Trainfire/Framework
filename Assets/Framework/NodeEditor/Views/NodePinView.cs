@@ -17,13 +17,9 @@ namespace Framework.NodeEditor.Views
 
         private const float PinSize = 10f;
 
-        private bool _isInputPin;
-
         public NodePinView(NodePin nodePin) : base()
         {
             Pin = nodePin;
-
-            _isInputPin = nodePin.Node.IsInputPin(Pin);
         }
 
         protected override void OnDraw()
@@ -34,10 +30,10 @@ namespace Framework.NodeEditor.Views
             GUILayout.BeginHorizontal();
 
             // Hack to align the element to the right.
-            if (!_isInputPin)
+            if (!Pin.IsInput())
                 GUILayout.FlexibleSpace();
 
-            if (_isInputPin)
+            if (Pin.IsInput())
             {
                 DrawPin();
                 DrawLabel();
