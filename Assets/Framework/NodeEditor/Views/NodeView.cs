@@ -28,15 +28,18 @@ namespace Framework.NodeEditor.Views
             _pinDrawer = new NodePinView();
 
             InputListener.MouseDown += InputListener_MouseLeftClicked;
+            InputListener.MouseUp += InputListener_MouseUp;
             InputListener.DeletePressed += InputListener_DeletePressed;
         }
 
         protected override void OnDestroy()
         {
             InputListener.MouseDown -= InputListener_MouseLeftClicked;
+            InputListener.MouseUp -= InputListener_MouseUp;
             InputListener.DeletePressed -= InputListener_DeletePressed;
 
             Node = null;
+            _pinDrawer = null;
         }
 
         protected override void OnDraw() { }
@@ -107,6 +110,11 @@ namespace Framework.NodeEditor.Views
         void InputListener_MouseLeftClicked(EditorMouseEvent mouseEvent)
         {
             NodeSelected.InvokeSafe(this);
+        }
+
+        void InputListener_MouseUp(EditorMouseEvent mouseEvent)
+        {
+            Node.TriggerPositionChanged();
         }
 
         void InputListener_DeletePressed()

@@ -18,23 +18,7 @@ namespace Framework.NodeSystem
 
         public string Name { get; private set; }
         public string ID { get; private set; }
-
-        private Vector2 _position;
-        public Vector2 Position
-        {
-            get { return _position; }
-            set
-            {
-                // Don't trigger if position is the same.
-                if (value != Position)
-                {
-                    _position = value;
-
-                    // TODO: Only trigger after the mouse has been released?
-                    //TriggerChange();
-                }
-            }
-        }
+        public Vector2 Position { get; set; }
 
         public Node()
         {
@@ -137,6 +121,14 @@ namespace Framework.NodeSystem
         public bool HasExecutePins()
         {
             return Pins.Any(x => x.WrappedType == typeof(NodePinTypeExecute));
+        }
+
+        /// <summary>
+        /// Triggers a change to tell the graph state that this node has moved positions.
+        /// </summary>
+        public void TriggerPositionChanged()
+        {
+            TriggerChange();
         }
 
         void RegisterPin(NodePin pin)
