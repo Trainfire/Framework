@@ -1,4 +1,6 @@
-﻿namespace Framework.NodeSystem
+﻿using System;
+
+namespace Framework.NodeSystem
 {
     public class CoreStart : NodeExecute
     {
@@ -29,11 +31,13 @@
     {
         NodePin In;
         NodePin Out;
+        Action OnCalculate;
 
         protected override void OnInitialize()
         {
             base.OnInitialize();
             In = AddInputPin<NodePinTypeAny>("In");
+            Out = AddOutputPin<NodePinTypeAny>("Out");
         }
 
         protected override void OnPinConnected(NodePinConnectEvent pinConnectEvent)
@@ -43,14 +47,19 @@
 
             if (pinConnectEvent.OtherPin.WrappedType == typeof(float))
             {
-                RemoveInputPin(0);
-                In = AddInputPin<float>("In");
+                In = ChangePinType<float>(In);
+                Out = ChangePinType<float>(Out);
             }
             else if (pinConnectEvent.OtherPin.WrappedType == typeof(int))
             {
-                RemoveInputPin(0);
-                In = AddInputPin<int>("In");
+                In = ChangePinType<float>(In);
+                Out = ChangePinType<float>(Out);
             }
+        }
+
+        public override void Calculate()
+        {
+            Out.SetValueFromPin(In);
         }
     }
 

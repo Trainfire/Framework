@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.Assertions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -96,6 +97,29 @@ namespace Framework.NodeSystem
             }
         }
 
+        public NodePin<T> ChangePinType<T>(NodePin pin)
+        {
+            Assert.IsTrue(Pins.Contains(pin), string.Format("'{0}' does not contains pin '{1}'.", Name, pin.Name));
+
+            if (Pins.Contains(pin))
+            {
+                var replacementPin = new NodePin<T>(pin.Name, pin.Index, this);
+                Pins.Remove(pin);
+
+                var targetList = pin.IsInput() ? InputPins : OutputPins;
+                targetList.Insert(pin.Index, replacementPin);
+                targetList.Remove(pin);
+
+                Pins.Add(replacementPin);
+
+                DebugEx.Log<Node>("Swapped pin '{0}' of type '{1}' for type '{2}'", replacementPin.Name, pin.WrappedType, replacementPin.WrappedType);
+
+                return replacementPin;
+            }
+
+            return null;
+        }
+
         protected void TriggerChange()
         {
             Changed.InvokeSafe(this);
@@ -128,7 +152,7 @@ namespace Framework.NodeSystem
         /// </summary>
         public void TriggerPositionChanged()
         {
-            TriggerChange();
+            //TriggerChange();
         }
 
         void RegisterPin(NodePin pin)
