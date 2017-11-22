@@ -14,42 +14,27 @@ namespace Framework.NodeEditor.Views
         public event Action<NodeView> NodeDeleted;
 
         public Node Node { get; private set; }
-        public List<NodePinView> PinViews { get { return _pinViews.Values.ToList(); } }
 
         private int _windowId;
         private Rect _rect;
-        private EditorInputListener _inputListener;
-        private Node _node;
-        private Dictionary<NodePin, NodePinView> _pinViews;
+        private NodePinView _pinDrawer;
 
         public NodeView(Node node, int windowId)
         {
-            _pinViews = new Dictionary<NodePin, NodePinView>();
-
-            _inputListener = new EditorInputListener();
-            _inputListener.MouseDown += InputListener_MouseLeftClicked;
-            _inputListener.DeletePressed += InputListener_DeletePressed;
-
             Node = node;
-            Node.PinAdded += AddPin;
-            Node.PinRemoved += RemovePin;
-
-            // Restore pins.
-            Node.Pins.ForEach(pin => AddPin(pin));
 
             _windowId = windowId;
+
+            _pinDrawer = new NodePinView();
+
+            InputListener.MouseDown += InputListener_MouseLeftClicked;
+            InputListener.DeletePressed += InputListener_DeletePressed;
         }
 
         protected override void OnDestroy()
         {
-            _inputListener.MouseDown -= InputListener_MouseLeftClicked;
-            _inputListener.DeletePressed -= InputListener_DeletePressed;
-
-            _pinViews.Values.ToList().ForEach(x => x.Destroy());
-            _pinViews.Clear();
-
-            Node.PinAdded -= AddPin;
-            Node.PinRemoved -= RemovePin;
+            InputListener.MouseDown -= InputListener_MouseLeftClicked;
+            InputListener.DeletePressed -= InputListener_DeletePressed;
 
             Node = null;
         }
@@ -78,7 +63,7 @@ namespace Framework.NodeEditor.Views
 
         void InternalDraw(int windowId)
         {
-            _inputListener.ProcessEvents();
+            InputListener.ProcessEvents();
 
             if (Node == null)
                 return;
@@ -87,14 +72,12 @@ namespace Framework.NodeEditor.Views
 
             // Inputs
             GUILayout.BeginVertical();
-            if (Node.InputPins.Count != 0)
-                Node.InputPins.ForEach(pin => _pinViews[pin].Draw());
+            Node.InputPins.ForEach(x => DrawPin(x));
             GUILayout.EndVertical();
 
             // Outputs
             GUILayout.BeginVertical();
-            if (Node.OutputPins.Count != 0)
-                Node.OutputPins.ForEach(pin => _pinViews[pin].Draw());
+            Node.OutputPins.ForEach(x => DrawPin(x));
             GUILayout.EndVertical();
 
             GUILayout.EndHorizontal();
@@ -103,23 +86,22 @@ namespace Framework.NodeEditor.Views
                 GUI.DragWindow();
         }
 
-        public NodePinView GetViewFromPin(NodePin pin)
-        {
-            bool hasViewForPin = _pinViews.ContainsKey(pin);
-            return hasViewForPin ? _pinViews[pin] : null;
-        }
-
         public NodePin GetPinUnderMouse(Action<NodePin> OnPinExists = null)
         {
-            var view = _pinViews
-                .Values
-                .Where(x => x.LocalRect.Contains(_inputListener.MousePosition))
+            var pinUnderMouse = Node
+                .Pins
+                .Where(x => x.LocalRect.Contains(InputListener.MousePosition))
                 .FirstOrDefault();
 
-            if (view != null && view.Pin != null)
-                OnPinExists.InvokeSafe(view.Pin);
+            if (pinUnderMouse != null)
+                OnPinExists.InvokeSafe(pinUnderMouse);
 
-            return view != null ? view.Pin : null;
+            return pinUnderMouse != null ? pinUnderMouse : null;
+        }
+
+        void DrawPin(NodePin pin)
+        {
+            _pinDrawer.Draw(pin, pin.LocalRect.Contains(InputListener.MousePosition));
         }
 
         void InputListener_MouseLeftClicked(EditorMouseEvent mouseEvent)
@@ -130,16 +112,6 @@ namespace Framework.NodeEditor.Views
         void InputListener_DeletePressed()
         {
             NodeDeleted.InvokeSafe(this);
-        }
-
-        void RemovePin(NodePin pin)
-        {
-            _pinViews.Remove(pin, true);
-        }
-
-        void AddPin(NodePin pin)
-        {
-            _pinViews.Add(pin, new NodePinView(pin), true);
         }
     }
 }

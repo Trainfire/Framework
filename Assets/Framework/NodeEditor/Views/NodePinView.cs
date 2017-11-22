@@ -4,57 +4,39 @@ using Framework.NodeSystem;
 
 namespace Framework.NodeEditor.Views
 {
-    public class NodePinView : BaseView
+    public class NodePinView
     {
-        public enum DrawType
+        const float PinSize = 10f;
+
+        public void Draw(NodePin pin, bool highlighted)
         {
-            Input,
-            Output,
-        }
-
-        public NodePin Pin { get; private set; }
-        public Rect LocalRect { get { return Pin.LocalRect; } }
-
-        private const float PinSize = 10f;
-
-        public NodePinView(NodePin nodePin) : base()
-        {
-            Pin = nodePin;
-        }
-
-        protected override void OnDraw()
-        {
-            if (Pin == null)
-                return;
-
             GUILayout.BeginHorizontal();
 
             // Hack to align the element to the right.
-            if (!Pin.IsInput())
+            if (!pin.IsInput())
                 GUILayout.FlexibleSpace();
 
-            if (Pin.IsInput())
+            if (pin.IsInput())
             {
-                DrawPin();
-                DrawLabel();
+                DrawPin(pin, highlighted);
+                DrawLabel(pin);
             }
             else
             {
-                DrawLabel();
-                DrawPin();
+                DrawLabel(pin);
+                DrawPin(pin, highlighted);
             }
 
             GUILayout.EndHorizontal();
         }
 
-        void DrawPin()
+        void DrawPin(NodePin pin, bool highlighted)
         {
             var startingBg = GUI.backgroundColor;
 
-            var color = NodeEditorHelper.GetPinColor(Pin.Type);
+            var color = NodeEditorHelper.GetPinColor(pin.Type);
 
-            // Highlight
-            if (LocalRect.Contains(InputListener.MousePosition))
+            if (highlighted)
             {
                 var highlightAdd = 0.4f;
                 color = new Color(color.r + highlightAdd, color.g + highlightAdd, color.b + highlightAdd);
@@ -66,19 +48,14 @@ namespace Framework.NodeEditor.Views
 
             // Only cache Rect on Repaint event.
             if (Event.current.type == EventType.Repaint)
-                Pin.LocalRect = GUILayoutUtility.GetLastRect();
+                pin.LocalRect = GUILayoutUtility.GetLastRect();
 
             GUI.backgroundColor = startingBg;
         }
 
-        void DrawLabel()
+        void DrawLabel(NodePin pin)
         {
-            GUILayout.Label(new GUIContent(Pin.Name, Pin.ToString()));
-        }
-
-        protected override void OnDestroy()
-        {
-            Pin = null;
+            GUILayout.Label(new GUIContent(pin.Name, pin.ToString()));
         }
     }
 }
