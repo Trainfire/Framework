@@ -52,8 +52,8 @@ namespace Framework.NodeSystem
             }
             else if (pinConnectEvent.OtherPin.WrappedType == typeof(int))
             {
-                In = ChangePinType<float>(In);
-                Out = ChangePinType<float>(Out);
+                In = ChangePinType<int>(In);
+                Out = ChangePinType<int>(Out);
             }
         }
 

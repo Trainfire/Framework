@@ -173,24 +173,27 @@ namespace Framework.NodeSystem
 
             if (connection.StartPin != null && connection.EndPin != null)
             {
-                List<NodeConnection> existingConnection = null;
+                if (connection.StartPin.IsInput() || connection.EndPin.IsOutput())
+                {
+                    // Input pins can never have multiple connections. Remove it.
+                    var existingConnection = Helper.GetConnections(connection.StartPin);
+                    if (existingConnection != null)
+                        existingConnection.ForEach(x => Connections.Remove(x));
+                }
 
-                if (connection.StartPin.IsInput())
-                    existingConnection = Helper.GetConnections(connection.StartPin);
+                var startPinId = connection.StartPin.Index;
+                var endPinId = connection.EndPin.Index;
 
-                if (connection.EndPin.IsOutput())
-                    existingConnection = Helper.GetConnections(connection.StartPin);
+                connection.StartPin.Connect(connection.EndPin);
+                connection.EndPin.Connect(connection.StartPin);
 
-                // Input pins can never have multiple connections. Remove it.
-                if (existingConnection != null)
-                    existingConnection.ForEach(x => Connections.Remove(x));
+                // Check if the pin has changed after connecting. This will happen for dynamic pin types.
+                if (connection.StartPin.Node.Pins[startPinId] != connection.StartPin || connection.EndPin.Node.Pins[endPinId] != connection.EndPin)
+                    connection = new NodeConnection(connection.StartNode.Pins[startPinId], connection.EndNode.Pins[endPinId]);
 
                 Connections.Add(connection);
 
                 Edited.InvokeSafe(this);
-
-                connection.StartPin.Connect(connection.EndPin);
-                connection.EndPin.Connect(connection.StartPin);
             }
         }
 
