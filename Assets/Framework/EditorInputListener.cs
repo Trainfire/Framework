@@ -21,6 +21,18 @@ namespace Framework
         }
     }
 
+    public class EditorKeyboardEvent : EventArgs
+    {
+        public KeyCode KeyCode{ get; private set; }
+        public Event Event { get; private set; }
+
+        public EditorKeyboardEvent()
+        {
+            KeyCode = Event.current.keyCode;
+            Event = Event.current;
+        }
+    }
+
     public class EditorInputListener
     {
         public Vector2 MousePosition { get; private set; }
@@ -33,8 +45,8 @@ namespace Framework
         public event Action ContextClicked;
 
         public event Action DeletePressed;
-        public event Action<KeyCode> KeyPressed;
-        public event Action<KeyCode> KeyReleased;
+        public event Action<EditorKeyboardEvent> KeyPressed;
+        public event Action<EditorKeyboardEvent> KeyReleased;
 
         private Dictionary<EventType, List<Action>> _mouseEventMap;
 
@@ -69,7 +81,7 @@ namespace Framework
 
             if (eventType == EventType.KeyDown)
             {
-                KeyPressed.InvokeSafe(Event.current.keyCode);
+                KeyPressed.InvokeSafe(new EditorKeyboardEvent());
 
                 // TODO: Replace with delete command. There is one...somewhere...apparently...*shrug*
                 if (Event.current.keyCode == KeyCode.Backspace)
@@ -77,7 +89,7 @@ namespace Framework
             }
 
             if (eventType == EventType.KeyUp)
-                KeyReleased.InvokeSafe(Event.current.keyCode);
+                KeyPressed.InvokeSafe(new EditorKeyboardEvent());
 
             MousePosition = Event.current.mousePosition;
         }
