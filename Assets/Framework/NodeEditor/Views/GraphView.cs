@@ -16,6 +16,7 @@ namespace Framework.NodeEditor.Views
         public event Action<NodePin> MouseLeftClickedPin;
         public event Action<NodePin> MouseLeftReleasedOverPin;
         public event Action<NodePin> MouseMiddleClickedPin;
+        public event Action<NodePin> MouseOverPin;
         public event Action MouseReleased;
 
         public NodeGraphHelper GraphHelper { get; set; }
@@ -170,6 +171,9 @@ namespace Framework.NodeEditor.Views
                 DrawField("Node Count", GraphHelper.NodeCount);
                 DrawField("Mouse Pos", _inputListener.MousePosition);
 
+                var pinUnderMouse = GetAnyPinUnderMouse();
+                DrawField("Pin Under Mouse", pinUnderMouse != null ? pinUnderMouse.Name : "N/A");
+
                 GUILayout.BeginHorizontal();
 
                 if (GUILayout.Button("Run"))
@@ -226,6 +230,8 @@ namespace Framework.NodeEditor.Views
                 outPin = pin;
                 OnPinExists.InvokeSafe(pin);
             }));
+
+            MouseOverPin.InvokeSafe(outPin);
 
             return outPin;
         }
