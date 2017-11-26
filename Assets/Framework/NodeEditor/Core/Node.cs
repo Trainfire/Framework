@@ -106,8 +106,9 @@ namespace Framework.NodeSystem
                 var replacementPin = new NodePin<T>(pin.Name, pin.Index, this);
                 Pins.Remove(pin);
 
+                // Replace old pin with the new pin at the same index as the old pin.
                 var targetList = pin.IsInput() ? InputPins : OutputPins;
-                targetList.Insert(pin.Index, replacementPin);
+                targetList.Insert(targetList.IndexOf(pin), replacementPin);
                 targetList.Remove(pin);
 
                 Pins.Add(replacementPin);
@@ -145,6 +146,16 @@ namespace Framework.NodeSystem
         public bool HasExecutePins()
         {
             return Pins.Any(x => x.WrappedType == typeof(NodePinTypeExecute));
+        }
+
+        public T Read<T>(NodePin pin)
+        {
+            return (pin as NodePin<T>).Value;
+        }
+
+        public void Write<T>(NodePin pin, T value)
+        {
+            (pin as NodePin<T>).Value = value;
         }
 
         /// <summary>
