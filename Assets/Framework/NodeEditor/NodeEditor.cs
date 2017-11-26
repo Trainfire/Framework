@@ -18,10 +18,6 @@ namespace Framework.NodeEditor
 
         public NodeEditor(NodeEditorView view)
         {
-            //_pinConnector.ConnectionMade += PinConnector_ConnectionMade;
-            //_pinConnector.ConnectionStarted += PinConnector_ConnectionStarted;
-            //_pinConnector.ConnectionCancelled += PinConnector_ConnectionCancelled;
-
             _runner = new NodeGraphRunner();
 
             _graph = new NodeGraph();
@@ -32,17 +28,18 @@ namespace Framework.NodeEditor
             _graphState.Changed += GraphState_Changed;
 
             _view = view;
+            _view.GraphHelper = _graph.Helper;
 
             _view.ContextMenu.OnAddNode += ContextMenu_OnAddNode;
             _view.ContextMenu.OnClearNodes += ContextMenu_OnClearNodes;
 
-            _view.GraphView.GraphHelper = _graph.Helper;
             _view.GraphView.NodeSelected += GraphView_NodeSelected;
             _view.GraphView.NodeDeleted += GraphView_NodeDeleted;
-            _view.GraphView.RunGraph += GraphView_RunGraph;
+            _view.GraphView.RunGraph += RunGraph;
 
             _view.MenuView.Save += Save;
             _view.MenuView.Revert += RevertGraph;
+            _view.MenuView.Run += RunGraph;
 
             _pinConnector = new NodeEditorPinConnector(_graph, _view);
         }
@@ -70,6 +67,11 @@ namespace Framework.NodeEditor
 
                 _graph.Load(saveData);
             }
+        }
+
+        void RunGraph()
+        {
+            _runner.Run(_graph);
         }
 
         void RevertGraph()
@@ -112,16 +114,12 @@ namespace Framework.NodeEditor
         void GraphView_NodeSelected(Node node)
         {
             NodeSelected.InvokeSafe(node);
+            _view.Selection = node;
         }
 
         void GraphView_NodeDeleted(Node node)
         {
             _graph.RemoveNode(node);
-        }
-
-        void GraphView_RunGraph()
-        {
-            _runner.Run(_graph);
         }
         #endregion
 
@@ -153,10 +151,11 @@ namespace Framework.NodeEditor
 
             _view.GraphView.NodeSelected -= GraphView_NodeSelected;
             _view.GraphView.NodeDeleted -= GraphView_NodeDeleted;
-            _view.GraphView.RunGraph -= GraphView_RunGraph;
+            _view.GraphView.RunGraph -= RunGraph;
 
             _view.MenuView.Save -= Save;
             _view.MenuView.Revert -= RevertGraph;
+            _view.MenuView.Run -= RunGraph;
 
             ClearGraph();
         }

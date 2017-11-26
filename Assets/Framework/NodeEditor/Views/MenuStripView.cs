@@ -18,21 +18,34 @@ namespace Framework.NodeEditor.Views
 
         protected override void OnDraw()
         {
+            GUILayout.BeginHorizontal(EditorStyles.toolbar, GUILayout.ExpandWidth(false), GUILayout.ExpandHeight(true));
+
             if (!_graphLoaded)
-                return;
-
-            GUILayout.BeginHorizontal();
-
-            if (GUILayout.Button("Save Changes"))
-                Save.InvokeSafe();
+                GUILayout.Label("No graph selected.", EditorStyles.miniLabel);
 
             if (_graphDirty)
             {
-                if (GUILayout.Button("Revert Changes"))
+                if (DrawButton("Save"))
+                    Save.InvokeSafe();
+
+                if (DrawButton("Revert"))
                     Revert.InvokeSafe();
             }
 
+            if (_graphLoaded)
+            {
+                if (DrawButton("Run"))
+                    Run.InvokeSafe();
+            }
+
+            GUILayout.FlexibleSpace();
+
             GUILayout.EndHorizontal();
+        }
+
+        bool DrawButton(string label)
+        {
+            return GUILayout.Button(label, EditorStyles.toolbarButton, GUILayout.ExpandWidth(false), GUILayout.MinWidth(100f));
         }
     }
 }

@@ -27,13 +27,19 @@ namespace Framework.NodeEditor
 
         void OnGUI()
         {
-            // TEMP: Need to move this...somehow.
-            BeginWindows();
-            _view.DrawWindows();
-            EndWindows();
+            var windowRect = position;
 
-            _view.GraphView.WindowSize = position;
-            _view.Draw();
+            _view.Draw(BeginWindows, EndWindows);
+
+            // TEMP: Need to move this...somehow.
+            //BeginWindows();
+            //_view.DrawWindows();
+            //EndWindows();
+
+            //var windowRect = position; // This window rect is called position in Unity for some reason...
+            //_view.GraphView.WindowSize = new Rect(windowRect.position, new Vector2(windowRect.width - 300f, windowRect.height));
+            //_view.Properties.WindowSize = new Rect(new Vector2(windowRect.width - 300f, 0f), new Vector2(300f, windowRect.height));
+            //_view.Draw();
 
             Repaint();
         }
