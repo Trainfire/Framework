@@ -67,9 +67,9 @@ namespace Framework.NodeSystem
             return pin;
         }
 
-        protected NodePin<NodePinTypeExecute> AddExecuteOutPin()
+        protected NodePin<NodePinTypeExecute> AddExecuteOutPin(string name = "Out")
         {
-            var pin = new NodePin<NodePinTypeExecute>("Out", Pins.Count, this);
+            var pin = new NodePin<NodePinTypeExecute>(name, Pins.Count, this);
             RegisterPin(pin);
             OutputPins.Add(pin);
             return pin;
@@ -179,6 +179,63 @@ namespace Framework.NodeSystem
             PinRemoved.InvokeSafe(pin);
             pin.Connected -= OnPinConnected;
             TriggerChange();
+        }
+    }
+
+
+    public abstract class Node1In<TIn> : Node
+    {
+        protected NodePin<TIn> In { get; private set; }
+
+        protected override void OnInitialize()
+        {
+            base.OnInitialize();
+            In = AddInputPin<TIn>("In");
+        }
+    }
+
+    public abstract class Node1In1Out<TIn, TOut> : Node
+    {
+        protected NodePin<TIn> In { get; private set; }
+        protected NodePin<TOut> Out { get; private set; }
+
+        protected override void OnInitialize()
+        {
+            base.OnInitialize();
+            In = AddInputPin<TIn>("In");
+            Out = AddOutputPin<TOut>("Out");
+        }
+    }
+
+    public abstract class Node2In1Out<TIn1, TIn2, TOut> : Node
+    {
+        protected NodePin<TIn1> In1 { get; private set; }
+        protected NodePin<TIn2> In2 { get; private set; }
+        protected NodePin<TOut> Out { get; private set; }
+
+        protected override void OnInitialize()
+        {
+            base.OnInitialize();
+            In1 = AddInputPin<TIn1>("In 1");
+            In2 = AddInputPin<TIn2>("In 2");
+            Out = AddOutputPin<TOut>("Out");
+        }
+    }
+
+    public abstract class Node3In1Out<TIn1, TIn2, TIn3, TOut> : Node
+    {
+        protected NodePin<TIn1> In1 { get; private set; }
+        protected NodePin<TIn2> In2 { get; private set; }
+        protected NodePin<TIn3> In3 { get; private set; }
+        protected NodePin<TOut> Out { get; private set; }
+
+        protected override void OnInitialize()
+        {
+            base.OnInitialize();
+            In1 = AddInputPin<TIn1>("In 1");
+            In2 = AddInputPin<TIn2>("In 2");
+            In2 = AddInputPin<TIn2>("In 3");
+            Out = AddOutputPin<TOut>("Out");
         }
     }
 }

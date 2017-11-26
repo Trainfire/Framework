@@ -2,6 +2,9 @@
 
 namespace Framework.NodeSystem
 {
+    /// <summary>
+    /// Dummy class. Probably want to implement graph events of some sort.
+    /// </summary>
     public class CoreStart : NodeExecute
     {
         public override void Execute()
@@ -27,82 +30,46 @@ namespace Framework.NodeSystem
         }
     }
 
-    public class DynamicNode : Node
-    {
-        NodePin In;
-        NodePin Out;
-        Action OnCalculate;
-
-        protected override void OnInitialize()
-        {
-            base.OnInitialize();
-            In = AddInputPin<NodePinTypeAny>("In");
-            Out = AddOutputPin<NodePinTypeAny>("Out");
-        }
-
-        protected override void OnPinConnected(NodePinConnectEvent pinConnectEvent)
-        {
-            if (In.WrappedType != typeof(NodePinTypeAny))
-                return;
-
-            if (pinConnectEvent.OtherPin.WrappedType == typeof(float))
-            {
-                In = ChangePinType<float>(In);
-                Out = ChangePinType<float>(Out);
-            }
-            else if (pinConnectEvent.OtherPin.WrappedType == typeof(int))
-            {
-                In = ChangePinType<int>(In);
-                Out = ChangePinType<int>(Out);
-            }
-        }
-
-        public override void Calculate()
-        {
-            Out.SetValueFromPin(In);
-        }
-    }
-
     public abstract class MathBase : Node
     {
-        NodePin In1;
-        NodePin In2;
-        NodePin Out;
-        Action OnCalculate;
+        private NodePin _in1;
+        private NodePin _in2;
+        private NodePin _out;
+        private Action _onCalculate;
 
         protected override void OnInitialize()
         {
             base.OnInitialize();
-            In1 = AddInputPin<NodePinTypeAny>("In 1");
-            In2 = AddInputPin<NodePinTypeAny>("In 2");
-            Out = AddOutputPin<NodePinTypeAny>("Out");
+            _in1 = AddInputPin<NodePinTypeAny>("In 1");
+            _in2 = AddInputPin<NodePinTypeAny>("In 2");
+            _out = AddOutputPin<NodePinTypeAny>("Out");
         }
 
         protected override void OnPinConnected(NodePinConnectEvent pinConnectEvent)
         {
-            if (In1.WrappedType != typeof(NodePinTypeAny) || In2.WrappedType != typeof(NodePinTypeAny))
+            if (_in1.WrappedType != typeof(NodePinTypeAny) || _in2.WrappedType != typeof(NodePinTypeAny))
                 return;
 
             if (pinConnectEvent.OtherPin.WrappedType == typeof(float))
             {
-                In1 = ChangePinType<float>(In1);
-                In2 = ChangePinType<float>(In2);
-                Out = ChangePinType<float>(Out);
-                OnCalculate = CalculateFloat;
+                _in1 = ChangePinType<float>(_in1);
+                _in2 = ChangePinType<float>(_in2);
+                _out = ChangePinType<float>(_out);
+                _onCalculate = CalculateFloat;
             }
             else if (pinConnectEvent.OtherPin.WrappedType == typeof(int))
             {
-                In1 = ChangePinType<int>(In1);
-                In2 = ChangePinType<int>(In2);
-                Out = ChangePinType<int>(Out);
-                OnCalculate = CalculateInt;
+                _in1 = ChangePinType<int>(_in1);
+                _in2 = ChangePinType<int>(_in2);
+                _out = ChangePinType<int>(_out);
+                _onCalculate = CalculateInt;
             }
         }
 
-        public override void Calculate() { OnCalculate(); }
+        public override void Calculate() { _onCalculate(); }
 
-        protected void CalculateFloat() { Write(Out, GetFloat(Read<float>(In1), Read<float>(In2))); }
-        protected void CalculateInt() { Write(Out, GetInt(Read<int>(In1), Read<int>(In2))); }
+        protected void CalculateFloat() { Write(_out, GetFloat(Read<float>(_in1), Read<float>(_in2))); }
+        protected void CalculateInt() { Write(_out, GetInt(Read<int>(_in1), Read<int>(_in2))); }
 
         protected abstract float GetFloat(float a, float b);
         protected abstract int GetInt(int a, int b);
@@ -164,5 +131,24 @@ namespace Framework.NodeSystem
     public class LogicOr : Node2In1Out<bool, bool, bool>
     {
         public override void Calculate() { Out.Value = In1.Value || In2.Value; }
+    }
+
+    public class ExecuteBranch : Node1In<bool>, INodeExecuteOutput
+    {
+        public NodePin<NodePinTypeExecute> ExecuteOut
+        {
+            get { return In.Value ? _onTrue : _onFalse; }
+        }
+
+        private NodePin<NodePinTypeExecute> _onTrue;
+        private NodePin<NodePinTypeExecute> _onFalse;
+
+        protected override void OnInitialize()
+        {
+            AddExecuteInPin();
+            base.OnInitialize(); // Add parent input.
+            _onTrue = AddExecuteOutPin("True");
+            _onFalse = AddExecuteOutPin("False");
+        }
     }
 }

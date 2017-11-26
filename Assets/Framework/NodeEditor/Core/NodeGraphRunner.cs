@@ -8,7 +8,7 @@ namespace Framework.NodeSystem
 
         private NodeGraph _graph;
         private NodeRunner _runner;
-        private NodeExecute _currentNode;
+        private Node _currentNode;
         private int _executions;
 
         public void Run(NodeGraph graph)
@@ -45,7 +45,9 @@ namespace Framework.NodeSystem
             // Run through all the nodes connected to the current node to prepare it for execution.
             _runner.StartFrom(_currentNode);
 
-            _currentNode.Execute();
+            var executeHandler = _currentNode as INodeExecuteHandler;
+            if (executeHandler != null)
+                executeHandler.Execute();
 
             _executions++;
 
@@ -56,16 +58,19 @@ namespace Framework.NodeSystem
             }
             else
             {
-                var connection = _graph.Helper.GetConnectionFromStartPin(_currentNode.ExecuteOut);
-                if (connection != null)
+                var executeOutput = _currentNode as INodeExecuteOutput;
+
+                if (executeOutput != null)
                 {
-                    _currentNode = connection.EndNode as NodeExecute;
-                    MoveNext();
+                    var connection = _graph.Helper.GetConnectionFromStartPin(executeOutput.ExecuteOut);
+                    if (connection != null)
+                    {
+                        _currentNode = connection.EndNode;
+                        MoveNext();
+                    }
                 }
-                else
-                {
-                    DebugEx.Log<NodeGraphRunner>("Finished execution of all nodes.");
-                }
+
+                DebugEx.Log<NodeGraphRunner>("Finished execution of all nodes.");
             }
         }
     }
