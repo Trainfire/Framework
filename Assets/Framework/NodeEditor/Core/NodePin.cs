@@ -53,7 +53,9 @@ namespace Framework.NodeSystem
 
         public bool ArePinsCompatible(NodePin pin)
         {
-            return pin.WrappedType == this.WrappedType || this.WrappedType == typeof(NodePinTypeAny);
+            var areWrappedTypesCompatible = pin.WrappedType == this.WrappedType || this.WrappedType == typeof(NodePinTypeAny);
+            var areSameType = IsSameType(pin);
+            return areWrappedTypesCompatible && !areSameType;
         }
 
         public bool IsInput()
@@ -64,6 +66,14 @@ namespace Framework.NodeSystem
         public bool IsOutput()
         {
             return Node.IsOutputPin(this);
+        }
+
+        /// <summary>
+        /// Returns true if both pins are inputs or outputs;
+        /// </summary>
+        public bool IsSameType(NodePin otherPin)
+        {
+            return IsInput() && otherPin.IsInput() || IsOutput() && otherPin.IsOutput();
         }
 
         public virtual void SetValueFromPin(NodePin pin) { }

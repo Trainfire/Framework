@@ -6,11 +6,20 @@ namespace Framework.NodeEditor
 {
     public class NodeEditorPinConnector
     {
+        private enum ValidationResult
+        {
+            Valid,
+            Invalid,
+            ConnectingToSelf,
+            IncompatiblePins,
+        }
+
         private NodeGraph _graph;
         private NodeEditorView _view;
 
         private NodeConnection _modifyingConnection;
         private NodePin _sourcePin;
+        private NodePin _targetPin;
 
         public NodeEditorPinConnector(NodeGraph graph, NodeEditorView view)
         {
@@ -20,6 +29,26 @@ namespace Framework.NodeEditor
             _view.GraphView.MouseLeftClickedPin += GraphView_MouseLeftClickedPin;
             _view.GraphView.MouseLeftReleasedOverPin += GraphView_MouseLeftReleasedOverPin;
             _view.GraphView.MouseReleased += GraphView_MouseReleased;
+            _view.GraphView.MouseOverPin += GraphView_MouseOverPin;
+        }
+
+        void GraphView_MouseOverPin(NodePin nodePin)
+        {
+            if (nodePin == null)
+                _view.ConnectorView.Tooltip = string.Empty;
+
+            var validationResult = ValidateConnection(nodePin);
+
+            if (validationResult == ValidationResult.Valid)
+            {
+                _view.ConnectorView.Tooltip = "Connect";
+            }
+            else
+            {
+                _view.ConnectorView.Tooltip = GetErrorMessage(validationResult);
+            }
+            
+            _view.ConnectorView.SetEndPin(nodePin);
         }
 
         void GraphView_MouseLeftClickedPin(NodePin nodePin)
@@ -69,92 +98,105 @@ namespace Framework.NodeEditor
 
         void GraphView_MouseLeftReleasedOverPin(NodePin targetPin)
         {
-            DebugEx.Log<NodeEditorPinConnector>("MouseLeftReleased");
+            _targetPin = targetPin;
 
-            if (targetPin == null)
+            if (ValidateConnection(targetPin) != ValidationResult.Valid)
             {
-                DebugEx.LogWarning<NodeEditorPinConnector>("Cannot make a new connection as target pin is null.");
+                DebugEx.Log<NodeEditorPinConnector>(GetErrorMessage(ValidateConnection(targetPin)));
                 return;
             }
 
-            if (_sourcePin == null)
+            DebugEx.Log<NodeEditorPinConnector>("Connecting pin '{0}' in '{1}' to '{2}' in '{3}'",
+                _sourcePin.Name,
+                _sourcePin.Node.Name,
+                targetPin.Name,
+                targetPin.Node.Name);
+
+            NodeConnection connection = null;
+            NodePin startPin = null;
+            NodePin endPin = null;
+
+            // Execution pins flow left right.
+            // Value pins flow right to left.
+            if (_sourcePin.WrappedType == typeof(NodePinTypeExecute))
             {
-                DebugEx.LogWarning<NodeEditorPinConnector>("Cannot make a new connection as source pin is null.");
-                return;
-            }
-
-            if (!IsModifyingConnection() && targetPin.Node == _sourcePin.Node)
-            {
-                DebugEx.LogWarning<NodeEditorPinConnector>("Attempted to connect a pin to itself!");
-                return;
-            }
-
-            if (targetPin.ArePinsCompatible(_sourcePin))
-            {
-                DebugEx.Log<NodeEditorPinConnector>("Connecting pin '{0}' in '{1}' to '{2}' in '{3}'",
-                    _sourcePin.Name,
-                    _sourcePin.Node.Name,
-                    targetPin.Name,
-                    targetPin.Node.Name);
-
-                NodeConnection connection = null;
-                NodePin startPin = null;
-                NodePin endPin = null;
-
-                // Execution pins flow left right.
-                // Value pins flow right to left.
-                if (_sourcePin.WrappedType == typeof(NodePinTypeExecute))
-                {
-                    DebugEx.Log<NodeEditorPinConnector>("Connected execution pins.");
-
-                    if (IsModifyingConnection())
-                    {
-                        startPin = _modifyingConnection.StartPin;
-                        endPin = _sourcePin;
-                    }
-                    else
-                    {
-                        startPin = _sourcePin;
-                        endPin = targetPin;
-                    }
-                }
-                else
-                {
-                    DebugEx.Log<NodeEditorPinConnector>("Connected value pins.");
-
-                    if (IsModifyingConnection())
-                    {
-                        startPin = targetPin;
-                        endPin = _modifyingConnection.EndPin;
-                    }
-                    else
-                    {
-                        startPin = targetPin;
-                        endPin = _sourcePin;
-                    }
-                }
-
-                connection = new NodeConnection(startPin, endPin);
+                DebugEx.Log<NodeEditorPinConnector>("Connected execution pins.");
 
                 if (IsModifyingConnection())
                 {
-                    _graph.Replace(_modifyingConnection, connection);
+                    startPin = _modifyingConnection.StartPin;
+                    endPin = _sourcePin;
                 }
                 else
                 {
-                    _graph.Connect(connection);
+                    startPin = _sourcePin;
+                    endPin = targetPin;
                 }
-
-                _view.ConnectorView.EndDrawState();
-
-                _modifyingConnection = null;
-                _sourcePin = null;
             }
+            else
+            {
+                DebugEx.Log<NodeEditorPinConnector>("Connected value pins.");
+
+                if (IsModifyingConnection())
+                {
+                    startPin = targetPin;
+                    endPin = _modifyingConnection.EndPin;
+                }
+                else
+                {
+                    startPin = targetPin;
+                    endPin = _sourcePin;
+                }
+            }
+
+            connection = new NodeConnection(startPin, endPin);
+
+            if (IsModifyingConnection())
+            {
+                _graph.Replace(_modifyingConnection, connection);
+            }
+            else
+            {
+                _graph.Connect(connection);
+            }
+
+            _view.ConnectorView.EndDrawState();
+
+            _modifyingConnection = null;
+            _sourcePin = null;
         }
 
         bool IsModifyingConnection()
         {
             return _modifyingConnection != null;
+        }
+
+        ValidationResult ValidateConnection(NodePin targetPin)
+        {
+            if (targetPin == null || _sourcePin == null)
+                return ValidationResult.Invalid;
+
+            if (!IsModifyingConnection() && targetPin.Node == _sourcePin.Node)
+            {
+                DebugEx.LogWarning<NodeEditorPinConnector>("Attempted to connect a pin to itself!");
+                return ValidationResult.ConnectingToSelf;
+            }
+
+            if (!targetPin.ArePinsCompatible(_sourcePin))
+                return ValidationResult.IncompatiblePins;
+
+            return ValidationResult.Valid;
+        }
+
+        string GetErrorMessage(ValidationResult connectionError)
+        {
+            switch (connectionError)
+            {
+                case ValidationResult.Invalid: return "Invalid";
+                case ValidationResult.ConnectingToSelf: return "Cannot connect to self";
+                case ValidationResult.IncompatiblePins: return "Incompatible pins";
+                default: return string.Empty;
+            }
         }
     }
 }
