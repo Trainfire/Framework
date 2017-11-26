@@ -163,7 +163,7 @@ namespace Framework.NodeSystem
         /// </summary>
         public void TriggerPositionChanged()
         {
-            //TriggerChange();
+            TriggerChange();
         }
 
         void RegisterPin(NodePin pin)
