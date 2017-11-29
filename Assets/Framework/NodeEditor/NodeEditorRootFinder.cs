@@ -16,7 +16,6 @@ namespace Framework.NodeEditor
         {
             _controller = controller;
             _controller.GraphSaved += Controller_GraphSaved;
-            _controller.NodeSelected += Controller_NodeSelected;
 
             Selection.selectionChanged += LoadGraphFromSelection;
         }
@@ -44,16 +43,9 @@ namespace Framework.NodeEditor
                 _controller.Load(_root.GraphData);
         }
 
-        void Controller_NodeSelected(Node node)
-        {
-            if (_root != null)
-                _root.Selection = node;
-        }
-
         public void Destroy()
         {
             _controller.GraphSaved -= Controller_GraphSaved;
-            _controller.NodeSelected -= Controller_NodeSelected;
 
             Selection.selectionChanged -= LoadGraphFromSelection;
         }

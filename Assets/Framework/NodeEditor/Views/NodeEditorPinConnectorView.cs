@@ -45,9 +45,12 @@ namespace Framework.NodeEditor.Views
                     var offset = new Vector2(0, -25f);
                     var rect = new Rect(InputListener.MousePosition + offset, new Vector2(200f, 20f));
 
-                    GUILayout.BeginArea(rect);
-                    GUILayout.Box(Tooltip);
-                    GUILayout.EndArea();
+                    if (Tooltip != string.Empty)
+                    {
+                        GUILayout.BeginArea(rect);
+                        GUILayout.Box(Tooltip);
+                        GUILayout.EndArea();
+                    }
                 }
             }
         }

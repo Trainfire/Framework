@@ -11,12 +11,11 @@ namespace Framework.NodeEditor.Views
     public class NodeView : BaseView
     {
         public event Action<NodeView> NodeSelected;
-        public event Action<NodeView> NodeDeleted;
 
         public Node Node { get; private set; }
+        public Rect Rect { get; private set; }
 
         private int _windowId;
-        private Rect _rect;
         private NodePinView _pinDrawer;
 
         public NodeView(Node node, int windowId)
@@ -29,14 +28,12 @@ namespace Framework.NodeEditor.Views
 
             InputListener.MouseDown += InputListener_MouseLeftClicked;
             InputListener.MouseUp += InputListener_MouseUp;
-            InputListener.DeletePressed += InputListener_DeletePressed;
-        }
+        } 
 
         protected override void OnDestroy()
         {
             InputListener.MouseDown -= InputListener_MouseLeftClicked;
             InputListener.MouseUp -= InputListener_MouseUp;
-            InputListener.DeletePressed -= InputListener_DeletePressed;
 
             Node = null;
             _pinDrawer = null;
@@ -57,11 +54,11 @@ namespace Framework.NodeEditor.Views
             var viewSize = new Vector2(nodeWidth, height);
 
             // Subtract offset due to inverted co-ordinates.
-            _rect = new Rect(Node.Position.x - offset.x, Node.Position.y - offset.y, viewSize.x, viewSize.y);
-            _rect = GUI.Window(_windowId, _rect, InternalDraw, Node.Name);
+            Rect = new Rect(Node.Position.x - offset.x, Node.Position.y - offset.y, viewSize.x, viewSize.y);
+            Rect = GUI.Window(_windowId, Rect, InternalDraw, Node.Name);
 
             // Set node position to untransformed position.
-            Node.Position = _rect.position + offset;
+            Node.Position = Rect.position + offset;
         }
 
         void InternalDraw(int windowId)
@@ -115,11 +112,6 @@ namespace Framework.NodeEditor.Views
         void InputListener_MouseUp(EditorMouseEvent mouseEvent)
         {
             Node.TriggerPositionChanged();
-        }
-
-        void InputListener_DeletePressed()
-        {
-            NodeDeleted.InvokeSafe(this);
         }
     }
 }

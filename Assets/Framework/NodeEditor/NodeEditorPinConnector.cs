@@ -15,43 +15,48 @@ namespace Framework.NodeEditor
         }
 
         private NodeGraph _graph;
-        private NodeEditorView _view;
+        private NodeEditorPinConnectorView _view;
+        private INodeEditorInputHandler _input;
 
         private NodeConnection _modifyingConnection;
         private NodePin _sourcePin;
         private NodePin _targetPin;
 
-        public NodeEditorPinConnector(NodeGraph graph, NodeEditorView view)
+        public NodeEditorPinConnector(NodeGraph graph, NodeEditorPinConnectorView view, INodeEditorInputHandler input)
         {
             _graph = graph;
 
             _view = view;
-            _view.GraphView.MouseLeftClickedPin += GraphView_MouseLeftClickedPin;
-            _view.GraphView.MouseLeftReleasedOverPin += GraphView_MouseLeftReleasedOverPin;
-            _view.GraphView.MouseReleased += GraphView_MouseReleased;
-            _view.GraphView.MouseOverPin += GraphView_MouseOverPin;
+            _input = input;
+            _input.SelectPin += Input_SelectPin;
+            _input.MouseUpOverPin += Input_MouseUpOverPin;
+            _input.MouseUp += Input_MouseUp;
+            _input.MouseHoverEnterPin += Input_MouseHoverEnterPin;
+            _input.MouseHoverLeavePin += Input_MouseHoverLeavePin;
         }
 
-        void GraphView_MouseOverPin(NodePin nodePin)
+        void Input_MouseHoverLeavePin()
         {
-            if (nodePin == null)
-                _view.ConnectorView.Tooltip = string.Empty;
+            _view.Tooltip = string.Empty;
+        }
 
+        void Input_MouseHoverEnterPin(NodePin nodePin)
+        {
             var validationResult = ValidateConnection(nodePin);
 
             if (validationResult == ValidationResult.Valid)
             {
-                _view.ConnectorView.Tooltip = "Connect";
+                _view.Tooltip = "Connect";
             }
             else
             {
-                _view.ConnectorView.Tooltip = GetErrorMessage(validationResult);
+                _view.Tooltip = GetErrorMessage(validationResult);
             }
             
-            _view.ConnectorView.SetEndPin(nodePin);
+            _view.SetEndPin(nodePin);
         }
 
-        void GraphView_MouseLeftClickedPin(NodePin nodePin)
+        void Input_SelectPin(NodePin nodePin)
         {
             if (nodePin.IsInput())
             {
@@ -65,19 +70,19 @@ namespace Framework.NodeEditor
 
                     // Executes flow left to right so get the correct starting pin.
                     var startPin = nodePin.WrappedType == typeof(NodePinTypeExecute) ? _modifyingConnection.StartPin : _modifyingConnection.EndPin;
-                    _view.ConnectorView.EnterDrawState(startPin);
+                    _view.EnterDrawState(startPin);
                 }
             }
             else
             {
                 DebugEx.Log<NodeEditorPinConnector>("Creating a new connection...");
-                _view.ConnectorView.EnterDrawState(nodePin);
+                _view.EnterDrawState(nodePin);
             }
 
             _sourcePin = nodePin;
         }
 
-        void GraphView_MouseReleased()
+        void Input_MouseUp()
         {
             DebugEx.Log<NodeEditorPinConnector>("MouseReleased");
 
@@ -91,12 +96,12 @@ namespace Framework.NodeEditor
                 DebugEx.Log<NodeEditorPinConnector>("Cancelling a new connection.");
             }
 
-            _view.ConnectorView.EndDrawState();
+            _view.EndDrawState();
             _modifyingConnection = null;
             _sourcePin = null;
         }
 
-        void GraphView_MouseLeftReleasedOverPin(NodePin targetPin)
+        void Input_MouseUpOverPin(NodePin targetPin)
         {
             _targetPin = targetPin;
 
@@ -160,7 +165,7 @@ namespace Framework.NodeEditor
                 _graph.Connect(connection);
             }
 
-            _view.ConnectorView.EndDrawState();
+            _view.EndDrawState();
 
             _modifyingConnection = null;
             _sourcePin = null;

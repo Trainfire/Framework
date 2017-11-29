@@ -12,6 +12,7 @@ namespace Framework.NodeEditor
     {
         private const string WindowName = "Node Editor";
 
+        private NodeEditorInputHandler _inputHandler;
         private NodeEditorView _view;
         private NodeEditor _controller;
         private NodeEditorRootFinder _rootHandler;
@@ -21,26 +22,15 @@ namespace Framework.NodeEditor
             Assert.raiseExceptions = true;
 
             _view = new NodeEditorView();
-            _controller = new NodeEditor(_view);
+            _inputHandler = new NodeEditorInputHandler(_view.GraphView);
+            _controller = new NodeEditor(_view, _inputHandler);
             _rootHandler = new NodeEditorRootFinder(_controller);
         }
 
         void OnGUI()
         {
-            var windowRect = position;
-
+            _inputHandler.Update();
             _view.Draw(BeginWindows, EndWindows);
-
-            // TEMP: Need to move this...somehow.
-            //BeginWindows();
-            //_view.DrawWindows();
-            //EndWindows();
-
-            //var windowRect = position; // This window rect is called position in Unity for some reason...
-            //_view.GraphView.WindowSize = new Rect(windowRect.position, new Vector2(windowRect.width - 300f, windowRect.height));
-            //_view.Properties.WindowSize = new Rect(new Vector2(windowRect.width - 300f, 0f), new Vector2(300f, windowRect.height));
-            //_view.Draw();
-
             Repaint();
         }
 
