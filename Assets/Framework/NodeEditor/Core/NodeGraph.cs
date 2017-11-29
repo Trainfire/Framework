@@ -14,6 +14,9 @@ namespace Framework.NodeSystem
         public event Action<NodeGraph> PostUnload;
         public event Action<NodeGraph> Edited;
 
+        public Node Selection { get; private set; }
+
+        public event Action<Node> NodeSelected;
         public event Action<Node> NodeAdded;
         public event Action<Node> NodeRemoved;
 
@@ -64,6 +67,8 @@ namespace Framework.NodeSystem
 
             var connectionsToClear = Connections.ToList();
             Connections.ForEach(x => Disconnect(x));
+
+            Selection = null;
 
             PostUnload.InvokeSafe(this);
 
@@ -219,6 +224,14 @@ namespace Framework.NodeSystem
 
             if (connection.Count != 0)
                 connection.ForEach(x => Disconnect(x));
+        }
+
+        public void SetSelection(Node node)
+        {
+            if (node != null)
+                Assert.IsTrue(Nodes.Contains(node));
+            Selection = node;
+            NodeSelected.InvokeSafe(Selection);
         }
 
         #region Callbacks

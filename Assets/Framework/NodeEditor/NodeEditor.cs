@@ -1,24 +1,9 @@
 ﻿using UnityEngine.Assertions;
 using Framework.NodeSystem;
-using Framework.NodeEditor.Views;
 using System;
 
 namespace Framework.NodeEditor
 {
-    public interface INodeEditorInputHandler
-    {
-        event Action<Node> SelectNode;
-        event Action<NodePin> SelectPin;
-        event Action<NodePin> MouseUpOverPin;
-        event Action MouseUp;
-        event Action MouseDown;
-        event Action<NodePin> MouseHoverEnterPin;
-        event Action MouseHoverLeavePin;
-
-        event Action Duplicate;
-        event Action Delete;
-    }
-
     public class NodeEditor
     {
         public event Action<NodeGraphData> GraphSaved;
@@ -26,39 +11,25 @@ namespace Framework.NodeEditor
         private NodeGraphRunner _runner;
         private NodeGraphState _graphState;
         private NodeGraph _graph;
-        private NodeEditorPinConnector _pinConnector;
-        private NodeEditorView _view;
-        private INodeEditorInputHandler _inputHandler;
+        private INodeEditorUserEventsListener _inputHandler;
 
-        private Node _selectedNode;
-
-        public NodeEditor(NodeEditorView view, INodeEditorInputHandler inputHandler)
+        public NodeEditor(NodeGraph graph, INodeEditorUserEventsListener inputHandler)
         {
+            _graph = graph;
+
             _inputHandler = inputHandler;
             _inputHandler.Duplicate += Input_Duplicate;
             _inputHandler.Delete += Input_Delete;
             _inputHandler.SelectNode += Input_SelectNode;
+            _inputHandler.AddNode += Input_AddNode;
+            _inputHandler.SaveGraph += Save;
+            _inputHandler.RevertGraph += RevertGraph;
+            _inputHandler.RunGraph += RunGraph;
 
             _runner = new NodeGraphRunner();
 
-            _graph = new NodeGraph();
-            _graph.NodeAdded += Graph_NodeAdded;
-            _graph.NodeRemoved += Graph_NodeRemoved;
-
             _graphState = new NodeGraphState(_graph);
-            _graphState.Changed += GraphState_Changed;
-
-            _view = view;
-            _view.GraphHelper = _graph.Helper;
-
-            _view.ContextMenu.OnAddNode += ContextMenu_OnAddNode;
-            _view.ContextMenu.OnClearNodes += ContextMenu_OnClearNodes;
-
-            _view.MenuView.Save += Save;
-            _view.MenuView.Revert += RevertGraph;
-            _view.MenuView.Run += RunGraph;
-
-            _pinConnector = new NodeEditorPinConnector(_graph, _view.ConnectorView, _inputHandler);
+            //_graphState.Changed += GraphState_Changed;
         }
 
         public void Load(NodeGraphData graphData)
@@ -68,8 +39,6 @@ namespace Framework.NodeEditor
             // Copy from existing graph data.
             var editingGraphData = new NodeGraphData(graphData);
             _graph.Load(editingGraphData);
-
-            _view.GraphView.GraphHelper = _graph.Helper;
         }
 
         void Save()
@@ -99,68 +68,39 @@ namespace Framework.NodeEditor
         public void ClearGraph()
         {
             _graph.Unload();
-            _view.GraphView.Clear();
         }
-
-        #region State Callbacks
-        void GraphState_Changed(NodeGraphState graphState)
-        {
-            _view.MenuView.GraphDirty = graphState.IsDirty;
-            _view.MenuView.GraphLoaded = graphState.GraphLoaded;
-        }
-        #endregion
-
-        #region Graph Callbacks
-        void Graph_NodeRemoved(Node node)
-        {
-            _view.GraphView.RemoveNodeView(node);
-        }
-
-        void Graph_NodeAdded(Node node)
-        {
-            _view.GraphView.AddNodeView(node);
-        }
-
-        void Graph_NodeDestroyed(Node node)
-        {
-            _view.GraphView.RemoveNodeView(node);
-        }
-        #endregion
 
         #region Input Callbacks
-        private void Input_SelectNode(Node node)
+        void Input_SelectNode(Node node)
         {
-            _selectedNode = node;
-            _view.Selection = _selectedNode;
+            _graph.SetSelection(node);
         }
 
         void Input_Duplicate()
         {
             // TODO.
-            if (_selectedNode != null)
+            if (_graph.Selection != null)
                 DebugEx.Log<NodeEditor>("Do a duplicate, yeah?");
         }
 
         void Input_Delete()
         {
-            if (_selectedNode != null)
-                _graph.RemoveNode(_selectedNode);
+            if (_graph.Selection != null)
+                _graph.RemoveNode(_graph.Selection);
         }
-        #endregion
 
-        #region Context Menu
-        void ContextMenu_OnClearNodes()
+        void Input_RemoveAllNodes()
         {
             if (_graph != null)
                 _graph.Unload();
         }
 
-        void ContextMenu_OnAddNode(string nodeId)
+        void Input_AddNode(AddNodeEvent addNodeEvent)
         {
             if (_graph != null)
             {
                 var factory = new NodeFactory();
-                factory.Instantiate(nodeId, _graph);
+                factory.Instantiate(addNodeEvent.NodeId, _graph);
             }
         }
         #endregion
@@ -170,19 +110,56 @@ namespace Framework.NodeEditor
             _inputHandler.Delete -= Input_Delete;
             _inputHandler.Duplicate -= Input_Duplicate;
             _inputHandler.SelectNode -= Input_SelectNode;
-
-            _graph.NodeAdded -= Graph_NodeAdded;
-            _graph.NodeRemoved -= Graph_NodeRemoved;
-            _graphState.Changed -= GraphState_Changed;
-
-            _view.ContextMenu.OnAddNode -= ContextMenu_OnAddNode;
-            _view.ContextMenu.OnClearNodes -= ContextMenu_OnClearNodes;
-
-            _view.MenuView.Save -= Save;
-            _view.MenuView.Revert -= RevertGraph;
-            _view.MenuView.Run -= RunGraph;
+            _inputHandler.AddNode -= Input_AddNode;
+            _inputHandler.RemoveAllNodes -= Input_RemoveAllNodes;
+            _inputHandler.SaveGraph -= Save;
+            _inputHandler.RevertGraph -= RevertGraph;
+            _inputHandler.RunGraph -= RunGraph;
 
             ClearGraph();
+        }
+    }
+
+    public class NodeEditorGraphEvents
+    {
+        public NodeEditorGraphEvents(NodeGraph graph, NodeGraphState graphState)
+        {
+            graph.NodeAdded += Graph_NodeAdded;
+        }
+
+        private void Graph_NodeAdded(Node obj)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public interface INodeEditorUserEventsListener
+    {
+        event Action<Node> SelectNode;
+        event Action<NodePin> MouseDownOverPin;
+        event Action<NodePin> MouseUpOverPin;
+        event Action MouseUp;
+        event Action MouseDown;
+        event Action<NodePin> MouseHoverEnterPin;
+        event Action MouseHoverLeavePin;
+
+        event Action RunGraph;
+        event Action SaveGraph;
+        event Action RevertGraph;
+
+        event Action<AddNodeEvent> AddNode;
+        event Action RemoveAllNodes;
+        event Action Duplicate;
+        event Action Delete;
+    }
+
+    public class AddNodeEvent
+    {
+        public string NodeId { get; private set; }
+
+        public AddNodeEvent(string nodeId)
+        {
+            NodeId = nodeId;
         }
     }
 }

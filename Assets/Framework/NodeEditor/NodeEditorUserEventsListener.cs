@@ -5,27 +5,41 @@ using Framework.NodeEditor.Views;
 
 namespace Framework.NodeEditor
 {
-    class NodeEditorInputHandler : INodeEditorInputHandler
+    class NodeEditorUserEventsListener : INodeEditorUserEventsListener
     {
         public event Action<Node> SelectNode;
-        public event Action<NodePin> SelectPin;
+        public event Action<NodePin> MouseDownOverPin;
         public event Action MouseDown;
         public event Action MouseUp;
         public event Action<NodePin> MouseUpOverPin;
         public event Action<NodePin> MouseHoverEnterPin;
         public event Action MouseHoverLeavePin;
 
+        public event Action RunGraph;
+        public event Action SaveGraph;
+        public event Action RevertGraph;
+
+        public event Action<AddNodeEvent> AddNode;
+        public event Action RemoveAllNodes;
+
         public event Action Duplicate;
         public event Action Delete;
 
         private EditorInputListener _inputListener;
-        private NodeEditorGraphView _graphView;
+        private NodeEditorView _editorView;
 
         private NodePin _lastHoveredPin;
 
-        public NodeEditorInputHandler(NodeEditorGraphView graphView)
+        public NodeEditorUserEventsListener(NodeEditorView editorView)
         {
-            _graphView = graphView;
+            _editorView = editorView;
+
+            _editorView.ContextMenu.AddNode += ContextMenu_AddNode;
+            _editorView.ContextMenu.ClearNodes += ContextMenu_ClearNodes;
+
+            _editorView.MenuView.Revert += MenuView_Revert;
+            _editorView.MenuView.Run += MenuView_Run;
+            _editorView.MenuView.Save += MenuView_Save;
 
             _inputListener = new EditorInputListener();
             _inputListener.DeletePressed += InputListener_DeletePressed;
@@ -34,11 +48,18 @@ namespace Framework.NodeEditor
             _inputListener.KeyPressed += InputListener_KeyPressed;
         }
 
+        void MenuView_Revert() { RevertGraph.InvokeSafe(); }
+        void MenuView_Run() { RunGraph.InvokeSafe(); }
+        void MenuView_Save() { SaveGraph.InvokeSafe(); }
+
+        void ContextMenu_AddNode(AddNodeEvent addNodeEvent) { AddNode.InvokeSafe(addNodeEvent); }
+        void ContextMenu_ClearNodes() { RemoveAllNodes.InvokeSafe(); }
+
         void InputListener_MouseUp(EditorMouseEvent mouseEvent)
         {
-            _graphView.GetAnyPinUnderMouse((pin) =>
+            _editorView.GraphView.GetAnyPinUnderMouse((pin) =>
             {
-                DebugEx.Log<NodeEditorInputHandler>("Mouse released over Pin {0}. (Node ID: {1}) (Button: {2})", 
+                DebugEx.Log<NodeEditorUserEventsListener>("Mouse released over Pin {0}. (Node ID: {1}) (Button: {2})", 
                     pin.Name, 
                     pin.Node.ID, 
                     mouseEvent.Button);
@@ -52,12 +73,8 @@ namespace Framework.NodeEditor
 
         void InputListener_MouseDown(EditorMouseEvent obj)
         {
-            _graphView.GetNodeUnderMouse((node) => SelectNode.InvokeSafe(node));
-        }
-
-        void GraphView_NodeSelected(Node node)
-        {
-            SelectNode.InvokeSafe(node);
+            _editorView.GraphView.GetNodeUnderMouse((node) => SelectNode.InvokeSafe(node));
+            _editorView.GraphView.GetAnyPinUnderMouse((pin) => MouseDownOverPin.InvokeSafe(pin));
         }
 
         void InputListener_DeletePressed()
@@ -75,7 +92,7 @@ namespace Framework.NodeEditor
         {
             _inputListener.ProcessEvents();
 
-            var currentHoveredPin = _graphView.GetAnyPinUnderMouse();
+            var currentHoveredPin = _editorView.GraphView.GetAnyPinUnderMouse();
             if (_lastHoveredPin != null && currentHoveredPin == null)
             {
                 MouseHoverLeavePin.InvokeSafe();

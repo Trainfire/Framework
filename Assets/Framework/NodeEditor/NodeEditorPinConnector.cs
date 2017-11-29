@@ -16,19 +16,19 @@ namespace Framework.NodeEditor
 
         private NodeGraph _graph;
         private NodeEditorPinConnectorView _view;
-        private INodeEditorInputHandler _input;
+        private INodeEditorUserEventsListener _input;
 
         private NodeConnection _modifyingConnection;
         private NodePin _sourcePin;
         private NodePin _targetPin;
 
-        public NodeEditorPinConnector(NodeGraph graph, NodeEditorPinConnectorView view, INodeEditorInputHandler input)
+        public NodeEditorPinConnector(NodeGraph graph, NodeEditorPinConnectorView view, INodeEditorUserEventsListener input)
         {
             _graph = graph;
 
             _view = view;
             _input = input;
-            _input.SelectPin += Input_SelectPin;
+            _input.MouseDownOverPin += Input_SelectPin;
             _input.MouseUpOverPin += Input_MouseUpOverPin;
             _input.MouseUp += Input_MouseUp;
             _input.MouseHoverEnterPin += Input_MouseHoverEnterPin;
@@ -84,16 +84,10 @@ namespace Framework.NodeEditor
 
         void Input_MouseUp()
         {
-            DebugEx.Log<NodeEditorPinConnector>("MouseReleased");
-
             if (_modifyingConnection != null)
             {
                 DebugEx.Log<NodeEditorPinConnector>("Removing a modified connection.");
                 _graph.Disconnect(_modifyingConnection);
-            }
-            else
-            {
-                DebugEx.Log<NodeEditorPinConnector>("Cancelling a new connection.");
             }
 
             _view.EndDrawState();

@@ -7,8 +7,8 @@ namespace Framework.NodeEditor.Views
 {
     public class NodeEditorContextMenu
     {
-        public event Action<string> OnAddNode;
-        public event Action OnClearNodes;
+        public event Action<AddNodeEvent> AddNode;
+        public event Action ClearNodes;
 
         private EditorInputListener _inputListener;
 
@@ -24,12 +24,12 @@ namespace Framework.NodeEditor.Views
             var factory = new NodeFactory();
             factory.Registry.ForEach(x =>
             {
-                _menu.AddItem(new GUIContent(x), false, () => OnAddNode.InvokeSafe(x));
+                _menu.AddItem(new GUIContent(x), false, () => AddNode.InvokeSafe(new AddNodeEvent(x)));
             });
 
             _menu.AddSeparator("");
 
-            _menu.AddItem(new GUIContent("Remove All Nodes"), false, () => OnClearNodes.InvokeSafe());
+            _menu.AddItem(new GUIContent("Remove All Nodes"), false, () => ClearNodes.InvokeSafe());
         }
 
         public void Draw()

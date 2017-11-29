@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Framework.NodeSystem
@@ -8,6 +9,10 @@ namespace Framework.NodeSystem
     /// </summary>
     public class NodeGraphHelper
     {
+        public event Action<Node> NodeSelected;
+        public event Action<Node> NodeAdded;
+        public event Action<Node> NodeRemoved;
+
         public int NodeCount { get { return _graph == null ? 0 : _graph.Nodes.Count; } }
         public List<NodeConnection> Connections { get { return _graph != null ? _graph.Connections.ToList() : new List<NodeConnection>(); } }
 
@@ -19,7 +24,14 @@ namespace Framework.NodeSystem
                 return;
 
             _graph = graph;
+            _graph.NodeAdded += Graph_NodeAdded;
+            _graph.NodeRemoved += Graph_NodeRemoved;
+            _graph.NodeSelected += Graph_NodeSelected;
         }
+
+        void Graph_NodeAdded(Node node) { NodeAdded.InvokeSafe(node); }
+        void Graph_NodeRemoved(Node node) { NodeRemoved.InvokeSafe(node); }
+        void Graph_NodeSelected(Node node) { NodeSelected.InvokeSafe(node); }
 
         public bool IsPinConnected(NodePin pin)
         {

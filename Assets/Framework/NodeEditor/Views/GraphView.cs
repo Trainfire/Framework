@@ -10,7 +10,24 @@ namespace Framework.NodeEditor.Views
 {
     public class NodeEditorGraphView : BaseView
     {
-        public NodeGraphHelper GraphHelper { get; set; }
+        private NodeGraphHelper _graphHelper;
+        public NodeGraphHelper GraphHelper
+        {
+            set
+            {
+                if (_graphHelper != null)
+                {
+                    _graphHelper.NodeAdded -= AddNodeView;
+                    _graphHelper.NodeRemoved -= RemoveNodeView;
+                }
+
+                _graphHelper = value;
+
+                _graphHelper.NodeAdded += AddNodeView;
+                _graphHelper.NodeRemoved += RemoveNodeView;
+            }
+        }
+
         public Rect WindowSize { get; set; }
 
         private Dictionary<Node, NodeView> _nodeViews;
@@ -89,10 +106,10 @@ namespace Framework.NodeEditor.Views
 
         public void DrawConnections()
         {
-            if (GraphHelper == null)
+            if (_graphHelper == null)
                 return;
 
-            GraphHelper.Connections.ForEach(connection => NodeEditorHelper.DrawConnection(connection));
+            _graphHelper.Connections.ForEach(connection => NodeEditorHelper.DrawConnection(connection));
         }
         #endregion
 

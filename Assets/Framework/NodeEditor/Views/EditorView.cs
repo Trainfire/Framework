@@ -7,16 +7,7 @@ namespace Framework.NodeEditor.Views
 {
     public class NodeEditorView
     {
-        public NodeGraphHelper GraphHelper
-        {
-            set
-            {
-                GraphView.GraphHelper = value;
-                Debugger.GraphHelper = value;
-            }
-        }
-
-        public Node Selection
+        Node Selection
         {
             set
             {
@@ -32,7 +23,7 @@ namespace Framework.NodeEditor.Views
         public NodeEditorPropertiesView Properties { get; private set; }
         public NodeEditorDebugView Debugger { get; private set; }
 
-        public NodeEditorView()
+        public NodeEditorView(NodeGraphHelper graphHelper)
         {
             GraphView = new NodeEditorGraphView();
             ContextMenu = new NodeEditorContextMenu();
@@ -40,6 +31,15 @@ namespace Framework.NodeEditor.Views
             ConnectorView = new NodeEditorPinConnectorView();
             Properties = new NodeEditorPropertiesView();
             Debugger = new NodeEditorDebugView();
+
+            graphHelper.NodeSelected += GraphHelper_NodeSelected;
+            GraphView.GraphHelper = graphHelper;
+            Debugger.GraphHelper = graphHelper;
+        }
+
+        void GraphHelper_NodeSelected(Node node)
+        {
+            Selection = node;
         }
 
         /// <summary>

@@ -12,24 +12,29 @@ namespace Framework.NodeEditor
     {
         private const string WindowName = "Node Editor";
 
-        private NodeEditorInputHandler _inputHandler;
+        private NodeGraph _graph;
         private NodeEditorView _view;
+        private NodeEditorUserEventsListener _input;
         private NodeEditor _controller;
+        private NodeEditorPinConnector _pinConnector;
+
         private NodeEditorRootFinder _rootHandler;
 
         public NodeEditorWindow()
         {
             Assert.raiseExceptions = true;
 
-            _view = new NodeEditorView();
-            _inputHandler = new NodeEditorInputHandler(_view.GraphView);
-            _controller = new NodeEditor(_view, _inputHandler);
+            _graph = new NodeGraph();
+            _view = new NodeEditorView(_graph.Helper);
+            _input = new NodeEditorUserEventsListener(_view);
+            _controller = new NodeEditor(_graph, _input);
+            _pinConnector = new NodeEditorPinConnector(_graph, _view.ConnectorView, _input);
             _rootHandler = new NodeEditorRootFinder(_controller);
         }
 
         void OnGUI()
         {
-            _inputHandler.Update();
+            _input.Update();
             _view.Draw(BeginWindows, EndWindows);
             Repaint();
         }
