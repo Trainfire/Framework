@@ -5,19 +5,16 @@ using Framework.NodeSystem;
 
 namespace Framework.NodeEditor.Views
 {
-    public class NodeEditorContextMenu
+    public class NodeEditorContextMenuView : BaseView
     {
         public event Action<AddNodeEvent> AddNode;
         public event Action ClearNodes;
 
-        private EditorInputListener _inputListener;
-
         private GenericMenu _menu;
 
-        public NodeEditorContextMenu()
+        protected override void OnInitialize()
         {
-            _inputListener = new EditorInputListener();
-            _inputListener.ContextClicked += OnContextClicked;
+            InputListener.ContextClicked += OnContextClicked;
 
             _menu = new GenericMenu();
 
@@ -32,14 +29,15 @@ namespace Framework.NodeEditor.Views
             _menu.AddItem(new GUIContent("Remove All Nodes"), false, () => ClearNodes.InvokeSafe());
         }
 
-        public void Draw()
-        {
-            _inputListener.ProcessEvents();
-        }
-
         void OnContextClicked()
         {
             _menu.ShowAsContext();
+        }
+
+        protected override void OnDispose()
+        {
+            AddNode = null;
+            ClearNodes = null;
         }
     }
 }

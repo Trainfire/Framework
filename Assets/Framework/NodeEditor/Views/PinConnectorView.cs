@@ -54,5 +54,11 @@ namespace Framework.NodeEditor.Views
                 }
             }
         }
+
+        protected override void OnDispose()
+        {
+            _startPin = null;
+            _endPin = null;
+        }
     }
 }

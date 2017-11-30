@@ -6,8 +6,6 @@ namespace Framework.NodeEditor.Views
 {
     public class NodeEditorPropertiesView : BaseView
     {
-        public Node SelectedNode { get; set; }
-
         protected override void OnDraw()
         {
             var style = new GUIStyle();
@@ -20,11 +18,11 @@ namespace Framework.NodeEditor.Views
 
             GUILayout.Label("Contextual Properties", EditorStyles.boldLabel);
 
-            if (SelectedNode != null)
+            if (GraphHelper.SelectedNode != null)
             {
-                EditorGUILayout.LabelField(SelectedNode.Name);
+                EditorGUILayout.LabelField(GraphHelper.SelectedNode.Name);
 
-                if (SelectedNode.GetType() == typeof(NodeConstant))
+                if (GraphHelper.SelectedNode.GetType() == typeof(NodeConstant))
                     DrawConstantInspector();
             }
 
@@ -33,7 +31,7 @@ namespace Framework.NodeEditor.Views
 
         void DrawConstantInspector()
         {
-            var constant = SelectedNode as NodeConstant;
+            var constant = GraphHelper.SelectedNode as NodeConstant;
             constant.PinType = (NodeConstantType)EditorGUILayout.EnumPopup("Type", constant.PinType);
 
             const string prefix = "Value";

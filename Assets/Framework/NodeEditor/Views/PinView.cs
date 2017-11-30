@@ -4,7 +4,7 @@ using Framework.NodeSystem;
 
 namespace Framework.NodeEditor.Views
 {
-    public class NodePinView
+    public class NodeEditorPinView : BaseView
     {
         const float PinSize = 10f;
 

@@ -10,34 +10,17 @@ namespace Framework.NodeEditor.Views
 {
     public class NodeEditorGraphView : BaseView
     {
-        private NodeGraphHelper _graphHelper;
-        public NodeGraphHelper GraphHelper
-        {
-            set
-            {
-                if (_graphHelper != null)
-                {
-                    _graphHelper.NodeAdded -= AddNodeView;
-                    _graphHelper.NodeRemoved -= RemoveNodeView;
-                }
-
-                _graphHelper = value;
-
-                _graphHelper.NodeAdded += AddNodeView;
-                _graphHelper.NodeRemoved += RemoveNodeView;
-            }
-        }
-
         public Rect WindowSize { get; set; }
 
-        private Dictionary<Node, NodeView> _nodeViews;
-        private Node _selectedNode;
-
+        private Dictionary<Node, NodeEditorNodeView> _nodeViews;
         private Vector2 _scrollPosition;
 
-        public NodeEditorGraphView()
+        protected override void OnInitialize()
         {
-            _nodeViews = new Dictionary<Node, NodeView>();
+            _nodeViews = new Dictionary<Node, NodeEditorNodeView>();
+
+            GraphHelper.NodeAdded += AddNodeView;
+            GraphHelper.NodeRemoved += RemoveNodeView;
         }
 
         public void AddNodeView(Node node)
@@ -48,9 +31,7 @@ namespace Framework.NodeEditor.Views
 
             if (!containsNode)
             {
-                var nodeView = new NodeView(node, _nodeViews.Count);
-                nodeView.NodeSelected += NodeView_Selected;
-
+                var nodeView = new NodeEditorNodeView(node, _nodeViews.Count);
                 _nodeViews.Add(node, nodeView);
             }
         }
@@ -64,8 +45,7 @@ namespace Framework.NodeEditor.Views
             if (containsNode)
             {
                 var nodeView = _nodeViews[node];
-                nodeView.NodeSelected -= NodeView_Selected;
-                nodeView.Destroy();
+                nodeView.Dispose();
 
                 _nodeViews.Remove(node);
 
@@ -78,17 +58,9 @@ namespace Framework.NodeEditor.Views
             DebugEx.Log<NodeEditorGraphView>("Clearing graph view...");
 
             _nodeViews.ToList().ForEach(x => RemoveNodeView(x.Key));
-            GraphHelper = null;
 
             Assert.IsTrue(_nodeViews.Count == 0);
         }
-
-        #region Callbacks
-        void NodeView_Selected(NodeView nodeView)
-        {
-            _selectedNode = nodeView.Node;
-        }
-        #endregion
 
         #region Draw
         protected override void OnDraw()
@@ -106,10 +78,10 @@ namespace Framework.NodeEditor.Views
 
         public void DrawConnections()
         {
-            if (_graphHelper == null)
+            if (GraphHelper == null)
                 return;
 
-            _graphHelper.Connections.ForEach(connection => NodeEditorHelper.DrawConnection(connection));
+            GraphHelper.Connections.ForEach(connection => NodeEditorHelper.DrawConnection(connection));
         }
         #endregion
 
@@ -137,6 +109,12 @@ namespace Framework.NodeEditor.Views
             }));
 
             return outPin;
+        }
+
+        protected override void OnDispose()
+        {
+            GraphHelper.NodeAdded -= AddNodeView;
+            GraphHelper.NodeRemoved -= RemoveNodeView;
         }
     }
 }

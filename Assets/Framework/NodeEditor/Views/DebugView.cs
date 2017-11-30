@@ -6,9 +6,6 @@ namespace Framework.NodeEditor.Views
 {
     public class NodeEditorDebugView : BaseView
     {
-        public Node SelectedNode { get; set; }
-        public NodeGraphHelper GraphHelper { get; set; }
-
         protected override void OnDraw()
         {
             const float height = 150f;
@@ -28,14 +25,14 @@ namespace Framework.NodeEditor.Views
 
             GUILayout.EndArea();
 
-            if (SelectedNode != null && GraphHelper != null)
+            if (GraphHelper.SelectedNode != null && GraphHelper != null)
             {
                 // Node Debug
                 GUILayout.BeginArea(new Rect(new Vector2(Screen.width - 400f, Screen.height - height), new Vector2(400f, height)));
 
-                DrawHeader("Selected Node: " + SelectedNode.Name);
+                DrawHeader("Selected Node: " + GraphHelper.SelectedNode.Name);
 
-                SelectedNode.Pins.ForEach(pin =>
+                GraphHelper.SelectedNode.Pins.ForEach(pin =>
                 {
                     DrawField(string.Format("{0} (ID: {1}) (Connected: {2}) (Is Input?: {3})", pin.Name, pin.Index, GraphHelper.IsPinConnected(pin), pin.IsInput()), pin.ToString());
                 });

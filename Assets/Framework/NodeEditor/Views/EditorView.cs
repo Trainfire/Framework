@@ -1,48 +1,44 @@
 ﻿using UnityEngine;
-using System;
-using Framework.NodeSystem;
+using UnityEngine.Assertions;
 using UnityEditor;
+using System;
+using System.Collections.Generic;
+using Framework.NodeSystem;
 
 namespace Framework.NodeEditor.Views
 {
-    public class NodeEditorView
+    public class NodeEditorView : IDisposable
     {
-        Node Selection
-        {
-            set
-            {
-                Properties.SelectedNode = value;
-                Debugger.SelectedNode = value;
-            }
-        }
-
         public NodeEditorGraphView GraphView { get; private set; }
-        public NodeEditorContextMenu ContextMenu { get; private set; }
-        public NodeEditorMenuView MenuView { get; private set; }
+        public NodeEditorContextMenuView ContextMenu { get; private set; }
+        public NodeEditorMenuStripView MenuView { get; private set; }
         public NodeEditorPinConnectorView ConnectorView { get; private set; }
         public NodeEditorPropertiesView Properties { get; private set; }
         public NodeEditorDebugView Debugger { get; private set; }
 
         private NodeGraphHelper _graphHelper;
+        private List<BaseView> _views;
 
         public NodeEditorView(NodeGraphHelper graphHelper)
         {
-            GraphView = new NodeEditorGraphView();
-            ContextMenu = new NodeEditorContextMenu();
-            MenuView = new NodeEditorMenuView();
-            ConnectorView = new NodeEditorPinConnectorView();
-            Properties = new NodeEditorPropertiesView();
-            Debugger = new NodeEditorDebugView();
-
             _graphHelper = graphHelper;
-            _graphHelper.NodeSelected += GraphHelper_NodeSelected;
-            GraphView.GraphHelper = _graphHelper;
-            Debugger.GraphHelper = _graphHelper;
+
+            _views = new List<BaseView>();
+
+            GraphView = AddView(new NodeEditorGraphView());
+            ContextMenu = AddView(new NodeEditorContextMenuView());
+            MenuView = AddView(new NodeEditorMenuStripView());
+            ConnectorView = AddView(new NodeEditorPinConnectorView());
+            Properties = AddView(new NodeEditorPropertiesView());
+            Debugger = AddView(new NodeEditorDebugView());
         }
 
-        void GraphHelper_NodeSelected(Node node)
+        TView AddView<TView>(TView instance) where TView : BaseView
         {
-            Selection = node;
+            _views.Add(instance);
+            Assert.IsNotNull(_graphHelper, "Graph Helper is null.");
+            instance.Initialize(_graphHelper);
+            return instance;
         }
 
         /// <summary>
@@ -55,8 +51,6 @@ namespace Framework.NodeEditor.Views
 
             GUILayout.BeginArea(new Rect(0f, 0f, Screen.width, menuHeight));
             MenuView.Draw();
-            MenuView.GraphDirty = _graphHelper.IsGraphDirty;
-            MenuView.GraphLoaded = _graphHelper.IsGraphLoaded;
             GUILayout.EndArea();
 
             BeginWindowsFunc();
@@ -71,6 +65,13 @@ namespace Framework.NodeEditor.Views
             Debugger.Draw();
             ContextMenu.Draw();
             ConnectorView.Draw();
+        }
+
+        public void Dispose()
+        {
+            _views.ForEach(x => x.Dispose());
+            _views.Clear();
+            _views = null;
         }
     }
 }

@@ -3,7 +3,7 @@ using UnityEditor;
 
 namespace Framework.NodeEditor.Views
 {
-    class NodeConnectionView : BaseView
+    class NodeEditorConnectionView : BaseView
     {
         public Vector2 Start { get; set; }
         public Vector2 End { get; set; }
@@ -21,7 +21,6 @@ namespace Framework.NodeEditor.Views
         void DrawConnectionEnd(Vector2 position)
         {
             const float size = 10f;
-            //position = position;
             var rect = new Rect(position, new Vector2(size, size));
             GUI.Box(rect, "");
         }

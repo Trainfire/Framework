@@ -1,42 +1,32 @@
 ﻿using UnityEngine;
-using UnityEngine.Assertions;
-using UnityEditor;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using Framework.NodeSystem;
 
 namespace Framework.NodeEditor.Views
 {
-    public class NodeView : BaseView
+    public class NodeEditorNodeView : BaseView
     {
-        public event Action<NodeView> NodeSelected;
-
         public Node Node { get; private set; }
         public Rect Rect { get; private set; }
 
         private int _windowId;
-        private NodePinView _pinDrawer;
+        private NodeEditorPinView _pinView;
 
-        public NodeView(Node node, int windowId)
+        public NodeEditorNodeView(Node node, int windowId)
         {
             Node = node;
-
             _windowId = windowId;
 
-            _pinDrawer = new NodePinView();
+            _pinView = new NodeEditorPinView();
 
-            InputListener.MouseDown += InputListener_MouseLeftClicked;
             InputListener.MouseUp += InputListener_MouseUp;
         } 
 
-        protected override void OnDestroy()
+        protected override void OnDispose()
         {
-            InputListener.MouseDown -= InputListener_MouseLeftClicked;
-            InputListener.MouseUp -= InputListener_MouseUp;
-
             Node = null;
-            _pinDrawer = null;
+            _pinView = null;
         }
 
         protected override void OnDraw() { }
@@ -101,12 +91,7 @@ namespace Framework.NodeEditor.Views
 
         void DrawPin(NodePin pin)
         {
-            _pinDrawer.Draw(pin, pin.LocalRect.Contains(InputListener.MousePosition));
-        }
-
-        void InputListener_MouseLeftClicked(EditorMouseEvent mouseEvent)
-        {
-            NodeSelected.InvokeSafe(this);
+            _pinView.Draw(pin, pin.LocalRect.Contains(InputListener.MousePosition));
         }
 
         void InputListener_MouseUp(EditorMouseEvent mouseEvent)

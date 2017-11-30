@@ -1,15 +1,26 @@
-﻿using Framework.NodeSystem;
+﻿using System;
+using Framework.NodeSystem;
+using UnityEngine;
 
 namespace Framework.NodeEditor.Views
 {
-    public abstract class BaseView
+    public abstract class BaseView : IDisposable
     {
         protected EditorInputListener InputListener { get; private set; }
+        protected NodeGraphHelper GraphHelper { get; private set; }
 
         public BaseView()
         {
             InputListener = new EditorInputListener();
         }
+
+        public void Initialize(NodeGraphHelper graphHelper)
+        {
+            GraphHelper = graphHelper;
+            OnInitialize();
+        }
+
+        protected virtual void OnInitialize() { }
 
         public void Draw()
         {
@@ -17,16 +28,15 @@ namespace Framework.NodeEditor.Views
             OnDraw();
         }
 
-        protected abstract void OnDraw();
+        protected virtual void OnDraw() { }
 
-        public void Destroy()
+        public void Dispose()
         {
-            OnDestroy();
+            OnDispose();
+            GraphHelper = null;
+            InputListener.Dispose();
         }
 
-        protected virtual void OnDestroy()
-        {
-
-        }
+        protected virtual void OnDispose() { }
     }
 }

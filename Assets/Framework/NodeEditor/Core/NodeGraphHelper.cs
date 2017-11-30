@@ -7,7 +7,7 @@ namespace Framework.NodeSystem
     /// <summary>
     /// Wrapper to expose graph info safely.
     /// </summary>
-    public class NodeGraphHelper
+    public class NodeGraphHelper : IDisposable
     {
         public event Action<Node> NodeSelected;
         public event Action<Node> NodeAdded;
@@ -15,6 +15,7 @@ namespace Framework.NodeSystem
 
         public bool IsGraphDirty { get { return _graph.State.IsDirty; } }
         public bool IsGraphLoaded { get { return _graph.State.GraphLoaded; } }
+        public Node SelectedNode { get { return _graph.Selection; } }
         public int NodeCount { get { return _graph == null ? 0 : _graph.Nodes.Count; } }
         public List<NodeConnection> Connections { get { return _graph != null ? _graph.Connections.ToList() : new List<NodeConnection>(); } }
 
@@ -106,6 +107,14 @@ namespace Framework.NodeSystem
             });
 
             return outGraphData;
+        }
+
+        public void Dispose()
+        {
+            NodeAdded = null;
+            NodeSelected = null;
+            NodeRemoved = null;
+            _graph = null;
         }
     }
 }

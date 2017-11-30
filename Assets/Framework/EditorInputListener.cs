@@ -33,7 +33,7 @@ namespace Framework
         }
     }
 
-    public class EditorInputListener
+    public class EditorInputListener : IDisposable
     {
         public Vector2 MousePosition { get; private set; }
 
@@ -94,11 +94,14 @@ namespace Framework
             MousePosition = Event.current.mousePosition;
         }
 
-        public void Destroy()
+        public void Dispose()
         {
             _mouseEventMap = null;
             ContextClicked = null;
             MouseDown = null;
+            MouseDragged = null;
+            MouseMoved = null;
+            MouseUp = null;
             KeyReleased = null;
             KeyPressed = null;
         }

@@ -4,26 +4,20 @@ using System;
 
 namespace Framework.NodeEditor.Views
 {
-    public class NodeEditorMenuView : BaseView
+    public class NodeEditorMenuStripView : BaseView
     {
         public event Action Save;
         public event Action Revert;
         public event Action Run;
 
-        private bool _graphLoaded;
-        public bool GraphLoaded { set { _graphLoaded = value; } }
-
-        private bool _graphDirty;
-        public bool GraphDirty { set { _graphDirty = value; } }
-
         protected override void OnDraw()
         {
             GUILayout.BeginHorizontal(EditorStyles.toolbar, GUILayout.ExpandWidth(false), GUILayout.ExpandHeight(true));
 
-            if (!_graphLoaded)
+            if (!GraphHelper.IsGraphLoaded)
                 GUILayout.Label("No graph selected.", EditorStyles.miniLabel);
 
-            if (_graphDirty)
+            if (GraphHelper.IsGraphDirty)
             {
                 if (DrawButton("Save"))
                     Save.InvokeSafe();
@@ -32,7 +26,7 @@ namespace Framework.NodeEditor.Views
                     Revert.InvokeSafe();
             }
 
-            if (_graphLoaded)
+            if (GraphHelper.IsGraphLoaded)
             {
                 if (DrawButton("Run"))
                     Run.InvokeSafe();
@@ -46,6 +40,13 @@ namespace Framework.NodeEditor.Views
         bool DrawButton(string label)
         {
             return GUILayout.Button(label, EditorStyles.toolbarButton, GUILayout.ExpandWidth(false), GUILayout.MinWidth(100f));
+        }
+
+        protected override void OnDispose()
+        {
+            Save = null;
+            Revert = null;
+            Run = null;
         }
     }
 }
