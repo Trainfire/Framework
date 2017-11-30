@@ -9,27 +9,23 @@ namespace Framework.NodeEditor
         public event Action<NodeGraphData> GraphSaved;
         
         private NodeGraphRunner _runner;
-        private NodeGraphState _graphState;
         private NodeGraph _graph;
-        private INodeEditorUserEventsListener _inputHandler;
+        private INodeEditorUserEventsListener _eventListener;
 
         public NodeEditor(NodeGraph graph, INodeEditorUserEventsListener inputHandler)
         {
             _graph = graph;
 
-            _inputHandler = inputHandler;
-            _inputHandler.Duplicate += Input_Duplicate;
-            _inputHandler.Delete += Input_Delete;
-            _inputHandler.SelectNode += Input_SelectNode;
-            _inputHandler.AddNode += Input_AddNode;
-            _inputHandler.SaveGraph += Save;
-            _inputHandler.RevertGraph += RevertGraph;
-            _inputHandler.RunGraph += RunGraph;
+            _eventListener = inputHandler;
+            _eventListener.Duplicate += Input_Duplicate;
+            _eventListener.Delete += Input_Delete;
+            _eventListener.SelectNode += Input_SelectNode;
+            _eventListener.AddNode += Input_AddNode;
+            _eventListener.SaveGraph += Save;
+            _eventListener.RevertGraph += RevertGraph;
+            _eventListener.RunGraph += RunGraph;
 
             _runner = new NodeGraphRunner();
-
-            _graphState = new NodeGraphState(_graph);
-            //_graphState.Changed += GraphState_Changed;
         }
 
         public void Load(NodeGraphData graphData)
@@ -62,7 +58,7 @@ namespace Framework.NodeEditor
 
         void RevertGraph()
         {
-            _graphState.RevertToLastGraph();
+            _graph.State.RevertToLastGraph();
         }
 
         public void ClearGraph()
@@ -107,29 +103,16 @@ namespace Framework.NodeEditor
 
         public void Destroy()
         {
-            _inputHandler.Delete -= Input_Delete;
-            _inputHandler.Duplicate -= Input_Duplicate;
-            _inputHandler.SelectNode -= Input_SelectNode;
-            _inputHandler.AddNode -= Input_AddNode;
-            _inputHandler.RemoveAllNodes -= Input_RemoveAllNodes;
-            _inputHandler.SaveGraph -= Save;
-            _inputHandler.RevertGraph -= RevertGraph;
-            _inputHandler.RunGraph -= RunGraph;
+            _eventListener.Delete -= Input_Delete;
+            _eventListener.Duplicate -= Input_Duplicate;
+            _eventListener.SelectNode -= Input_SelectNode;
+            _eventListener.AddNode -= Input_AddNode;
+            _eventListener.RemoveAllNodes -= Input_RemoveAllNodes;
+            _eventListener.SaveGraph -= Save;
+            _eventListener.RevertGraph -= RevertGraph;
+            _eventListener.RunGraph -= RunGraph;
 
             ClearGraph();
-        }
-    }
-
-    public class NodeEditorGraphEvents
-    {
-        public NodeEditorGraphEvents(NodeGraph graph, NodeGraphState graphState)
-        {
-            graph.NodeAdded += Graph_NodeAdded;
-        }
-
-        private void Graph_NodeAdded(Node obj)
-        {
-            throw new NotImplementedException();
         }
     }
 

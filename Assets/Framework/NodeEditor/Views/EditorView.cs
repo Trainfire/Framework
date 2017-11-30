@@ -23,6 +23,8 @@ namespace Framework.NodeEditor.Views
         public NodeEditorPropertiesView Properties { get; private set; }
         public NodeEditorDebugView Debugger { get; private set; }
 
+        private NodeGraphHelper _graphHelper;
+
         public NodeEditorView(NodeGraphHelper graphHelper)
         {
             GraphView = new NodeEditorGraphView();
@@ -32,9 +34,10 @@ namespace Framework.NodeEditor.Views
             Properties = new NodeEditorPropertiesView();
             Debugger = new NodeEditorDebugView();
 
-            graphHelper.NodeSelected += GraphHelper_NodeSelected;
-            GraphView.GraphHelper = graphHelper;
-            Debugger.GraphHelper = graphHelper;
+            _graphHelper = graphHelper;
+            _graphHelper.NodeSelected += GraphHelper_NodeSelected;
+            GraphView.GraphHelper = _graphHelper;
+            Debugger.GraphHelper = _graphHelper;
         }
 
         void GraphHelper_NodeSelected(Node node)
@@ -52,6 +55,8 @@ namespace Framework.NodeEditor.Views
 
             GUILayout.BeginArea(new Rect(0f, 0f, Screen.width, menuHeight));
             MenuView.Draw();
+            MenuView.GraphDirty = _graphHelper.IsGraphDirty;
+            MenuView.GraphLoaded = _graphHelper.IsGraphLoaded;
             GUILayout.EndArea();
 
             BeginWindowsFunc();

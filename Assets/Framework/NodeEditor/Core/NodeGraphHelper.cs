@@ -13,6 +13,8 @@ namespace Framework.NodeSystem
         public event Action<Node> NodeAdded;
         public event Action<Node> NodeRemoved;
 
+        public bool IsGraphDirty { get { return _graph.State.IsDirty; } }
+        public bool IsGraphLoaded { get { return _graph.State.GraphLoaded; } }
         public int NodeCount { get { return _graph == null ? 0 : _graph.Nodes.Count; } }
         public List<NodeConnection> Connections { get { return _graph != null ? _graph.Connections.ToList() : new List<NodeConnection>(); } }
 

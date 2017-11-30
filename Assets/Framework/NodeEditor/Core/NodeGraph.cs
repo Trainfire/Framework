@@ -15,6 +15,7 @@ namespace Framework.NodeSystem
         public event Action<NodeGraph> Edited;
 
         public Node Selection { get; private set; }
+        public NodeGraphState State { get; private set; }
 
         public event Action<Node> NodeSelected;
         public event Action<Node> NodeAdded;
@@ -29,6 +30,7 @@ namespace Framework.NodeSystem
             Nodes = new List<Node>();
             Connections = new List<NodeConnection>();
             Helper = new NodeGraphHelper(this);
+            State = new NodeGraphState(this);
         }
 
         public void Load(NodeGraphData graphData)
