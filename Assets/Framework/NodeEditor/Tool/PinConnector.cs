@@ -60,7 +60,7 @@ namespace Framework.NodeEditor
         {
             if (nodePin.IsInput())
             {
-                DebugEx.Log<NodeEditorPinConnector>("Modifying a connection...");
+                NodeEditor.Logger.Log<NodeEditorPinConnector>("Modifying a connection...");
 
                 _modifyingConnection = _graph.Helper.GetConnection(nodePin);
 
@@ -75,7 +75,7 @@ namespace Framework.NodeEditor
             }
             else
             {
-                DebugEx.Log<NodeEditorPinConnector>("Creating a new connection...");
+                NodeEditor.Logger.Log<NodeEditorPinConnector>("Creating a new connection...");
                 _view.EnterDrawState(nodePin);
             }
 
@@ -101,11 +101,11 @@ namespace Framework.NodeEditor
 
             if (ValidateConnection(targetPin) != ValidationResult.Valid)
             {
-                DebugEx.Log<NodeEditorPinConnector>(GetErrorMessage(ValidateConnection(targetPin)));
+                NodeEditor.Logger.Log<NodeEditorPinConnector>(GetErrorMessage(ValidateConnection(targetPin)));
                 return;
             }
 
-            DebugEx.Log<NodeEditorPinConnector>("Connecting pin '{0}' in '{1}' to '{2}' in '{3}'",
+            NodeEditor.Logger.Log<NodeEditorPinConnector>("Connecting pin '{0}' in '{1}' to '{2}' in '{3}'",
                 _sourcePin.Name,
                 _sourcePin.Node.Name,
                 targetPin.Name,
@@ -119,7 +119,7 @@ namespace Framework.NodeEditor
             // Value pins flow right to left.
             if (_sourcePin.WrappedType == typeof(NodePinTypeExecute))
             {
-                DebugEx.Log<NodeEditorPinConnector>("Connected execution pins.");
+                NodeEditor.Logger.Log<NodeEditorPinConnector>("Connected execution pins.");
 
                 if (IsModifyingConnection())
                 {
@@ -134,7 +134,7 @@ namespace Framework.NodeEditor
             }
             else
             {
-                DebugEx.Log<NodeEditorPinConnector>("Connected value pins.");
+                NodeEditor.Logger.Log<NodeEditorPinConnector>("Connected value pins.");
 
                 if (IsModifyingConnection())
                 {
@@ -177,7 +177,7 @@ namespace Framework.NodeEditor
 
             if (!IsModifyingConnection() && targetPin.Node == _sourcePin.Node)
             {
-                DebugEx.LogWarning<NodeEditorPinConnector>("Attempted to connect a pin to itself!");
+                NodeEditor.Logger.LogWarning<NodeEditorPinConnector>("Attempted to connect a pin to itself!");
                 return ValidationResult.ConnectingToSelf;
             }
 

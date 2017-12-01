@@ -46,7 +46,7 @@ namespace Framework.NodeEditor
 
         public void Load(NodeGraphData graphData)
         {
-            DebugEx.Log<NodeEditor>("Loading graph from root...");
+            Logger.Log<NodeEditor>("Loading graph from root...");
 
             // Copy from existing graph data.
             var editingGraphData = new NodeGraphData(graphData);
@@ -92,7 +92,7 @@ namespace Framework.NodeEditor
         {
             // TODO.
             if (_graph.Selection != null)
-                DebugEx.Log<NodeEditor>("Do a duplicate, yeah?");
+                Logger.Log<NodeEditor>("Do a duplicate, yeah?");
         }
 
         void Input_Delete()
