@@ -1,6 +1,5 @@
-﻿using UnityEngine;
-using UnityEditor;
-using Framework.NodeSystem;
+﻿using UnityEditor;
+using NodeSystem;
 using NodeSystem.Editor;
 
 namespace Framework

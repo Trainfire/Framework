@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using NodeSystem.Editor;
 
-namespace Framework.NodeSystem
+namespace NodeSystem
 {
     public class NodeFactory
     {
@@ -56,7 +56,7 @@ namespace Framework.NodeSystem
 
             if (containsID)
             {
-                DebugEx.Log<NodeFactory>("Spawn node '" + id + "'");
+                NodeEditor.Logger.Log<NodeFactory>("Spawn node '" + id + "'");
                 _nodeRegistry[id](graph);
             }
         }

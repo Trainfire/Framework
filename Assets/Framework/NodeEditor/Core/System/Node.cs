@@ -3,8 +3,9 @@ using UnityEngine.Assertions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using NodeSystem.Editor;
 
-namespace Framework.NodeSystem
+namespace NodeSystem
 {
     public abstract class Node
     {
@@ -79,7 +80,7 @@ namespace Framework.NodeSystem
         {
             if (pinIndex <= InputPins.Count && InputPins.Count > 0)
             {
-                DebugEx.Log<Node>("Remove input pin.");
+                NodeEditor.Logger.Log<Node>("Remove input pin.");
                 var pin = InputPins[pinIndex];
                 RemovePin(pin);
                 InputPins.Remove(pin);
@@ -90,7 +91,7 @@ namespace Framework.NodeSystem
         {
             if (pinIndex <= OutputPins.Count && OutputPins.Count > 0)
             {
-                DebugEx.Log<Node>("Remove output pin.");
+                NodeEditor.Logger.Log<Node>("Remove output pin.");
                 var pin = OutputPins[pinIndex];
                 RemovePin(pin);
                 OutputPins.Remove(pin);
@@ -113,7 +114,7 @@ namespace Framework.NodeSystem
 
                 Pins.Add(replacementPin);
 
-                DebugEx.Log<Node>("Swapped pin '{0}' of type '{1}' for type '{2}'", replacementPin.Name, pin.WrappedType, replacementPin.WrappedType);
+                NodeEditor.Logger.Log<Node>("Swapped pin '{0}' of type '{1}' for type '{2}'", replacementPin.Name, pin.WrappedType, replacementPin.WrappedType);
 
                 return replacementPin;
             }

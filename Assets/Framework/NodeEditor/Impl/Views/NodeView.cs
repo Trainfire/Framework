@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System;
 using System.Linq;
-using Framework.NodeSystem;
+using NodeSystem;
 
 namespace Framework.NodeEditorViews
 {
@@ -19,9 +19,12 @@ namespace Framework.NodeEditorViews
             _windowId = windowId;
 
             _pinView = new NodeEditorPinView();
+        }
 
+        protected override void OnInitialize()
+        {
             InputListener.MouseUp += InputListener_MouseUp;
-        } 
+        }
 
         protected override void OnDispose()
         {
@@ -53,8 +56,6 @@ namespace Framework.NodeEditorViews
 
         void InternalDraw(int windowId)
         {
-            InputListener.ProcessEvents();
-
             if (Node == null)
                 return;
 

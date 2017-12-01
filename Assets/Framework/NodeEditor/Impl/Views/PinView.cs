@@ -1,7 +1,5 @@
 ﻿using UnityEngine;
-using UnityEditor;
-using Framework.NodeSystem;
-using NodeSystem.Editor;
+using NodeSystem;
 
 namespace Framework.NodeEditorViews
 {

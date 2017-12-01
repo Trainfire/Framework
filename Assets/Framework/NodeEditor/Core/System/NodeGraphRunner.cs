@@ -1,6 +1,7 @@
 ﻿using UnityEngine.Assertions;
+using NodeSystem.Editor;
 
-namespace Framework.NodeSystem
+namespace NodeSystem
 {
     public class NodeGraphRunner
     {
@@ -15,7 +16,7 @@ namespace Framework.NodeSystem
         {
             if (graph == null)
             {
-                DebugEx.LogError<NodeGraphRunner>("Cannot run graph as it is null.");
+                NodeEditor.Logger.LogError<NodeGraphRunner>("Cannot run graph as it is null.");
                 return;
             }
 
@@ -26,11 +27,11 @@ namespace Framework.NodeSystem
 
             if (startNode == null)
             {
-                DebugEx.LogError<NodeGraphRunner>("Cannot run graph as no start node was found.");
+                NodeEditor.Logger.LogError<NodeGraphRunner>("Cannot run graph as no start node was found.");
                 return;
             }
 
-            DebugEx.Log<NodeGraphRunner>("Executing...");
+            NodeEditor.Logger.Log<NodeGraphRunner>("Executing...");
 
             _currentNode = startNode;
             MoveNext();
@@ -40,7 +41,7 @@ namespace Framework.NodeSystem
         {
             Assert.IsNotNull(_currentNode);
 
-            DebugEx.Log<NodeGraphRunner>("Move next: {0} ({1})", _currentNode.Name, _currentNode.ID);
+            NodeEditor.Logger.Log<NodeGraphRunner>("Move next: {0} ({1})", _currentNode.Name, _currentNode.ID);
 
             // Run through all the nodes connected to the current node to prepare it for execution.
             _runner.StartFrom(_currentNode);
@@ -53,7 +54,7 @@ namespace Framework.NodeSystem
 
             if (_executions == MaxExecutions)
             {
-                DebugEx.LogWarning<NodeGraphRunner>("Max executions have been reached!");
+                NodeEditor.Logger.LogWarning<NodeGraphRunner>("Max executions have been reached!");
                 return;
             }
             else
@@ -70,7 +71,7 @@ namespace Framework.NodeSystem
                     }
                 }
 
-                DebugEx.Log<NodeGraphRunner>("Finished execution of all nodes.");
+                NodeEditor.Logger.Log<NodeGraphRunner>("Finished execution of all nodes.");
             }
         }
     }

@@ -1,6 +1,5 @@
-﻿using System;
-using Framework.NodeSystem;
-using Framework.NodeEditorViews;
+﻿using Framework.NodeEditorViews;
+using NodeSystem;
 
 namespace NodeSystem.Editor
 {

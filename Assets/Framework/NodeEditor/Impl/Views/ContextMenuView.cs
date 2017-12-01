@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using UnityEditor;
 using System;
-using Framework.NodeSystem;
+using NodeSystem;
 using NodeSystem.Editor;
 
 namespace Framework.NodeEditorViews

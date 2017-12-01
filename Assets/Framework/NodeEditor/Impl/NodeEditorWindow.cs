@@ -4,7 +4,7 @@ using UnityEditor;
 using System;
 using System.Collections.Generic;
 using Framework.NodeEditorViews;
-using Framework.NodeSystem;
+using NodeSystem;
 using NodeSystem.Editor;
 
 namespace Framework

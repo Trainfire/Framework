@@ -3,7 +3,7 @@ using UnityEngine.Assertions;
 using UnityEditor;
 using System;
 using System.Collections.Generic;
-using Framework.NodeSystem;
+using NodeSystem;
 
 namespace Framework.NodeEditorViews
 {

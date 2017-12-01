@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Framework.NodeSystem
+namespace NodeSystem
 {
     public class NodeRunner
     {

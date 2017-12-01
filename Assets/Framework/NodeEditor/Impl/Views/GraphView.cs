@@ -1,11 +1,9 @@
 ﻿using UnityEngine;
 using UnityEngine.Assertions;
-using UnityEditor;
 using System;
 using System.Linq;
 using System.Collections.Generic;
-using Framework.NodeSystem;
-using NodeSystem.Editor;
+using NodeSystem;
 
 namespace Framework.NodeEditorViews
 {

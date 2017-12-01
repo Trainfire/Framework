@@ -1,6 +1,7 @@
 ﻿using System;
+using NodeSystem.Editor;
 
-namespace Framework.NodeSystem
+namespace NodeSystem
 {
     /// <summary>
     /// Dummy class. Probably want to implement graph events of some sort.
@@ -9,7 +10,7 @@ namespace Framework.NodeSystem
     {
         public override void Execute()
         {
-            DebugEx.Log<CoreStart>("Executing...");
+            NodeEditor.Logger.Log<CoreStart>("Executing...");
         }
     }
 
@@ -19,11 +20,11 @@ namespace Framework.NodeSystem
         {
             if (In.Value != null)
             {
-                DebugEx.Log<CoreDebugLog>(In.Value);
+                NodeEditor.Logger.Log<CoreDebugLog>(In.Value);
             }
             else
             {
-                DebugEx.Log<CoreDebugLog>("Value is null.");
+                NodeEditor.Logger.Log<CoreDebugLog>("Value is null.");
             }
 
             Out.Value = In.Value;

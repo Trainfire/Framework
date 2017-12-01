@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace Framework.NodeSystem
+﻿namespace NodeSystem
 {
     public interface INodeExecuteOutput
     {

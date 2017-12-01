@@ -1,8 +1,7 @@
-﻿using UnityEngine;
-using UnityEditor;
-using System;
+﻿using System;
+using NodeSystem.Editor;
 
-namespace Framework.NodeSystem
+namespace NodeSystem
 {
     public class NodeGraphState
     {
@@ -44,7 +43,7 @@ namespace Framework.NodeSystem
         {
             GraphLoaded = true;
             _lastGraphData = graphData;
-            DebugEx.Log<NodeGraphState>("Graph is now loaded. Will now listen for state changes...");
+            NodeEditor.Logger.Log<NodeGraphState>("Graph is now loaded. Will now listen for state changes...");
             Changed.InvokeSafe(this);
         }
 
@@ -52,13 +51,13 @@ namespace Framework.NodeSystem
         {
             IsDirty = false;
             GraphLoaded = false;
-            DebugEx.Log<NodeGraphState>("Graph is unloading. No longer listening to state changes...");
+            NodeEditor.Logger.Log<NodeGraphState>("Graph is unloading. No longer listening to state changes...");
             Changed.InvokeSafe(this);
         }
 
         void Graph_Saved(NodeGraph graph)
         {
-            DebugEx.Log<NodeGraphState>("Graph was saved.");
+            NodeEditor.Logger.Log<NodeGraphState>("Graph was saved.");
             IsDirty = false;
             Changed.InvokeSafe(this);
         }
@@ -67,7 +66,7 @@ namespace Framework.NodeSystem
         {
             if (GraphLoaded)
             {
-                DebugEx.Log<NodeGraphState>("Graph state changed");
+                NodeEditor.Logger.Log<NodeGraphState>("Graph state changed");
                 IsDirty = true;
                 Changed.InvokeSafe(this);
 

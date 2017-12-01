@@ -1,11 +1,11 @@
 ﻿using UnityEngine;
-using UnityEditor;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine.Assertions;
+using NodeSystem.Editor;
 
-namespace Framework.NodeSystem
+namespace NodeSystem
 {
     public class NodeGraph
     {
@@ -35,11 +35,11 @@ namespace Framework.NodeSystem
 
         public void Load(NodeGraphData graphData)
         {
-            DebugEx.Log<NodeGraph>("Initializing...");
+            NodeEditor.Logger.Log<NodeGraph>("Initializing...");
 
             Unload();
 
-            DebugEx.Log<NodeGraph>("Reading from graph data...");
+            NodeEditor.Logger.Log<NodeGraph>("Reading from graph data...");
 
             // TODO: Find a nicer way to do this...
             var allNodes = graphData.Nodes.Concat(graphData.Constants.Cast<NodeData>()).ToList();
@@ -57,7 +57,8 @@ namespace Framework.NodeSystem
 
             graphData.Connections.ForEach(connectionData => Connect(connectionData));
 
-            PostLoad.InvokeSafe(this, graphData);
+            if (PostLoad != null)
+                PostLoad.Invoke(this, graphData);
         }
 
         public void Unload()
@@ -74,7 +75,7 @@ namespace Framework.NodeSystem
 
             PostUnload.InvokeSafe(this);
 
-            DebugEx.Log<NodeGraph>("Graph cleared.");
+            NodeEditor.Logger.Log<NodeGraph>("Graph cleared.");
         }
 
         public void AddNode(NodeConstantData constantData)
@@ -102,7 +103,7 @@ namespace Framework.NodeSystem
 
             if (!Nodes.Contains(node))
             {
-                DebugEx.Log<NodeGraph>("Registered node.");
+                NodeEditor.Logger.Log<NodeGraph>("Registered node.");
                 node.Destroyed += RemoveNode;
                 node.Changed += Node_Changed;
                 node.PinRemoved += Node_PinRemoved;
@@ -122,7 +123,7 @@ namespace Framework.NodeSystem
 
             if (Nodes.Contains(node))
             {
-                DebugEx.Log<NodeGraph>("Removed node.");
+                NodeEditor.Logger.Log<NodeGraph>("Removed node.");
                 node.Destroyed -= RemoveNode;
                 node.Changed -= Node_Changed;
                 node.PinRemoved -= Node_PinRemoved;
@@ -147,14 +148,14 @@ namespace Framework.NodeSystem
         {
             if (Connections.Contains(oldConnection))
             {
-                DebugEx.Log<NodeGraph>("Replacing a connection...");
+                NodeEditor.Logger.Log<NodeGraph>("Replacing a connection...");
                 Connections.Remove(oldConnection);
                 Connect(newConnection);
-                DebugEx.Log<NodeGraph>("Connection replaced.");
+                NodeEditor.Logger.Log<NodeGraph>("Connection replaced.");
             }
             else
             {
-                DebugEx.LogWarning<NodeGraph>("Cannot replace connection as the old connection is not a part of this graph.");
+                NodeEditor.Logger.LogWarning<NodeGraph>("Cannot replace connection as the old connection is not a part of this graph.");
             }
         }
 
@@ -176,7 +177,7 @@ namespace Framework.NodeSystem
             Assert.IsFalse(connection.StartPin == connection.EndPin, "Attempted to connect a pin to itself.");
             //Assert.IsFalse(connection.StartPin.WillPinConnectionCreateCircularDependency(connection.EndPin), "Pin connection would create a circular dependency!");
 
-            DebugEx.Log<NodeGraph>("Connected {0}:(1) to {2}:{3}", connection.StartNode.Name, connection.StartPin.Index, connection.EndNode.Name, connection.EndPin.Index);
+            NodeEditor.Logger.Log<NodeGraph>("Connected {0}:(1) to {2}:{3}", connection.StartNode.Name, connection.StartPin.Index, connection.EndNode.Name, connection.EndPin.Index);
 
             if (connection.StartPin != null && connection.EndPin != null)
             {
@@ -213,7 +214,7 @@ namespace Framework.NodeSystem
             if (containsConnection)
             {
                 Connections.Remove(connection);
-                DebugEx.Log<NodeGraph>("Disconnected {0} from {1}.", connection.StartPin.Node.Name, connection.EndPin.Node.Name);
+                NodeEditor.Logger.Log<NodeGraph>("Disconnected {0} from {1}.", connection.StartPin.Node.Name, connection.EndPin.Node.Name);
                 Edited.InvokeSafe(this);
             }
         }
@@ -239,7 +240,7 @@ namespace Framework.NodeSystem
         #region Callbacks
         void Node_Changed(Node node)
         {
-            DebugEx.Log<NodeGraph>("Node {0} changed.", node.Name);
+            NodeEditor.Logger.Log<NodeGraph>("Node {0} changed.", node.Name);
             Edited.InvokeSafe(this);
         }
 

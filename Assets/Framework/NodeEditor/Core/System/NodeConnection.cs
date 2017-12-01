@@ -1,7 +1,4 @@
-﻿using UnityEngine;
-using UnityEditor;
-
-namespace Framework.NodeSystem
+﻿namespace NodeSystem
 {
     public class NodeConnection
     {

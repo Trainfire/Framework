@@ -1,4 +1,6 @@
-﻿namespace Framework.NodeSystem
+﻿using NodeSystem.Editor;
+
+namespace NodeSystem
 {
     public class NodeExecutionGroup
     {
@@ -76,7 +78,7 @@
         void Log(string message, params object[] args)
         {
             var prefix = string.Format("Depth: {0} - ", Depth);
-            DebugEx.Log<NodeExecutionGroup>(prefix + message, args);
+            NodeEditor.Logger.Log<NodeExecutionGroup>(prefix + message, args);
         }
     }
 }

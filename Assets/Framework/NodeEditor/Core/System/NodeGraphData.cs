@@ -1,10 +1,8 @@
 ﻿using UnityEngine;
-using UnityEngine.Assertions;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
-namespace Framework.NodeSystem
+namespace NodeSystem
 {
     [Serializable]
     public class NodeData

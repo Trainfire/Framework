@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using NodeSystem.Editor;
 
-namespace Framework.NodeSystem
+namespace NodeSystem
 {
     /// <summary>
     /// Wrapper to expose graph info safely.
@@ -84,7 +85,7 @@ namespace Framework.NodeSystem
 
         public static NodeGraphData GetGraphData(NodeGraph graph)
         {
-            DebugEx.Log<NodeGraphState>("Serializing graph state...");
+            NodeEditor.Logger.Log<NodeGraphState>("Serializing graph state...");
 
             var outGraphData = new NodeGraphData();
 

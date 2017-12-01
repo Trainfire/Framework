@@ -1,7 +1,8 @@
 ﻿using System;
 using UnityEngine.Assertions;
+using NodeSystem.Editor;
 
-namespace Framework.NodeSystem
+namespace NodeSystem
 {
     public enum NodeConstantType
     {
@@ -29,7 +30,7 @@ namespace Framework.NodeSystem
 
                 _pinType = value;
 
-                DebugEx.Log<NodeConstant>("Set pin type to '{0}'", _pinType.ToString());
+                NodeEditor.Logger.Log<NodeConstant>("Set pin type to '{0}'", _pinType.ToString());
 
                 UpdatePin();
             }
@@ -44,7 +45,7 @@ namespace Framework.NodeSystem
 
         void UpdatePin()
         {
-            DebugEx.Log<NodeConstant>("Updating pin...");
+            NodeEditor.Logger.Log<NodeConstant>("Updating pin...");
 
             if (HasPin(0))
                 RemoveOutputPin(0);

@@ -1,10 +1,8 @@
 ﻿using UnityEngine;
-using UnityEngine.Assertions;
 using System;
-using System.Collections.Generic;
-using System.Linq;
+using NodeSystem.Editor;
 
-namespace Framework.NodeSystem
+namespace NodeSystem
 {
     public class NodePinConnectEvent
     {
@@ -112,7 +110,7 @@ namespace Framework.NodeSystem
             }
             catch (Exception ex)
             {
-                DebugEx.LogError<NodePin>(ex.Message);
+                NodeEditor.Logger.LogError<NodePin>(ex.Message);
             }
 
             _value = convertedPin.Value;

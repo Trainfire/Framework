@@ -1,8 +1,8 @@
 ﻿using UnityEngine;
 using UnityEditor;
 using System.Collections.Generic;
-using Framework.NodeSystem;
 using System;
+using NodeSystem;
 
 namespace Framework
 {

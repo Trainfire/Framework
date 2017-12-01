@@ -1,5 +1,4 @@
 ﻿using UnityEngine.Assertions;
-using Framework.NodeSystem;
 using System;
 
 namespace NodeSystem.Editor
