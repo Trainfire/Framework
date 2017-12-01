@@ -8,6 +8,9 @@ using Framework.NodeSystem;
 
 namespace Framework.NodeEditor
 {
+    /// <summary>
+    /// Wraps the actual NodeEditor.
+    /// </summary>
     public class NodeEditorWindow : EditorWindow
     {
         private const string WindowName = "Node Editor";
@@ -23,6 +26,8 @@ namespace Framework.NodeEditor
         public NodeEditorWindow()
         {
             Assert.raiseExceptions = true;
+
+            NodeEditor.Logger = new NodeEditorLogger();
 
             _graph = new NodeGraph();
             _view = new NodeEditorView(_graph.Helper);
@@ -49,5 +54,12 @@ namespace Framework.NodeEditor
         {
             _controller.Destroy();
         }
+    }
+
+    public class NodeEditorLogger : INodeEditorLogger
+    {
+        public void Log<TSource>(string message, params object[] args) { DebugEx.Log<TSource>(message, args); }
+        public void LogError<TSource>(string message, params object[] args) { DebugEx.Log<TSource>(message, args); }
+        public void LogWarning<TSource>(string message, params object[] args) { DebugEx.Log<TSource>(message, args); }
     }
 }

@@ -7,7 +7,23 @@ namespace Framework.NodeEditor
     public class NodeEditor
     {
         public event Action<NodeGraphData> GraphSaved;
-        
+
+        private static INodeEditorLogger _logger;
+        public static INodeEditorLogger Logger
+        {
+            get
+            {
+                if (_logger == null)
+                    _logger = new NullNodeEditorLogger();
+                return _logger;
+            }
+            set
+            {
+                if (value != null)
+                    _logger = value;
+            }
+        }
+
         private NodeGraphRunner _runner;
         private NodeGraph _graph;
         private INodeEditorUserEventsListener _eventListener;
@@ -136,6 +152,22 @@ namespace Framework.NodeEditor
         event Action Delete;
     }
 
+    public interface INodeEditorLogger
+    {
+        void Log<TSource>(string message, params object[] args);
+        void LogWarning<TSource>(string message, params object[] args);
+        void LogError<TSource>(string message, params object[] args);
+    }
+
+    public class NullNodeEditorLogger : INodeEditorLogger
+    {
+        public void Log<TSource>(string message, params object[] args) { }
+        public void LogError<TSource>(string message, params object[] args) { }
+        public void LogWarning<TSource>(string message, params object[] args) { }
+    }
+
+    #region Events
+
     public class AddNodeEvent
     {
         public string NodeId { get; private set; }
@@ -145,4 +177,5 @@ namespace Framework.NodeEditor
             NodeId = nodeId;
         }
     }
+#endregion
 }
