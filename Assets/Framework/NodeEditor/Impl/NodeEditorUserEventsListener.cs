@@ -72,9 +72,13 @@ namespace Framework
             MouseUp.InvokeSafe();
         }
 
-        void InputListener_MouseDown(EditorMouseEvent obj)
+        void InputListener_MouseDown(EditorMouseEvent mouseEvent)
         {
-            _editorView.GraphView.GetNodeUnderMouse((node) => SelectNode.InvokeSafe(node));
+            _editorView.GraphView.GetNodeUnderMouse((node) =>
+            {
+                if (_editorView.GraphView.WindowSize.Contains(mouseEvent.Position))
+                    SelectNode.InvokeSafe(node);
+            });
             _editorView.GraphView.GetAnyPinUnderMouse((pin) => MouseDownOverPin.InvokeSafe(pin));
         }
 
