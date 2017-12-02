@@ -27,6 +27,7 @@ namespace NodeSystem
         public Type WrappedType { get { return Type.WrappedType; } }
 
         public Vector2 ScreenPosition { get { return LocalRect.position + Node.Position; } }
+        public Rect ScreenRect { get { return new Rect(ScreenPosition.x, ScreenPosition.y, LocalRect.width, LocalRect.height); } }
         public Rect LocalRect { get; set; }
 
         public abstract NodePinType Type { get; }

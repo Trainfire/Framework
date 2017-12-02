@@ -36,6 +36,8 @@ namespace Framework.NodeEditorViews
 
         public void Draw(Vector2 offset)
         {
+            base.Draw();
+
             if (Node == null)
                 return;
 
@@ -81,7 +83,7 @@ namespace Framework.NodeEditorViews
         {
             var pinUnderMouse = Node
                 .Pins
-                .Where(x => x.LocalRect.Contains(InputListener.MousePosition))
+                .Where(x => x.ScreenRect.Contains(InputListener.MousePosition))
                 .FirstOrDefault();
 
             if (pinUnderMouse != null)
