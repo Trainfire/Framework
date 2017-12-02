@@ -1,11 +1,13 @@
 ﻿using UnityEngine;
 using NodeSystem;
+using NodeSystem.Editor;
 
 namespace Framework.NodeEditorViews
 {
-    public class NodeEditorPinConnectorView : BaseView
+    public class NodeEditorPinConnectorView : BaseView, INodeEditorPinConnectorView
     {
         public string Tooltip { get; set; }
+        public NodePin EndPin { set { _endPin = value; } }
 
         private bool _isDrawing;
         private NodePin _startPin;

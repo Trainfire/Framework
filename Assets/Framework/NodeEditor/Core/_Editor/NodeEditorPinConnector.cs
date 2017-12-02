@@ -3,6 +3,14 @@ using NodeSystem;
 
 namespace NodeSystem.Editor
 {
+    public interface INodeEditorPinConnectorView
+    {
+        string Tooltip { get; set; }
+        NodePin EndPin { set; }
+        void EnterDrawState(NodePin startPin);
+        void EndDrawState();
+    }
+
     public class NodeEditorPinConnector
     {
         private enum ValidationResult
@@ -14,7 +22,7 @@ namespace NodeSystem.Editor
         }
 
         private NodeGraph _graph;
-        private NodeEditorPinConnectorView _view;
+        private INodeEditorPinConnectorView _view;
         private INodeEditorUserEventsListener _input;
 
         private NodeConnection _modifyingConnection;
@@ -22,7 +30,7 @@ namespace NodeSystem.Editor
         private NodePin _targetPin;
 
         // TODO: Abstract this...
-        public NodeEditorPinConnector(NodeGraph graph, NodeEditorPinConnectorView view, INodeEditorUserEventsListener input)
+        public NodeEditorPinConnector(NodeGraph graph, INodeEditorPinConnectorView view, INodeEditorUserEventsListener input)
         {
             _graph = graph;
 
@@ -52,8 +60,8 @@ namespace NodeSystem.Editor
             {
                 _view.Tooltip = GetErrorMessage(validationResult);
             }
-            
-            _view.SetEndPin(nodePin);
+
+            _view.EndPin = nodePin;
         }
 
         void Input_SelectPin(NodePin nodePin)
