@@ -40,7 +40,8 @@ namespace Framework.NodeEditorViews
                     return;
                 }
 
-                NodeEditorHelper.DrawConnection(_startPin, InputListener.MousePosition);
+                //NodeEditorConnectionDrawer.Draw(_startPin, InputListener.MousePosition);
+                NodeEditorConnectionDrawer.Draw(Vector2.zero, InputListener.MousePosition, Color.white);
 
                 if (_endPin != null)
                 {

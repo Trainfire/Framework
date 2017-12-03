@@ -29,7 +29,6 @@ namespace NodeSystem.Editor
         private NodePin _sourcePin;
         private NodePin _targetPin;
 
-        // TODO: Abstract this...
         public NodeEditorPinConnector(NodeGraph graph, INodeEditorPinConnectorView view, INodeEditorUserEventsListener input)
         {
             _graph = graph;

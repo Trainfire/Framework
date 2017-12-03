@@ -13,8 +13,7 @@ namespace Framework.NodeEditorViews
         public Rect Rect { get; private set; }
 
         private int _windowId;
-        private NodeEditorPinView _pinDrawer;
-        private Dictionary<NodePin, NodeEditorPinViewData> _pinViews;
+        private Dictionary<NodePin, NodeEditorPinView> _pinViews;
 
         public NodeEditorNodeView(Node node, int windowId)
         {
@@ -25,8 +24,7 @@ namespace Framework.NodeEditorViews
 
             _windowId = windowId;
 
-            _pinDrawer = new NodeEditorPinView();
-            _pinViews = new Dictionary<NodePin, NodeEditorPinViewData>();
+            _pinViews = new Dictionary<NodePin, NodeEditorPinView>();
 
             Node.InputPins.ForEach(x => AddPinView(x));
             Node.OutputPins.ForEach(x => AddPinView(x));
@@ -51,7 +49,7 @@ namespace Framework.NodeEditorViews
             bool containsKey = _pinViews.ContainsKey(obj);
             Assert.IsFalse(containsKey);
             if (!containsKey)
-                _pinViews.Add(obj, new NodeEditorPinViewData(obj, new Rect()));
+                _pinViews.Add(obj, new NodeEditorPinView(obj, new Rect()));
         }
 
         protected override void OnInitialize()
@@ -63,7 +61,6 @@ namespace Framework.NodeEditorViews
         {
             _pinViews.Keys.ToList().ForEach(x => RemovePinView(x));
             _pinViews.Clear();
-            _pinDrawer.Dispose();
         }
 
         protected override void OnDraw() { }
@@ -115,9 +112,9 @@ namespace Framework.NodeEditorViews
                 GUI.DragWindow();
         }
 
-        public NodeEditorPinViewData GetPinUnderMouse(Action<NodeEditorPinViewData> OnPinExists = null)
+        public NodeEditorPinView GetPinUnderMouse(Action<NodeEditorPinView> OnPinExists = null)
         {
-            NodeEditorPinViewData pinUnderMouse = null;
+            NodeEditorPinView pinUnderMouse = null;
 
             pinUnderMouse = _pinViews
                 .Values
@@ -130,7 +127,7 @@ namespace Framework.NodeEditorViews
             return pinUnderMouse != null ? pinUnderMouse : null;
         }
 
-        public NodeEditorPinViewData GetPinViewData(NodePin pin)
+        public NodeEditorPinView GetPinViewData(NodePin pin)
         {
             return _pinViews.ContainsKey(pin) ? _pinViews[pin] : null;
         }
@@ -138,7 +135,7 @@ namespace Framework.NodeEditorViews
         void DrawPin(NodePin pin)
         {
             var highlighted = _pinViews.ContainsKey(pin) && _pinViews[pin].ScreenRect.Contains(InputListener.MousePosition);
-            var drawData = _pinDrawer.Draw(pin, highlighted);
+            var drawData = NodeEditorPinDrawer.Draw(pin, highlighted);
 
             if (Event.current.type == EventType.Repaint && _pinViews.ContainsKey(pin))
                 _pinViews[pin] = drawData;

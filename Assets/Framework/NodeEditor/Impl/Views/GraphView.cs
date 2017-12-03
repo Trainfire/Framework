@@ -61,7 +61,6 @@ namespace Framework.NodeEditorViews
             Assert.IsTrue(_nodeViews.Count == 0);
         }
 
-        #region Draw
         protected override void OnDraw()
         {
             _scrollPosition = GUI.BeginScrollView(WindowSize, _scrollPosition, new Rect(0, 0, 2000f, 0f));
@@ -80,9 +79,25 @@ namespace Framework.NodeEditorViews
             if (GraphHelper == null)
                 return;
 
-            GraphHelper.Connections.ForEach(connection => NodeEditorHelper.DrawConnection(connection));
+            GraphHelper.Connections.ForEach(connection =>
+            {
+                Assert.IsTrue(HasNodeView(connection.StartNode), "Could not find a view for the start node of a connection.");
+                Assert.IsTrue(HasNodeView(connection.EndNode), "Could not find a view for the end node of a connection.");
+
+                var startPinView = HasNodeView(connection.StartNode) ? _nodeViews[connection.StartNode].GetPinViewData(connection.StartPin) : null;
+                var endPinView = HasNodeView(connection.EndNode) ? _nodeViews[connection.EndNode].GetPinViewData(connection.EndPin) : null;
+
+                Assert.IsNotNull(endPinView, "Failed to find a pin view for the start pin on a connection.");
+                Assert.IsNotNull(endPinView, "Failed to find a pin view for the end pin on a connection.");
+
+                NodeEditorConnectionView.DrawConnection(startPinView, endPinView);
+            });
         }
-        #endregion
+
+        public bool HasNodeView(Node node)
+        {
+            return _nodeViews.ContainsKey(node);
+        }
 
         public NodeEditorNodeView GetNodeViewUnderMouse(Action<NodeEditorNodeView> callback = null)
         {
@@ -98,9 +113,9 @@ namespace Framework.NodeEditorViews
             return nodeView;
         }
 
-        public NodeEditorPinViewData GetPinViewUnderMouse(Action<NodeEditorPinViewData> OnPinExists = null)
+        public NodeEditorPinView GetPinViewUnderMouse(Action<NodeEditorPinView> OnPinExists = null)
         {
-            NodeEditorPinViewData outPinView = null;
+            NodeEditorPinView outPinView = null;
 
             var nodeViews = _nodeViews.Values.ToList();
             nodeViews.ForEach(nodeView => nodeView.GetPinUnderMouse((pinView) =>

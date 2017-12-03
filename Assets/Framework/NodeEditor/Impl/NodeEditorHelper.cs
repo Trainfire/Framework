@@ -4,22 +4,19 @@ using System.Collections.Generic;
 using System;
 using NodeSystem;
 
-namespace Framework
+namespace Framework.NodeEditorViews
 {
-    public static class NodeEditorHelper
+    public static class NodeEditorColorHelper
     {
-        private static Dictionary<Type, Color> _colorRegistry;
-
-        static NodeEditorHelper()
+        private static Dictionary<Type, Color> _colorRegistry = new Dictionary<Type, Color>
         {
-            _colorRegistry = new Dictionary<Type, Color>();
-            _colorRegistry.Add(typeof(NodePinTypeNone), Color.white);
-            _colorRegistry.Add(typeof(NodePinTypeExecute), new Color(0.8f, 0f, 0f));
-            _colorRegistry.Add(typeof(float), new Color(0f, 0.8f, 0f));
-            _colorRegistry.Add(typeof(int), new Color(0.259f, 0.525f, 0.957f));
-            _colorRegistry.Add(typeof(bool), Color.yellow);
-            _colorRegistry.Add(typeof(string), new Color(0.2f, 0.2f, 0.2f));
-        }
+            { typeof(NodePinTypeNone), Color.white },
+            { typeof(NodePinTypeExecute), new Color(0.8f, 0f, 0f) },
+            { typeof(float), new Color(0f, 0.8f, 0f) },
+            { typeof(int), new Color(0.259f, 0.525f, 0.957f) },
+            { typeof(bool), Color.yellow },
+            { typeof(string), new Color(0.2f, 0.2f, 0.2f) }
+        };
 
         public static Color GetPinColor(NodePin pin)
         {
@@ -30,24 +27,21 @@ namespace Framework
         {
             return _colorRegistry.ContainsKey(pinType.WrappedType) ? _colorRegistry[pinType.WrappedType] : Color.white;
         }
+    }
 
-        public static void DrawConnection(NodeConnection connection)
+    public static class NodeEditorConnectionDrawer
+    {
+        public static void Draw(NodeEditorPinView startPin, NodeEditorPinView endPin)
         {
-            if (connection.Hidden)
-                return;
-
-            var start = GetPinPosition(connection.StartPin);
-            var end = GetPinPosition(connection.EndPin);
-            var color = NodeEditorHelper.GetPinColor(connection.StartPin.Type);
-            DrawConnection(start, end, color);
+            Draw(GetPinPosition(startPin), GetPinPosition(endPin), NodeEditorColorHelper.GetPinColor(startPin.Pin));
         }
 
-        public static void DrawConnection(NodePin startPin, Vector2 screenPosition)
+        public static void Draw(NodeEditorPinView startPin, Vector2 endPosition)
         {
-            DrawConnection(GetPinPosition(startPin), screenPosition, GetPinColor(startPin));
+            Draw(GetPinPosition(startPin), endPosition, NodeEditorColorHelper.GetPinColor(startPin.Pin));
         }
 
-        public static void DrawConnection(Vector2 start, Vector2 end, Color color)
+        public static void Draw(Vector2 start, Vector2 end, Color color)
         {
             var startTangent = new Vector2(end.x, start.y);
             var endTangent = new Vector2(start.x, end.y);
@@ -56,9 +50,66 @@ namespace Framework
             Handles.EndGUI();
         }
 
-        public static Vector2 GetPinPosition(NodePin pin)
+        public static Vector2 GetPinPosition(NodeEditorPinView pin)
         {
             return (pin.ScreenPosition + new Vector2(0f, pin.LocalRect.height * 0.5f));
+        }
+    }
+
+    public static class NodeEditorPinDrawer
+    {
+        const float PinSize = 10f;
+
+        public static NodeEditorPinView Draw(NodePin pin, bool highlighted)
+        {
+            GUILayout.BeginHorizontal();
+
+            // Hack to align the element to the right.
+            if (!pin.IsInput())
+                GUILayout.FlexibleSpace();
+
+            Rect pinRect = new Rect();
+
+            if (pin.IsInput())
+            {
+                pinRect = DrawPin(pin, highlighted);
+                DrawLabel(pin);
+            }
+            else
+            {
+                DrawLabel(pin);
+                pinRect = DrawPin(pin, highlighted);
+            }
+
+            GUILayout.EndHorizontal();
+
+            return new NodeEditorPinView(pin, pinRect);
+        }
+
+        static Rect DrawPin(NodePin pin, bool highlighted)
+        {
+            var startingBg = GUI.backgroundColor;
+
+            var color = NodeEditorColorHelper.GetPinColor(pin.Type);
+
+            if (highlighted)
+            {
+                var highlightAdd = 0.4f;
+                color = new Color(color.r + highlightAdd, color.g + highlightAdd, color.b + highlightAdd);
+            }
+
+            GUI.backgroundColor = color;
+
+            GUILayout.Box("", GUILayout.Width(PinSize), GUILayout.Height(PinSize));
+
+            GUI.backgroundColor = startingBg;
+
+            return GUILayoutUtility.GetLastRect();
+        }
+
+        static void DrawLabel(NodePin pin)
+        {
+            GUILayout.Label(new GUIContent(pin.Name, pin.ToString()));
         }
     }
 }

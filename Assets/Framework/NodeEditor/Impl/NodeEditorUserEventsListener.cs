@@ -29,7 +29,7 @@ namespace Framework
         private EditorInputListener _inputListener;
         private NodeEditorView _editorView;
 
-        private NodeEditorPinViewData _lastHoveredPin;
+        private NodeEditorPinView _lastHoveredPin;
 
         public NodeEditorUserEventsListener(NodeEditorView editorView)
         {
