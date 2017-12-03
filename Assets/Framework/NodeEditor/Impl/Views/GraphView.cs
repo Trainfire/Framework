@@ -84,30 +84,32 @@ namespace Framework.NodeEditorViews
         }
         #endregion
 
-        public Node GetNodeUnderMouse(Action<Node> callback = null)
+        public NodeEditorNodeView GetNodeViewUnderMouse(Action<NodeEditorNodeView> callback = null)
         {
-            var node = _nodeViews.Values
+            NodeEditorNodeView nodeView = null;
+
+            nodeView = _nodeViews
+                .Values
                 .Where(x => x.Rect.Contains(InputListener.MousePosition))
-                .Select(x => x.Node)
                 .FirstOrDefault();
 
-            callback.InvokeSafe(node);
+            callback.InvokeSafe(nodeView);
 
-            return node;
+            return nodeView;
         }
 
-        public NodePin GetAnyPinUnderMouse(Action<NodePin> OnPinExists = null)
+        public NodeEditorPinViewData GetPinViewUnderMouse(Action<NodeEditorPinViewData> OnPinExists = null)
         {
-            NodePin outPin = null;
+            NodeEditorPinViewData outPinView = null;
 
-            var pinViews = _nodeViews.Values.ToList();
-            pinViews.ForEach(x => x.GetPinUnderMouse((pin) =>
+            var nodeViews = _nodeViews.Values.ToList();
+            nodeViews.ForEach(nodeView => nodeView.GetPinUnderMouse((pinView) =>
             {
-                outPin = pin;
-                OnPinExists.InvokeSafe(pin);
+                outPinView = pinView;
+                OnPinExists.InvokeSafe(pinView);
             }));
 
-            return outPin;
+            return outPinView;
         }
 
         protected override void OnDispose()

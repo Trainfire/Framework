@@ -3,11 +3,27 @@ using NodeSystem;
 
 namespace Framework.NodeEditorViews
 {
+    public class NodeEditorPinViewData
+    {
+        public NodePin Pin { get; private set; }
+        public Vector2 ScreenPosition { get; private set; }
+        public Rect ScreenRect { get; private set; }
+        public Rect LocalRect { get; set; }
+
+        public NodeEditorPinViewData(NodePin pin, Rect localRect)
+        {
+            Pin = pin;
+            LocalRect = localRect;
+            ScreenPosition = LocalRect.position + pin.Node.Position;
+            ScreenRect = new Rect(ScreenPosition.x, ScreenPosition.y, LocalRect.width, LocalRect.height);
+        }
+    }
+
     public class NodeEditorPinView : BaseView
     {
         const float PinSize = 10f;
 
-        public void Draw(NodePin pin, bool highlighted)
+        public NodeEditorPinViewData Draw(NodePin pin, bool highlighted)
         {
             GUILayout.BeginHorizontal();
 
@@ -15,21 +31,25 @@ namespace Framework.NodeEditorViews
             if (!pin.IsInput())
                 GUILayout.FlexibleSpace();
 
+            Rect pinRect = new Rect();
+
             if (pin.IsInput())
             {
-                DrawPin(pin, highlighted);
+                pinRect = DrawPin(pin, highlighted);
                 DrawLabel(pin);
             }
             else
             {
                 DrawLabel(pin);
-                DrawPin(pin, highlighted);
+                pinRect = DrawPin(pin, highlighted);
             }
 
             GUILayout.EndHorizontal();
+
+            return new NodeEditorPinViewData(pin, pinRect);
         }
 
-        void DrawPin(NodePin pin, bool highlighted)
+        Rect DrawPin(NodePin pin, bool highlighted)
         {
             var startingBg = GUI.backgroundColor;
 
@@ -45,11 +65,9 @@ namespace Framework.NodeEditorViews
 
             GUILayout.Box("", GUILayout.Width(PinSize), GUILayout.Height(PinSize));
 
-            // Only cache Rect on Repaint event.
-            if (Event.current.type == EventType.Repaint)
-                pin.LocalRect = GUILayoutUtility.GetLastRect();
-
             GUI.backgroundColor = startingBg;
+
+            return GUILayoutUtility.GetLastRect();
         }
 
         void DrawLabel(NodePin pin)

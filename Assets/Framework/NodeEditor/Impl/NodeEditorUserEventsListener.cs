@@ -29,7 +29,7 @@ namespace Framework
         private EditorInputListener _inputListener;
         private NodeEditorView _editorView;
 
-        private NodePin _lastHoveredPin;
+        private NodeEditorPinViewData _lastHoveredPin;
 
         public NodeEditorUserEventsListener(NodeEditorView editorView)
         {
@@ -58,15 +58,15 @@ namespace Framework
 
         void InputListener_MouseUp(EditorMouseEvent mouseEvent)
         {
-            _editorView.GraphView.GetAnyPinUnderMouse((pin) =>
+            _editorView.GraphView.GetPinViewUnderMouse((view) =>
             {
                 DebugEx.Log<NodeEditorUserEventsListener>("Mouse released over Pin {0}. (Node ID: {1}) (Button: {2})", 
-                    pin.Name, 
-                    pin.Node.ID, 
+                    view.Pin.Name, 
+                    view.Pin.Node.ID, 
                     mouseEvent.Button);
 
                 if (mouseEvent.IsLeftMouse)
-                    MouseUpOverPin.InvokeSafe(pin);
+                    MouseUpOverPin.InvokeSafe(view.Pin);
             });
 
             MouseUp.InvokeSafe();
@@ -74,12 +74,13 @@ namespace Framework
 
         void InputListener_MouseDown(EditorMouseEvent mouseEvent)
         {
-            _editorView.GraphView.GetNodeUnderMouse((node) =>
+            _editorView.GraphView.GetNodeViewUnderMouse((view) =>
             {
-                if (_editorView.GraphView.WindowSize.Contains(mouseEvent.Position))
-                    SelectNode.InvokeSafe(node);
+                if (_editorView.GraphView.WindowSize.Contains(mouseEvent.Position) && view != null)
+                    SelectNode.InvokeSafe(view.Node);
             });
-            _editorView.GraphView.GetAnyPinUnderMouse((pin) => MouseDownOverPin.InvokeSafe(pin));
+
+            _editorView.GraphView.GetPinViewUnderMouse((view) => MouseDownOverPin.InvokeSafe(view.Pin));
         }
 
         void InputListener_DeletePressed()
@@ -97,17 +98,17 @@ namespace Framework
         {
             _inputListener.ProcessEvents();
 
-            var currentHoveredPin = _editorView.GraphView.GetAnyPinUnderMouse();
-            if (_lastHoveredPin != null && currentHoveredPin == null)
+            var currentHoveredPinView = _editorView.GraphView.GetPinViewUnderMouse();
+            if (_lastHoveredPin != null && currentHoveredPinView == null)
             {
                 MouseHoverLeavePin.InvokeSafe();
             }
-            else if (_lastHoveredPin == null && currentHoveredPin != null)
+            else if (_lastHoveredPin == null && currentHoveredPinView != null)
             {
-                MouseHoverEnterPin.InvokeSafe(currentHoveredPin);
+                MouseHoverEnterPin.InvokeSafe(currentHoveredPinView.Pin);
             }
 
-            _lastHoveredPin = currentHoveredPin;
+            _lastHoveredPin = currentHoveredPinView;
         }
     }
 }

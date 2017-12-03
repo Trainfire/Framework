@@ -57,7 +57,7 @@ namespace Framework.NodeEditorViews
             GraphView.WindowSize = new Rect(0f, 0f, Screen.width - propertiesWidth, Screen.height - 20f);
             GraphView.Draw();
             EndWindowsFunc();
-            
+
             GUILayout.BeginArea(new Rect(Screen.width - propertiesWidth, menuHeight, propertiesWidth, Screen.height - menuHeight));
             Properties.Draw();
             GUILayout.EndArea();

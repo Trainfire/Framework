@@ -123,10 +123,9 @@ namespace NodeSystem
 
             if (Nodes.Contains(node))
             {
-                NodeEditor.Logger.Log<NodeGraph>("Removed node.");
-                node.Destroyed -= RemoveNode;
-                node.Changed -= Node_Changed;
-                node.PinRemoved -= Node_PinRemoved;
+                NodeEditor.Logger.Log<NodeGraph>("Removing node.");
+                Selection = null;
+                node.Dispose();
                 Nodes.Remove(node);
                 NodeRemoved.InvokeSafe(node);
 

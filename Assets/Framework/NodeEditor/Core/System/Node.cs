@@ -7,11 +7,23 @@ using NodeSystem.Editor;
 
 namespace NodeSystem
 {
-    public abstract class Node
+    public class NodePinChangedEvent
+    {
+        public NodePin OldPin { get; private set; }
+        public NodePin NewPin { get; private set; }
+
+        public NodePinChangedEvent(NodePin oldPin, NodePin newPin)
+        {
+            OldPin = oldPin;
+            NewPin = newPin;
+        }
+    }
+    public abstract class Node : IDisposable
     {
         public event Action<Node> Changed;
         public event Action<NodePin> PinAdded;
         public event Action<NodePin> PinRemoved;
+        public event Action<NodePinChangedEvent> PinChanged;
         public event Action<Node> Destroyed;
 
         public List<NodePin> Pins { get; private set; }
@@ -116,6 +128,8 @@ namespace NodeSystem
 
                 NodeEditor.Logger.Log<Node>("Swapped pin '{0}' of type '{1}' for type '{2}'", replacementPin.Name, pin.WrappedType, replacementPin.WrappedType);
 
+                PinChanged.InvokeSafe(new NodePinChangedEvent(pin, replacementPin));
+
                 return replacementPin;
             }
 
@@ -180,6 +194,15 @@ namespace NodeSystem
             PinRemoved.InvokeSafe(pin);
             pin.Connected -= OnPinConnected;
             TriggerChange();
+        }
+
+        public void Dispose()
+        {
+            Changed = null;
+            PinAdded = null;
+            PinRemoved = null;
+            PinChanged = null;
+            Destroyed = null;
         }
     }
 

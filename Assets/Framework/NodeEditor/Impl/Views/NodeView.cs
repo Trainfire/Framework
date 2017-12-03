@@ -1,6 +1,8 @@
 ﻿using UnityEngine;
+using UnityEngine.Assertions;
 using System;
 using System.Linq;
+using System.Collections.Generic;
 using NodeSystem;
 
 namespace Framework.NodeEditorViews
@@ -11,14 +13,45 @@ namespace Framework.NodeEditorViews
         public Rect Rect { get; private set; }
 
         private int _windowId;
-        private NodeEditorPinView _pinView;
+        private NodeEditorPinView _pinDrawer;
+        private Dictionary<NodePin, NodeEditorPinViewData> _pinViews;
 
         public NodeEditorNodeView(Node node, int windowId)
         {
             Node = node;
+            Node.PinAdded += AddPinView;
+            Node.PinRemoved += RemovePinView;
+            Node.PinChanged += SwapPinView;
+
             _windowId = windowId;
 
-            _pinView = new NodeEditorPinView();
+            _pinDrawer = new NodeEditorPinView();
+            _pinViews = new Dictionary<NodePin, NodeEditorPinViewData>();
+
+            Node.InputPins.ForEach(x => AddPinView(x));
+            Node.OutputPins.ForEach(x => AddPinView(x));
+        }
+
+        private void SwapPinView(NodePinChangedEvent changedEvent)
+        {
+            RemovePinView(changedEvent.OldPin);
+            AddPinView(changedEvent.NewPin);
+        }
+
+        private void RemovePinView(NodePin obj)
+        {
+            bool containsKey = _pinViews.ContainsKey(obj);
+            Assert.IsTrue(containsKey);
+            if (containsKey)
+                _pinViews.Remove(obj);
+        }
+
+        private void AddPinView(NodePin obj)
+        {
+            bool containsKey = _pinViews.ContainsKey(obj);
+            Assert.IsFalse(containsKey);
+            if (!containsKey)
+                _pinViews.Add(obj, new NodeEditorPinViewData(obj, new Rect()));
         }
 
         protected override void OnInitialize()
@@ -28,8 +61,9 @@ namespace Framework.NodeEditorViews
 
         protected override void OnDispose()
         {
-            Node = null;
-            _pinView = null;
+            _pinViews.Keys.ToList().ForEach(x => RemovePinView(x));
+            _pinViews.Clear();
+            _pinDrawer.Dispose();
         }
 
         protected override void OnDraw() { }
@@ -65,12 +99,14 @@ namespace Framework.NodeEditorViews
 
             // Inputs
             GUILayout.BeginVertical();
-            Node.InputPins.ForEach(x => DrawPin(x));
+            _pinViews.Keys.Where(x => x.IsInput()).ToList().ForEach(x => DrawPin(x));
+            //Node.InputPins.ForEach(x => DrawPin(x));
             GUILayout.EndVertical();
 
             // Outputs
             GUILayout.BeginVertical();
-            Node.OutputPins.ForEach(x => DrawPin(x));
+            _pinViews.Keys.Where(x => x.IsOutput()).ToList().ForEach(x => DrawPin(x));
+            //Node.OutputPins.ForEach(x => DrawPin(x));
             GUILayout.EndVertical();
 
             GUILayout.EndHorizontal();
@@ -79,10 +115,12 @@ namespace Framework.NodeEditorViews
                 GUI.DragWindow();
         }
 
-        public NodePin GetPinUnderMouse(Action<NodePin> OnPinExists = null)
+        public NodeEditorPinViewData GetPinUnderMouse(Action<NodeEditorPinViewData> OnPinExists = null)
         {
-            var pinUnderMouse = Node
-                .Pins
+            NodeEditorPinViewData pinUnderMouse = null;
+
+            pinUnderMouse = _pinViews
+                .Values
                 .Where(x => x.ScreenRect.Contains(InputListener.MousePosition))
                 .FirstOrDefault();
 
@@ -92,9 +130,18 @@ namespace Framework.NodeEditorViews
             return pinUnderMouse != null ? pinUnderMouse : null;
         }
 
+        public NodeEditorPinViewData GetPinViewData(NodePin pin)
+        {
+            return _pinViews.ContainsKey(pin) ? _pinViews[pin] : null;
+        }
+
         void DrawPin(NodePin pin)
         {
-            _pinView.Draw(pin, pin.LocalRect.Contains(InputListener.MousePosition));
+            var highlighted = _pinViews.ContainsKey(pin) && _pinViews[pin].ScreenRect.Contains(InputListener.MousePosition);
+            var drawData = _pinDrawer.Draw(pin, highlighted);
+
+            if (Event.current.type == EventType.Repaint && _pinViews.ContainsKey(pin))
+                _pinViews[pin] = drawData;
         }
 
         void InputListener_MouseUp(EditorMouseEvent mouseEvent)
