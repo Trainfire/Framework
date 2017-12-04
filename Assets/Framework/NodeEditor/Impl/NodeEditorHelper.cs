@@ -6,6 +6,19 @@ using NodeSystem;
 
 namespace Framework.NodeEditorViews
 {
+    public static class NodeEditorExtensions
+    {
+        public static Vector2 ToVec2(this NodeVec2 nodePosition)
+        {
+            return new Vector2(nodePosition.x, nodePosition.y);
+        }
+
+        public static NodeVec2 ToNodePosition(this Vector2 vec)
+        {
+            return new NodeVec2(vec.x, vec.y);
+        }
+    }
+
     public static class NodeEditorColorHelper
     {
         private static Dictionary<Type, Color> _colorRegistry = new Dictionary<Type, Color>

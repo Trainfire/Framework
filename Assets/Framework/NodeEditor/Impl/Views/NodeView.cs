@@ -84,7 +84,7 @@ namespace Framework.NodeEditorViews
             Rect = GUI.Window(_windowId, Rect, InternalDraw, Node.Name);
 
             // Set node position to untransformed position.
-            Node.Position = Rect.position + offset;
+            Node.Position = (Rect.position + offset).ToNodePosition();
         }
 
         void InternalDraw(int windowId)

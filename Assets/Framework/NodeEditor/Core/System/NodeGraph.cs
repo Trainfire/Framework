@@ -90,7 +90,7 @@ namespace NodeSystem
             nodeData.Name = name == "" ? "Untitled Node" : name;
             nodeData.ClassType = typeof(TNode).ToString();
             nodeData.ID = Guid.NewGuid().ToString();
-            nodeData.Position = new Vector2(50f, 50f);
+            nodeData.Position = new NodeVec2(50f, 50f);
 
             return AddNode(nodeData) as TNode;
         }

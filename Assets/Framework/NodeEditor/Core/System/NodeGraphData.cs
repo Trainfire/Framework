@@ -1,5 +1,4 @@
-﻿using UnityEngine;
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 namespace NodeSystem
@@ -10,7 +9,7 @@ namespace NodeSystem
         public string ClassType;
         public string Name;
         public string ID;
-        public Vector2 Position;
+        public NodeVec2 Position;
 
         public static NodeData Convert(Node node)
         {

@@ -1,5 +1,4 @@
-﻿using UnityEngine;
-using UnityEngine.Assertions;
+﻿using UnityEngine.Assertions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,6 +17,40 @@ namespace NodeSystem
             NewPin = newPin;
         }
     }
+
+    [Serializable]
+    public struct NodeVec2
+    {
+        public float x;
+        public float y;
+
+        public NodeVec2(float x, float y)
+        {
+            this.x = x;
+            this.y = y;
+        }
+
+        public static NodeVec2 operator +(NodeVec2 v1, NodeVec2 v2)
+        {
+            return new NodeVec2(v1.x + v2.x, v1.y + v2.y);
+        }
+
+        public static NodeVec2 operator -(NodeVec2 v1, NodeVec2 v2)
+        {
+            return new NodeVec2(v1.x - v2.x, v1.y - v2.y);
+        }
+
+        public static NodeVec2 operator *(NodeVec2 v1, NodeVec2 v2)
+        {
+            return new NodeVec2(v1.x * v2.x, v1.y * v2.y);
+        }
+
+        public static NodeVec2 operator /(NodeVec2 v1, NodeVec2 v2)
+        {
+            return new NodeVec2(v1.x / v2.x, v1.y / v2.y);
+        }
+    }
+
     public abstract class Node : IDisposable
     {
         public event Action<Node> Changed;
@@ -32,7 +65,7 @@ namespace NodeSystem
 
         public string Name { get; private set; }
         public string ID { get; private set; }
-        public Vector2 Position { get; set; }
+        public NodeVec2 Position { get; set; }
 
         public Node()
         {

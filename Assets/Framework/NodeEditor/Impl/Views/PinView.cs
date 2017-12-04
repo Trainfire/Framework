@@ -14,7 +14,7 @@ namespace Framework.NodeEditorViews
         {
             Pin = pin;
             LocalRect = localRect;
-            ScreenPosition = LocalRect.position + pin.Node.Position;
+            ScreenPosition = LocalRect.position + pin.Node.Position.ToVec2();
             ScreenRect = new Rect(ScreenPosition.x, ScreenPosition.y, LocalRect.width, LocalRect.height);
         }
     }
