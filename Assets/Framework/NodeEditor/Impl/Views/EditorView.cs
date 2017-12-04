@@ -28,7 +28,7 @@ namespace Framework.NodeEditorViews
             GraphView = AddView(new NodeEditorGraphView());
             ContextMenu = AddView(new NodeEditorContextMenuView());
             MenuView = AddView(new NodeEditorMenuStripView());
-            ConnectorView = AddView(new NodeEditorPinConnectorView());
+            ConnectorView = AddView(new NodeEditorPinConnectorView(GraphView));
             Properties = AddView(new NodeEditorPropertiesView());
             Debugger = AddView(new NodeEditorDebugView());
         }

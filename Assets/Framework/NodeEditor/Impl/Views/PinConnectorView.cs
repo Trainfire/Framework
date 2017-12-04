@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.Assertions;
 using NodeSystem;
 using NodeSystem.Editor;
 
@@ -7,27 +8,37 @@ namespace Framework.NodeEditorViews
     public class NodeEditorPinConnectorView : BaseView, INodeEditorPinConnectorView
     {
         public string Tooltip { get; set; }
-        public NodePin EndPin { set { _endPin = value; } }
+
+        public NodePin EndPin
+        {
+            set
+            {
+                Assert.IsTrue(_graphView.HasPinView(value));
+                _endPin = _graphView.GetPinView(value);
+            }
+        }
 
         private bool _isDrawing;
-        private NodePin _startPin;
-        private NodePin _endPin;
+        private NodeEditorPinView _startPin;
+        private NodeEditorPinView _endPin;
+        private NodeEditorGraphView _graphView;
+
+        public NodeEditorPinConnectorView(NodeEditorGraphView graphView) : base()
+        {
+            _graphView = graphView;
+        }
 
         public void EnterDrawState(NodePin startPin)
         {
             _isDrawing = true;
-            _startPin = startPin;
+            Assert.IsTrue(_graphView.HasPinView(startPin));
+            _startPin = _graphView.GetPinView(startPin);
         }
 
         public void EndDrawState()
         {
             _isDrawing = false;
             _startPin = null;
-        }
-
-        public void SetEndPin(NodePin pin)
-        {
-            _endPin = pin;
         }
 
         protected override void OnDraw()
@@ -40,8 +51,7 @@ namespace Framework.NodeEditorViews
                     return;
                 }
 
-                //NodeEditorConnectionDrawer.Draw(_startPin, InputListener.MousePosition);
-                NodeEditorConnectionDrawer.Draw(Vector2.zero, InputListener.MousePosition, Color.white);
+                NodeEditorConnectionDrawer.Draw(_startPin, InputListener.MousePosition);
 
                 if (_endPin != null)
                 {
@@ -56,12 +66,6 @@ namespace Framework.NodeEditorViews
                     }
                 }
             }
-        }
-
-        protected override void OnDispose()
-        {
-            _startPin = null;
-            _endPin = null;
         }
     }
 }

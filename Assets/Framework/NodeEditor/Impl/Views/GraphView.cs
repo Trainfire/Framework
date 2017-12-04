@@ -94,11 +94,6 @@ namespace Framework.NodeEditorViews
             });
         }
 
-        public bool HasNodeView(Node node)
-        {
-            return _nodeViews.ContainsKey(node);
-        }
-
         public NodeEditorNodeView GetNodeViewUnderMouse(Action<NodeEditorNodeView> callback = null)
         {
             NodeEditorNodeView nodeView = null;
@@ -113,6 +108,13 @@ namespace Framework.NodeEditorViews
             return nodeView;
         }
 
+        public NodeEditorPinView GetPinView(NodePin pin)
+        {
+            if (HasNodeView(pin.Node))
+                return _nodeViews[pin.Node].GetPinViewData(pin);
+            return null;
+        }
+
         public NodeEditorPinView GetPinViewUnderMouse(Action<NodeEditorPinView> OnPinExists = null)
         {
             NodeEditorPinView outPinView = null;
@@ -125,6 +127,16 @@ namespace Framework.NodeEditorViews
             }));
 
             return outPinView;
+        }
+
+        public bool HasNodeView(Node node)
+        {
+            return _nodeViews.ContainsKey(node);
+        }
+
+        public bool HasPinView(NodePin pin)
+        {
+            return HasNodeView(pin.Node) && _nodeViews[pin.Node].HasPinView(pin);
         }
 
         protected override void OnDispose()

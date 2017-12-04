@@ -127,6 +127,11 @@ namespace Framework.NodeEditorViews
             return pinUnderMouse != null ? pinUnderMouse : null;
         }
 
+        public bool HasPinView(NodePin pin)
+        {
+            return _pinViews.ContainsKey(pin);
+        }
+
         public NodeEditorPinView GetPinViewData(NodePin pin)
         {
             return _pinViews.ContainsKey(pin) ? _pinViews[pin] : null;
