@@ -1,5 +1,4 @@
 ﻿using System;
-using UnityEngine.Assertions;
 using NodeSystem.Editor;
 
 namespace NodeSystem
@@ -104,7 +103,7 @@ namespace NodeSystem
 
         void SetValue<T>(NodeConstantType pinTypeQualifier, T value)
         {
-            Assert.IsTrue(_pinType == pinTypeQualifier);
+            NodeEditor.Assertions.IsTrue(_pinType == pinTypeQualifier);
 
             if (_pinType == pinTypeQualifier)
             {

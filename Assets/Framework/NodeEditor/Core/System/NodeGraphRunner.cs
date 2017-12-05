@@ -1,5 +1,4 @@
-﻿using UnityEngine.Assertions;
-using NodeSystem.Editor;
+﻿using NodeSystem.Editor;
 
 namespace NodeSystem
 {
@@ -39,7 +38,7 @@ namespace NodeSystem
 
         void MoveNext()
         {
-            Assert.IsNotNull(_currentNode);
+            NodeEditor.Assertions.IsNotNull(_currentNode);
 
             NodeEditor.Logger.Log<NodeGraphRunner>("Move next: {0} ({1})", _currentNode.Name, _currentNode.ID);
 

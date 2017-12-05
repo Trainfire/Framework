@@ -1,8 +1,6 @@
-﻿using UnityEngine;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEngine.Assertions;
 using NodeSystem.Editor;
 
 namespace NodeSystem
@@ -119,7 +117,7 @@ namespace NodeSystem
 
         public void RemoveNode(Node node)
         {
-            Assert.IsTrue(Nodes.Contains(node), "Node Graph does not contain node.");
+            NodeEditor.Assertions.IsTrue(Nodes.Contains(node), "Node Graph does not contain node.");
 
             if (Nodes.Contains(node))
             {
@@ -170,10 +168,10 @@ namespace NodeSystem
         {
             bool hasConnection = Connections.Contains(connection);
 
-            Assert.IsFalse(hasConnection);
-            Assert.IsNotNull(connection.StartPin, "Attempted to connect two pins where the start pin was null.");
-            Assert.IsNotNull(connection.EndPin, "Attempted to connect two pins where the end pin was null.");
-            Assert.IsFalse(connection.StartPin == connection.EndPin, "Attempted to connect a pin to itself.");
+            NodeEditor.Assertions.IsFalse(hasConnection);
+            NodeEditor.Assertions.IsNotNull(connection.StartPin, "Attempted to connect two pins where the start pin was null.");
+            NodeEditor.Assertions.IsNotNull(connection.EndPin, "Attempted to connect two pins where the end pin was null.");
+            NodeEditor.Assertions.IsFalse(connection.StartPin == connection.EndPin, "Attempted to connect a pin to itself.");
             //Assert.IsFalse(connection.StartPin.WillPinConnectionCreateCircularDependency(connection.EndPin), "Pin connection would create a circular dependency!");
 
             NodeEditor.Logger.Log<NodeGraph>("Connected {0}:(1) to {2}:{3}", connection.StartNode.Name, connection.StartPin.Index, connection.EndNode.Name, connection.EndPin.Index);
@@ -208,7 +206,7 @@ namespace NodeSystem
         {
             bool containsConnection = Connections.Contains(connection);
 
-            Assert.IsTrue(containsConnection);
+            NodeEditor.Assertions.IsTrue(containsConnection);
 
             if (containsConnection)
             {
@@ -231,7 +229,7 @@ namespace NodeSystem
         public void SetSelection(Node node)
         {
             if (node != null)
-                Assert.IsTrue(Nodes.Contains(node));
+                NodeEditor.Assertions.IsTrue(Nodes.Contains(node));
             Selection = node;
             NodeSelected.InvokeSafe(Selection);
         }

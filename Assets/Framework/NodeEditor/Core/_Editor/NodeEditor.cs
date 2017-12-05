@@ -43,5 +43,21 @@ namespace NodeSystem.Editor
                     _logger = value;
             }
         }
+
+        private static INodeEditorAssertions _assertions;
+        public static INodeEditorAssertions Assertions
+        {
+            get
+            {
+                if (_assertions == null)
+                    _assertions = new NullNodeEditorAssertions();
+                return _assertions;
+            }
+            set
+            {
+                if (value != null)
+                    _assertions = value;
+            }
+        }
     }
 }

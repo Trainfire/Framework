@@ -1,5 +1,4 @@
-﻿using UnityEngine.Assertions;
-using System;
+﻿using System;
 
 namespace NodeSystem.Editor
 {
@@ -38,7 +37,7 @@ namespace NodeSystem.Editor
 
         void Save()
         {
-            Assert.IsNotNull(_graph, "Graph is null.");
+            NodeEditor.Assertions.IsNotNull(_graph, "Graph is null.");
 
             if (_graph != null)
             {
@@ -161,6 +160,22 @@ namespace NodeSystem.Editor
         void Log<TSource>(string message, params object[] args);
         void LogWarning<TSource>(string message, params object[] args);
         void LogError<TSource>(string message, params object[] args);
+    }
+
+    public interface INodeEditorAssertions
+    {
+        void IsFalse(bool condition, string message = "");
+        void IsTrue(bool condition, string message = "");
+        void IsNull<TObject>(TObject value, string message = "") where TObject : class;
+        void IsNotNull<TObject>(TObject value, string message = "") where TObject : class;
+    }
+
+    public class NullNodeEditorAssertions : INodeEditorAssertions
+    {
+        public void IsFalse(bool condition, string message) { }
+        public void IsNotNull<TObject>(TObject value, string message) where TObject : class { }
+        public void IsNull<TObject>(TObject value, string message) where TObject : class { }
+        public void IsTrue(bool condition, string message) { }
     }
 
     public class NullNodeEditorLogger : INodeEditorLogger

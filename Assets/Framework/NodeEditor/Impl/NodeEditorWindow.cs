@@ -1,8 +1,5 @@
-﻿using UnityEngine;
-using UnityEngine.Assertions;
+﻿using UnityEngine.Assertions;
 using UnityEditor;
-using System;
-using System.Collections.Generic;
 using Framework.NodeEditorViews;
 using NodeSystem;
 using NodeSystem.Editor;
@@ -26,9 +23,8 @@ namespace Framework
 
         public NodeEditorWindow()
         {
-            Assert.raiseExceptions = true;
-
             NodeEditor.Logger = new NodeEditorLogger();
+            NodeEditor.Assertions = new NodeEditorAssertions();
 
             _graph = new NodeGraph();
             _view = new NodeEditorView(_graph.Helper);
@@ -62,5 +58,33 @@ namespace Framework
         public void Log<TSource>(string message, params object[] args) { DebugEx.Log<TSource>(message, args); }
         public void LogError<TSource>(string message, params object[] args) { DebugEx.Log<TSource>(message, args); }
         public void LogWarning<TSource>(string message, params object[] args) { DebugEx.Log<TSource>(message, args); }
+    }
+
+    public class NodeEditorAssertions : INodeEditorAssertions
+    {
+        public NodeEditorAssertions(bool throwExceptionsOnAssert = true)
+        {
+            Assert.raiseExceptions = throwExceptionsOnAssert;
+        }
+
+        public void IsFalse(bool condition, string message)
+        {
+            Assert.IsFalse(condition, message);
+        }
+
+        public void IsTrue(bool condition, string message)
+        {
+            Assert.IsTrue(condition, message);
+        }
+
+        public void IsNotNull<TObject>(TObject value, string message) where TObject : class
+        {
+            Assert.IsNotNull(value, message);
+        }
+
+        public void IsNull<TObject>(TObject value, string message) where TObject : class
+        {
+            Assert.IsNull(value, message);
+        }
     }
 }

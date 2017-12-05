@@ -1,7 +1,4 @@
-﻿using Framework.NodeEditorViews;
-using NodeSystem;
-
-namespace NodeSystem.Editor
+﻿namespace NodeSystem.Editor
 {
     public interface INodeEditorPinConnectorView
     {

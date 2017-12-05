@@ -1,5 +1,4 @@
-﻿using UnityEngine.Assertions;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using NodeSystem.Editor;
@@ -145,7 +144,7 @@ namespace NodeSystem
 
         public NodePin<T> ChangePinType<T>(NodePin pin)
         {
-            Assert.IsTrue(Pins.Contains(pin), string.Format("'{0}' does not contains pin '{1}'.", Name, pin.Name));
+            NodeEditor.Assertions.IsTrue(Pins.Contains(pin), string.Format("'{0}' does not contains pin '{1}'.", Name, pin.Name));
 
             if (Pins.Contains(pin))
             {
