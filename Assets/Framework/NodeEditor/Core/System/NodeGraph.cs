@@ -87,7 +87,7 @@ namespace NodeSystem
             var nodeData = new NodeData();
             nodeData.Name = name == "" ? "Untitled Node" : name;
             nodeData.ClassType = typeof(TNode).ToString();
-            nodeData.ID = Guid.NewGuid().ToString();
+            nodeData.ID = GetNewGuid();
             nodeData.Position = new NodeVec2(50f, 50f);
 
             return AddNode(nodeData) as TNode;
@@ -135,6 +135,26 @@ namespace NodeSystem
                 connections.ForEach(x => Disconnect(x));
 
                 Edited.InvokeSafe(this);
+            }
+        }
+
+        public void Duplicate(List<Node> nodes)
+        {
+            NodeEditor.Assertions.IsNotNull(nodes);
+            nodes.ForEach(node => Duplicate(node));
+        }
+
+        public void Duplicate(Node node)
+        {
+            NodeEditor.Assertions.IsNotNull(node);
+
+            if (node != null)
+            {
+                var data = NodeData.Convert(node);
+                data.ID = GetNewGuid(); // Assign a new ID.
+
+                var duplicate = AddNode(data);
+                duplicate.Position += new NodeVec2(5f, 5f);
             }
         }
 
@@ -232,6 +252,11 @@ namespace NodeSystem
                 NodeEditor.Assertions.IsTrue(Nodes.Contains(node));
             Selection = node;
             NodeSelected.InvokeSafe(Selection);
+        }
+
+        string GetNewGuid()
+        {
+            return Guid.NewGuid().ToString();
         }
 
         #region Callbacks

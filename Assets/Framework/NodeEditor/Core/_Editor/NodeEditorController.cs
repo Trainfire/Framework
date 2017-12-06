@@ -72,15 +72,13 @@ namespace NodeSystem.Editor
 
         void Input_Duplicate()
         {
-            // TODO.
             if (_graph.Selection != null)
-                NodeEditor.Logger.Log<NodeEditorController>("Do a duplicate, yeah?");
+                _graph.Duplicate(_graph.Selection);
         }
 
         void Input_Delete()
         {
-            if (_graph.Selection != null)
-                _graph.RemoveNode(_graph.Selection);
+            _graph.RemoveNode(_graph.Selection);
         }
 
         void Input_RemoveAllNodes()
