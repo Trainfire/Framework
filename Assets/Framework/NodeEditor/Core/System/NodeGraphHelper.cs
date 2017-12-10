@@ -17,8 +17,21 @@ namespace NodeSystem
         public bool IsGraphDirty { get { return _graph.State.IsDirty; } }
         public bool IsGraphLoaded { get { return _graph.State.GraphLoaded; } }
         public Node SelectedNode { get { return _graph.Selection; } }
-        public int NodeCount { get { return _graph == null ? 0 : _graph.Nodes.Count; } }
-        public List<NodeConnection> Connections { get { return _graph != null ? _graph.Connections.ToList() : new List<NodeConnection>(); } }
+
+        public int NodeCount
+        {
+            get { return _graph != null ? _graph.Nodes.Count : 0; }
+        }
+
+        public List<NodeConnection> Connections
+        {
+            get { return _graph != null ? _graph.Connections.ToList() : new List<NodeConnection>(); }
+        }
+
+        public List<NodeGraphVariable> Variables
+        {
+            get { return _graph != null ? _graph.Variables.ToList() : new List<NodeGraphVariable>(); }
+        }
 
         private NodeGraph _graph;
 
@@ -81,6 +94,11 @@ namespace NodeSystem
                     return node.Pins[pinId];
             }
             return null;
+        }
+
+        void GetOrDefault<T>()
+        {
+
         }
 
         public static NodeGraphData GetGraphData(NodeGraph graph)

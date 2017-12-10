@@ -89,12 +89,20 @@ namespace NodeSystem
     }
 
     [Serializable]
+    public class NodeGraphVariableData
+    {
+        public string Name;
+        public string ID;
+    }
+
+    [Serializable]
     public class NodeGraphData
     {
         public string ID;
         public List<NodeData> Nodes;
         public List<NodeConnectionData> Connections;
         public List<NodeConstantData> Constants;
+        public List<NodeGraphVariable> Variables;
 
         public NodeGraphData()
         {
@@ -102,6 +110,7 @@ namespace NodeSystem
             Nodes = new List<NodeData>();
             Connections = new List<NodeConnectionData>();
             Constants = new List<NodeConstantData>();
+            Variables = new List<NodeGraphVariable>();
         }
 
         public NodeGraphData(NodeGraphData original)
@@ -110,6 +119,7 @@ namespace NodeSystem
             Nodes = original.Nodes;
             Connections = original.Connections;
             Constants = original.Constants;
+            Variables = original.Variables;
         }
     }
 }

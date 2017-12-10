@@ -10,7 +10,17 @@ namespace Framework.NodeEditorViews
 
         public override void Draw()
         {
-            GUILayout.Label("Todo.");
+            GUILayout.Label("Variables", EditorStyles.boldLabel);
+
+            foreach (var variable in GraphHelper.Variables)
+            {
+                GUILayout.Label(variable.Name);
+            }
+
+            GUILayout.BeginHorizontal();
+            GUILayout.Button("Add");
+            GUILayout.Button("Remove");
+            GUILayout.EndHorizontal();
         }
     }
 }

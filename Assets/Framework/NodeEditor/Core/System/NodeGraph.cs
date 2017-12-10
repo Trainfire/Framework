@@ -22,11 +22,13 @@ namespace NodeSystem
         public NodeGraphHelper Helper { get; private set; }
         public List<Node> Nodes { get; private set; }
         public List<NodeConnection> Connections { get; private set; }
+        public List<NodeGraphVariable> Variables { get; private set; }
 
         public NodeGraph()
         {
             Nodes = new List<Node>();
             Connections = new List<NodeConnection>();
+            Variables = new List<NodeGraphVariable>();
             Helper = new NodeGraphHelper(this);
             State = new NodeGraphState(this);
         }
@@ -74,6 +76,21 @@ namespace NodeSystem
             PostUnload.InvokeSafe(this);
 
             NodeEditor.Logger.Log<NodeGraph>("Graph cleared.");
+        }
+
+        public void AddVariable(NodeGraphVariableData graphVariableData)
+        {
+            NodeEditor.Assertions.IsFalse(Variables.Any(x => x.ID != graphVariableData.ID));
+            var variable = new NodeGraphVariable(graphVariableData);
+            Variables.Add(variable);
+            NodeEditor.Logger.Log<NodeGraph>("Added variable '{0}'", variable.ID);
+        }
+
+        public void RemoveVariable(NodeGraphVariable graphVariable)
+        {
+            NodeEditor.Assertions.IsTrue(Variables.Contains(graphVariable));
+            NodeEditor.Logger.Log<NodeGraph>("Removing variable '{0}'", graphVariable.ID);
+            Variables.Remove(graphVariable);
         }
 
         public void AddNode(NodeConstantData constantData)
