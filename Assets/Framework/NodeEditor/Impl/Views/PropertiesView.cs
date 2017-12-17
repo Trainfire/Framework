@@ -14,6 +14,8 @@ namespace Framework.NodeEditorViews
             GraphProperties,
         }
 
+        public GraphPropertiesView GraphProperties { get; private set; }
+
         DrawState _drawState;
         Dictionary<DrawState, NodeEditorPropertiesPanel> _stateViews;
 
@@ -21,9 +23,11 @@ namespace Framework.NodeEditorViews
         {
             base.OnInitialize();
 
+            GraphProperties = new GraphPropertiesView(GraphHelper);
+
             _stateViews = new Dictionary<DrawState, NodeEditorPropertiesPanel>();
             _stateViews.Add(DrawState.ContextualProperties, new ContextualPropertiesView(GraphHelper));
-            _stateViews.Add(DrawState.GraphProperties, new GraphPropertiesView(GraphHelper));
+            _stateViews.Add(DrawState.GraphProperties, GraphProperties);
         }
 
         protected override void OnDraw()

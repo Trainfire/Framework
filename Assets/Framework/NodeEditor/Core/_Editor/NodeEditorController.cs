@@ -23,6 +23,9 @@ namespace NodeSystem.Editor
             _eventListener.RevertGraph += RevertGraph;
             _eventListener.RunGraph += RunGraph;
 
+            _eventListener.AddGraphVariable += Input_AddGraphVariable;
+            _eventListener.RemoveGraphVariable += Input_RemoveGraphVariable;
+
             _runner = new NodeGraphRunner();
         }
 
@@ -95,6 +98,16 @@ namespace NodeSystem.Editor
                 factory.Instantiate(addNodeEvent.NodeId, _graph);
             }
         }
+
+        void Input_RemoveGraphVariable(RemoveGraphVariableEvent removeGraphVariableEvent)
+        {
+            // TODO.
+        }
+
+        void Input_AddGraphVariable(AddGraphVariableEvent addGraphVariableEvent)
+        {
+            
+        }
         #endregion
 
         public void Destroy()
@@ -148,6 +161,8 @@ namespace NodeSystem.Editor
         event Action RevertGraph;
 
         event Action<AddNodeEvent> AddNode;
+        event Action<AddGraphVariableEvent> AddGraphVariable;
+        event Action<RemoveGraphVariableEvent> RemoveGraphVariable;
         event Action RemoveAllNodes;
         event Action Duplicate;
         event Action Delete;
@@ -183,7 +198,7 @@ namespace NodeSystem.Editor
         public void LogWarning<TSource>(string message, params object[] args) { }
     }
 
-    #region Events
+#region Events
 
     public class AddNodeEvent
     {
@@ -194,5 +209,25 @@ namespace NodeSystem.Editor
             NodeId = nodeId;
         }
     }
-#endregion
+
+    public class AddGraphVariableEvent
+    {
+        public string VariableName { get; private set; }
+
+        public AddGraphVariableEvent(string variableName)
+        {
+            VariableName = variableName;
+        }
+    }
+
+    public class RemoveGraphVariableEvent
+    {
+        public string VariableId { get; private set; }
+
+        public RemoveGraphVariableEvent(string variableId)
+        {
+            VariableId = variableId;
+        }
+    }
+    #endregion
 }

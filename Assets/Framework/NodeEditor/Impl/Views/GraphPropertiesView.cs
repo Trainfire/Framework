@@ -1,11 +1,16 @@
 ﻿using UnityEngine;
 using UnityEditor;
 using NodeSystem;
+using System;
+using NodeSystem.Editor;
 
 namespace Framework.NodeEditorViews
 {
     public class GraphPropertiesView : NodeEditorPropertiesPanel
     {
+        public event Action<AddGraphVariableEvent> AddVariable;
+        public event Action<RemoveGraphVariableEvent> RemoveVariable;
+
         public GraphPropertiesView(NodeGraphHelper graphHelper) : base(graphHelper) { }
 
         public override void Draw()
@@ -18,8 +23,13 @@ namespace Framework.NodeEditorViews
             }
 
             GUILayout.BeginHorizontal();
-            GUILayout.Button("Add");
-            GUILayout.Button("Remove");
+
+            if (GUILayout.Button("Add"))
+                AddVariable.InvokeSafe(new AddGraphVariableEvent("Test"));
+
+            if (GUILayout.Button("Remove"))
+                RemoveVariable.InvokeSafe(new RemoveGraphVariableEvent("Todo"));
+
             GUILayout.EndHorizontal();
         }
     }

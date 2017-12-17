@@ -21,6 +21,8 @@ namespace Framework
         public event Action RevertGraph;
 
         public event Action<AddNodeEvent> AddNode;
+        public event Action<AddGraphVariableEvent> AddGraphVariable;
+        public event Action<RemoveGraphVariableEvent> RemoveGraphVariable;
         public event Action RemoveAllNodes;
 
         public event Action Duplicate;
@@ -42,12 +44,18 @@ namespace Framework
             _editorView.MenuView.Run += MenuView_Run;
             _editorView.MenuView.Save += MenuView_Save;
 
+            _editorView.Properties.GraphProperties.AddVariable += GraphProperties_AddVariable;
+            _editorView.Properties.GraphProperties.RemoveVariable += GraphProperties_RemoveVariable;
+
             _inputListener = new EditorInputListener();
             _inputListener.DeletePressed += InputListener_DeletePressed;
             _inputListener.MouseDown += InputListener_MouseDown;
             _inputListener.MouseUp += InputListener_MouseUp;
             _inputListener.KeyPressed += InputListener_KeyPressed;
         }
+
+        void GraphProperties_AddVariable(AddGraphVariableEvent obj) { AddGraphVariable.InvokeSafe(obj); }
+        void GraphProperties_RemoveVariable(RemoveGraphVariableEvent obj) { RemoveGraphVariable.InvokeSafe(obj); }
 
         void MenuView_Revert() { RevertGraph.InvokeSafe(); }
         void MenuView_Run() { RunGraph.InvokeSafe(); }
