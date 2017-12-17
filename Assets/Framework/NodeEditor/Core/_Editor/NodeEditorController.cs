@@ -101,12 +101,12 @@ namespace NodeSystem.Editor
 
         void Input_RemoveGraphVariable(RemoveGraphVariableEvent removeGraphVariableEvent)
         {
-            // TODO.
+            _graph.RemoveVariable(removeGraphVariableEvent.Variable);
         }
 
         void Input_AddGraphVariable(AddGraphVariableEvent addGraphVariableEvent)
         {
-            
+            _graph.AddVariable(addGraphVariableEvent.VariableName, addGraphVariableEvent.VariableType);
         }
         #endregion
 
@@ -213,20 +213,22 @@ namespace NodeSystem.Editor
     public class AddGraphVariableEvent
     {
         public string VariableName { get; private set; }
+        public Type VariableType { get; private set; }
 
-        public AddGraphVariableEvent(string variableName)
+        public AddGraphVariableEvent(string variableName, Type variableType)
         {
             VariableName = variableName;
+            VariableType = variableType;
         }
     }
 
     public class RemoveGraphVariableEvent
     {
-        public string VariableId { get; private set; }
+        public NodeGraphVariable Variable { get; private set; }
 
-        public RemoveGraphVariableEvent(string variableId)
+        public RemoveGraphVariableEvent(NodeGraphVariable variable)
         {
-            VariableId = variableId;
+            Variable = variable;
         }
     }
     #endregion

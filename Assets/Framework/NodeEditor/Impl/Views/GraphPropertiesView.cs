@@ -19,16 +19,22 @@ namespace Framework.NodeEditorViews
 
             foreach (var variable in GraphHelper.Variables)
             {
-                GUILayout.Label(variable.Name);
+                GUILayout.BeginHorizontal();
+                GUILayout.Label(variable.Name, GUILayout.ExpandWidth(true));
+                GUILayout.Label(variable.Type);
+                GUILayout.EndHorizontal();
             }
 
             GUILayout.BeginHorizontal();
 
             if (GUILayout.Button("Add"))
-                AddVariable.InvokeSafe(new AddGraphVariableEvent("Test"));
+                AddVariable.InvokeSafe(new AddGraphVariableEvent("Test", typeof(float)));
 
-            if (GUILayout.Button("Remove"))
-                RemoveVariable.InvokeSafe(new RemoveGraphVariableEvent("Todo"));
+            if (GraphHelper.Variables.Count > 0)
+            {
+                if (GUILayout.Button("Remove"))
+                    RemoveVariable.InvokeSafe(new RemoveGraphVariableEvent(GraphHelper.Variables[0]));
+            }
 
             GUILayout.EndHorizontal();
         }

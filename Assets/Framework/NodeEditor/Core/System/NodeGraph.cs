@@ -55,6 +55,7 @@ namespace NodeSystem
                 }
             });
 
+            graphData.Variables.ForEach(variable => AddVariable(variable));
             graphData.Connections.ForEach(connectionData => Connect(connectionData));
 
             if (PostLoad != null)
@@ -65,11 +66,9 @@ namespace NodeSystem
         {
             PreUnload.InvokeSafe(this);
 
-            var nodesToClear = Nodes.ToList();
-            nodesToClear.ForEach(x => RemoveNode(x));
-
-            var connectionsToClear = Connections.ToList();
-            Connections.ForEach(x => Disconnect(x));
+            Nodes.ToList().ForEach(x => RemoveNode(x));
+            Connections.ToList().ForEach(x => Disconnect(x));
+            Variables.Clear();
 
             Selection = null;
 
@@ -78,19 +77,46 @@ namespace NodeSystem
             NodeEditor.Logger.Log<NodeGraph>("Graph cleared.");
         }
 
+        public void AddVariable(string name, Type type)
+        {
+            var data = new NodeGraphVariableData
+            {
+                Name = name,
+                ID = GetNewGuid(),
+                VariableType = type.ToString()
+            };
+
+            AddVariable(data);
+        }
+
         public void AddVariable(NodeGraphVariableData graphVariableData)
         {
-            NodeEditor.Assertions.IsFalse(Variables.Any(x => x.ID != graphVariableData.ID));
-            var variable = new NodeGraphVariable(graphVariableData);
+            NodeEditor.Assertions.IsFalse(Variables.Any(x => x.ID == graphVariableData.ID), "Tried to spawn a variable that has the same ID as an existing variable.");
+
+            // Make instance using variable type. IE, if the type is float, make an instance of NodeGraphVariable<float>.
+            var type = typeof(NodeGraphVariable<>).MakeGenericType(Type.GetType(graphVariableData.VariableType));
+            var variable = Activator.CreateInstance(type, graphVariableData) as NodeGraphVariable;
+
             Variables.Add(variable);
-            NodeEditor.Logger.Log<NodeGraph>("Added variable '{0}'", variable.ID);
+
+            NodeEditor.Logger.Log<NodeGraph>("Added variable '{0} ({1})'", variable.Name, variable.GetType());
+
+            Edited.InvokeSafe(this);
+        }
+
+        public void RemoveVariable(string variableID)
+        {
+            NodeEditor.Assertions.IsTrue(Variables.Any(x => x.ID == variableID));
+            var variable = Variables.Find(x => x.ID == variableID);
+            RemoveVariable(variable);
         }
 
         public void RemoveVariable(NodeGraphVariable graphVariable)
         {
             NodeEditor.Assertions.IsTrue(Variables.Contains(graphVariable));
-            NodeEditor.Logger.Log<NodeGraph>("Removing variable '{0}'", graphVariable.ID);
+            NodeEditor.Logger.Log<NodeGraph>("Removing variable '{0}'", graphVariable.Name);
             Variables.Remove(graphVariable);
+            Edited.InvokeSafe(this);
         }
 
         public void AddNode(NodeConstantData constantData)

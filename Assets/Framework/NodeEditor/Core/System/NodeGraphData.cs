@@ -82,10 +82,15 @@ namespace NodeSystem
             TargetPinId = targetPinId;
         }
 
-        public NodeConnectionData(NodePin startPin, NodePin endPin) : this(startPin.Node.ID, startPin.Index, endPin.Node.ID, endPin.Index)
+        public static NodeConnectionData Convert(NodeConnection connection)
         {
-
+            return new NodeConnectionData(connection.StartNode.ID, connection.StartPin.Index, connection.EndNode.ID, connection.EndPin.Index);
         }
+
+        //public NodeConnectionData(NodePin startPin, NodePin endPin) : this(startPin.Node.ID, startPin.Index, endPin.Node.ID, endPin.Index)
+        //{
+
+        //}
     }
 
     [Serializable]
@@ -93,6 +98,19 @@ namespace NodeSystem
     {
         public string Name;
         public string ID;
+        public string VariableType;
+
+        public NodeGraphVariableData() { }
+
+        public static NodeGraphVariableData Convert(NodeGraphVariable variable)
+        {
+            return new NodeGraphVariableData
+            {
+                Name = variable.Name,
+                ID = variable.ID,
+                VariableType = variable.Type,
+            };
+        }
     }
 
     [Serializable]
@@ -102,7 +120,7 @@ namespace NodeSystem
         public List<NodeData> Nodes;
         public List<NodeConnectionData> Connections;
         public List<NodeConstantData> Constants;
-        public List<NodeGraphVariable> Variables;
+        public List<NodeGraphVariableData> Variables;
 
         public NodeGraphData()
         {
@@ -110,7 +128,7 @@ namespace NodeSystem
             Nodes = new List<NodeData>();
             Connections = new List<NodeConnectionData>();
             Constants = new List<NodeConstantData>();
-            Variables = new List<NodeGraphVariable>();
+            Variables = new List<NodeGraphVariableData>();
         }
 
         public NodeGraphData(NodeGraphData original)

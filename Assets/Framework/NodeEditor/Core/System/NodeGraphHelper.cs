@@ -96,11 +96,6 @@ namespace NodeSystem
             return null;
         }
 
-        void GetOrDefault<T>()
-        {
-
-        }
-
         public static NodeGraphData GetGraphData(NodeGraph graph)
         {
             NodeEditor.Logger.Log<NodeGraphState>("Serializing graph state...");
@@ -120,10 +115,8 @@ namespace NodeSystem
                 }
             });
 
-            graph.Connections.ForEach(connection =>
-            {
-                outGraphData.Connections.Add(new NodeConnectionData(connection.StartPin, connection.EndPin));
-            });
+            graph.Connections.ForEach(connection => outGraphData.Connections.Add(NodeConnectionData.Convert(connection)));
+            graph.Variables.ForEach(variable => outGraphData.Variables.Add(NodeGraphVariableData.Convert(variable)));
 
             return outGraphData;
         }
