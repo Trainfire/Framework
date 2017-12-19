@@ -109,6 +109,10 @@ namespace NodeSystem
                 {
                     outGraphData.Constants.Add(NodeConstantData.Convert(node as NodeConstant));
                 }
+                else if (node.GetType() == typeof(NodeVariable))
+                {
+                    outGraphData.VariableNodes.Add(NodeVariableData.Convert(node as NodeVariable));
+                }
                 else
                 {
                     outGraphData.Nodes.Add(NodeData.Convert(node));

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NodeSystem;
+using System;
 
 namespace NodeSystem.Editor
 {
@@ -18,13 +19,15 @@ namespace NodeSystem.Editor
             _eventListener.Duplicate += Input_Duplicate;
             _eventListener.Delete += Input_Delete;
             _eventListener.SelectNode += Input_SelectNode;
-            _eventListener.AddNode += Input_AddNode;
             _eventListener.SaveGraph += Save;
             _eventListener.RevertGraph += RevertGraph;
             _eventListener.RunGraph += RunGraph;
 
-            _eventListener.AddGraphVariable += Input_AddGraphVariable;
-            _eventListener.RemoveGraphVariable += Input_RemoveGraphVariable;
+            _eventListener.AddGraphVariable += Event_AddGraphVariable;
+            _eventListener.RemoveGraphVariable += Event_RemoveGraphVaraible;
+
+            _eventListener.AddNode += Event_AddNode;
+            _eventListener.AddVariableNode += Event_AddVariableNode;
 
             _runner = new NodeGraphRunner();
         }
@@ -67,7 +70,7 @@ namespace NodeSystem.Editor
             _graph.Unload();
         }
 
-        #region Input Callbacks
+        #region Event Callbacks
         void Input_SelectNode(Node node)
         {
             _graph.SetSelection(node);
@@ -90,7 +93,7 @@ namespace NodeSystem.Editor
                 _graph.Unload();
         }
 
-        void Input_AddNode(AddNodeEvent addNodeEvent)
+        void Event_AddNode(AddNodeEvent addNodeEvent)
         {
             if (_graph != null)
             {
@@ -99,12 +102,17 @@ namespace NodeSystem.Editor
             }
         }
 
-        void Input_RemoveGraphVariable(RemoveGraphVariableEvent removeGraphVariableEvent)
+        void Event_AddVariableNode(AddNodeVariableArgs addNodeVariableArgs)
+        {
+            _graph.AddNode(addNodeVariableArgs);
+        }
+
+        void Event_RemoveGraphVaraible(RemoveGraphVariableEvent removeGraphVariableEvent)
         {
             _graph.RemoveVariable(removeGraphVariableEvent.Variable);
         }
 
-        void Input_AddGraphVariable(AddGraphVariableEvent addGraphVariableEvent)
+        void Event_AddGraphVariable(AddGraphVariableEvent addGraphVariableEvent)
         {
             _graph.AddVariable(addGraphVariableEvent.VariableName, addGraphVariableEvent.VariableType);
         }
@@ -115,7 +123,7 @@ namespace NodeSystem.Editor
             _eventListener.Delete -= Input_Delete;
             _eventListener.Duplicate -= Input_Duplicate;
             _eventListener.SelectNode -= Input_SelectNode;
-            _eventListener.AddNode -= Input_AddNode;
+            _eventListener.AddNode -= Event_AddNode;
             _eventListener.RemoveAllNodes -= Input_RemoveAllNodes;
             _eventListener.SaveGraph -= Save;
             _eventListener.RevertGraph -= RevertGraph;
@@ -161,6 +169,7 @@ namespace NodeSystem.Editor
         event Action RevertGraph;
 
         event Action<AddNodeEvent> AddNode;
+        event Action<AddNodeVariableArgs> AddVariableNode;
         event Action<AddGraphVariableEvent> AddGraphVariable;
         event Action<RemoveGraphVariableEvent> RemoveGraphVariable;
         event Action RemoveAllNodes;
@@ -199,7 +208,6 @@ namespace NodeSystem.Editor
     }
 
 #region Events
-
     public class AddNodeEvent
     {
         public string NodeId { get; private set; }
@@ -207,6 +215,18 @@ namespace NodeSystem.Editor
         public AddNodeEvent(string nodeId)
         {
             NodeId = nodeId;
+        }
+    }
+
+    public class AddNodeVariableArgs
+    {
+        public NodeGraphVariable Variable { get; private set; }
+        public NodeGraphVariableAccessorType AccessorType { get; private set; }
+
+        public AddNodeVariableArgs(NodeGraphVariable variable, NodeGraphVariableAccessorType accessorType)
+        {
+            Variable = variable;
+            AccessorType = accessorType;
         }
     }
 

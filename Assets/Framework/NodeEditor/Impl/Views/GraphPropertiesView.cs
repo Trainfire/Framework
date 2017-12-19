@@ -10,6 +10,7 @@ namespace Framework.NodeEditorViews
     {
         public event Action<AddGraphVariableEvent> AddVariable;
         public event Action<RemoveGraphVariableEvent> RemoveVariable;
+        public event Action<AddNodeVariableArgs> AddVariableNode;
 
         public GraphPropertiesView(NodeGraphHelper graphHelper) : base(graphHelper) { }
 
@@ -35,6 +36,21 @@ namespace Framework.NodeEditorViews
                 if (GUILayout.Button("Remove"))
                     RemoveVariable.InvokeSafe(new RemoveGraphVariableEvent(GraphHelper.Variables[0]));
             }
+
+            GUILayout.EndHorizontal();
+
+            GUILayout.BeginHorizontal();
+
+            // BEGIN TEMP GARBAGE CODE
+            if (GUILayout.Button("Get"))
+                AddVariableNode.InvokeSafe(new AddNodeVariableArgs(GraphHelper.Variables[0], NodeGraphVariableAccessorType.Get));
+
+            if (GUILayout.Button("Get Set"))
+                AddVariableNode.InvokeSafe(new AddNodeVariableArgs(GraphHelper.Variables[0], NodeGraphVariableAccessorType.GetSet));
+
+            if (GUILayout.Button("Set"))
+                AddVariableNode.InvokeSafe(new AddNodeVariableArgs(GraphHelper.Variables[0], NodeGraphVariableAccessorType.Set));
+            // END TEMP GARBAGE CODE
 
             GUILayout.EndHorizontal();
         }

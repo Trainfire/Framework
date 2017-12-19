@@ -104,6 +104,24 @@ namespace NodeSystem
             return pin;
         }
 
+        protected NodePin AddPin(string name, Type type, bool isOutput)
+        {
+            var classType = typeof(NodePin<>).MakeGenericType(type);
+            var pin = Activator.CreateInstance(classType, name, Pins.Count, this) as NodePin;
+            RegisterPin(pin);
+
+            if (isOutput)
+            {
+                OutputPins.Add(pin);
+            }
+            else
+            {
+                InputPins.Add(pin);
+            }
+
+            return pin;
+        }
+
         protected NodePin<NodePinTypeExecute> AddExecuteInPin()
         {
             var pin = new NodePin<NodePinTypeExecute>("In", Pins.Count, this);

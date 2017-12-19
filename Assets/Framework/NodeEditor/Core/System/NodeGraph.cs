@@ -41,21 +41,10 @@ namespace NodeSystem
 
             NodeEditor.Logger.Log<NodeGraph>("Reading from graph data...");
 
-            // TODO: Find a nicer way to do this...
-            var allNodes = graphData.Nodes.Concat(graphData.Constants.Cast<NodeData>()).ToList();
-            allNodes.ForEach(nodeData =>
-            {
-                if (nodeData.GetType() == typeof(NodeConstantData))
-                {
-                    AddNode(nodeData as NodeConstantData);
-                }
-                else
-                {
-                    AddNode(nodeData);
-                }
-            });
-
             graphData.Variables.ForEach(variable => AddVariable(variable));
+            graphData.Nodes.ForEach(x => AddNode(x));
+            graphData.Constants.ForEach(x => AddNode(x as NodeConstantData));
+            graphData.VariableNodes.ForEach(x => AddNode(x as NodeVariableData));
             graphData.Connections.ForEach(connectionData => Connect(connectionData));
 
             if (PostLoad != null)
@@ -125,14 +114,34 @@ namespace NodeSystem
             constant.Set(constantData);
         }
 
+        public void AddNode(AddNodeVariableArgs addNodeVariableArgs)
+        {
+            var variableData = new NodeVariableData(addNodeVariableArgs.Variable, addNodeVariableArgs.AccessorType, GetNewGuid());
+            var node = AddNode<NodeVariable>();
+            node.Set(addNodeVariableArgs.Variable, addNodeVariableArgs.AccessorType);
+        }
+
+        public void AddNode(NodeVariableData nodeVariableData)
+        {
+            var nodeVariable = AddNode<NodeVariable, NodeVariableData>(nodeVariableData);
+            var variable = Variables.Where(x => x.ID == nodeVariableData.VariableID).FirstOrDefault();
+
+            NodeEditor.Assertions.IsNotNull(variable);
+
+            if (variable != null)
+                nodeVariable.Set(variable, nodeVariableData.AccessorType);
+
+            NodeEditor.Logger.Log<NodeGraph>("Spawn variable node for '{0}' ({1})", variable.Name, nodeVariableData.AccessorType);
+        }
+
         public TNode AddNode<TNode>(string name = "") where TNode : Node
         {
-            var nodeData = new NodeData();
-            nodeData.Name = name == "" ? "Untitled Node" : name;
-            nodeData.ClassType = typeof(TNode).ToString();
-            nodeData.ID = GetNewGuid();
-            nodeData.Position = new NodeVec2(50f, 50f);
+            var nodeData = new NodeData(typeof(TNode), GetNewGuid(), name);
+            return AddNode(nodeData) as TNode;
+        }
 
+        public TNode AddNode<TNode, TNodeData>(TNodeData nodeData) where TNode : Node where TNodeData : NodeData
+        {
             return AddNode(nodeData) as TNode;
         }
 

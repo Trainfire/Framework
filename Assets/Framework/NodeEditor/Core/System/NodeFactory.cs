@@ -42,6 +42,7 @@ namespace NodeSystem
 
             const string misc = "Misc";
             Register<NodeConstant>("Constant", misc);
+            Register<NodeVariable>("Variable", misc);
         }
 
         void Register<T>(string name, string folder = "") where T : Node
