@@ -34,7 +34,7 @@ namespace Framework.NodeEditorViews
         {
             var style = new GUIStyle();
             var tex = new Texture2D(1, 1);
-            tex.SetPixel(0, 0, new Color(0.5f, 0.5f, 0.5f, 1f));
+            tex.SetPixel(0, 0, new Color(0.7f, 0.7f, 0.7f, 1f));
             tex.Apply();
             style.normal.background = tex;
 

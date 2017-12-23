@@ -1,4 +1,5 @@
 ﻿using System;
+using NodeSystem.Editor;
 
 namespace NodeSystem
 {
@@ -9,66 +10,55 @@ namespace NodeSystem
         Set,
     }
 
-    public abstract class NodeGraphVariable
+    public class NodeGraphVariableTypeChangeEvent
     {
+        public NodeGraphVariable Variable { get; private set; }
+        public Type OldType { get; private set; }
+        public Type NewType { get; private set; }
+
+        public NodeGraphVariableTypeChangeEvent(NodeGraphVariable variable, Type oldType, Type newType)
+        {
+            Variable = variable;
+            OldType = oldType;
+            NewType = newType;
+        }
+    }
+
+    public class NodeGraphVariable
+    {
+        public event Action<NodeGraphVariableTypeChangeEvent> PreTypeChanged;
+        public event Action<NodeGraphVariableTypeChangeEvent> PostTypeChanged;
+
         public string Name { get; private set; }
         public string ID { get; private set; }
-        public string Type { get; protected set; }
 
-        public Type ActualType { get { return System.Type.GetType(Type); } }
+        public Type WrappedType { get { return WrappedValue != null ? WrappedValue.ValueType : null; } }
+        public NodeValueWrapper WrappedValue { get; private set; }
 
         public NodeGraphVariable(NodeGraphVariableData data)
         {
             Name = data.Name;
             ID = data.ID;
-            Type = data.VariableType;
+
+            SetValueWrapper(Type.GetType(data.VariableType));
+            WrappedValue.SetFromString(data.Value);
         }
 
-        public void Parse(string value)
+        /// <summary>
+        /// Sets the wrapped value based on the specified type.
+        /// </summary>
+        public void SetValueWrapper(Type wrappedValueType)
         {
-            SetIfType(typeof(float), () =>
-            {
-                float outValue;
-                float.TryParse(value, out outValue);
-                Set(outValue);
-            });
+            if (wrappedValueType == WrappedType)
+                return;
 
-            SetIfType(typeof(int), () =>
-            {
-                int outValue;
-                int.TryParse(value, out outValue);
-                Set(outValue);
-            });
+            PreTypeChanged.InvokeSafe(new NodeGraphVariableTypeChangeEvent(this, WrappedType, wrappedValueType));
 
-            SetIfType(typeof(bool), () =>
-            {
-                bool outValue;
-                bool.TryParse(value, out outValue);
-                Set(outValue);
-            });
+            NodeEditor.Assertions.IsNotNull(wrappedValueType);
+            var classType = typeof(NodeValueWrapper<>).MakeGenericType(wrappedValueType);
+            WrappedValue = Activator.CreateInstance(classType) as NodeValueWrapper;
 
-            SetIfType(typeof(string), () => Set(value));
-        }
-
-        void SetIfType(Type type, Action onIsType)
-        {
-            if (ActualType == type)
-                onIsType();
-        }
-
-        protected virtual void Set(float value) { (this as NodeGraphVariable<float>).Value = value; }
-        protected virtual void Set(int value) { (this as NodeGraphVariable<int>).Value = value; }
-        protected virtual void Set(bool value) { (this as NodeGraphVariable<bool>).Value = value; }
-        protected virtual void Set(string value) { (this as NodeGraphVariable<string>).Value = value; }
-    }
-
-    public class NodeGraphVariable<T> : NodeGraphVariable
-    {
-        public T Value { get; set; }
-
-        public NodeGraphVariable(NodeGraphVariableData data) : base(data)
-        {
-            Value = default(T);
+            PostTypeChanged.InvokeSafe(new NodeGraphVariableTypeChangeEvent(this, WrappedType, wrappedValueType));
         }
     }
 }

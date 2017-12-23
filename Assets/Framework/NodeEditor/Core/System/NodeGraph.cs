@@ -82,13 +82,10 @@ namespace NodeSystem
         {
             NodeEditor.Assertions.IsFalse(Variables.Any(x => x.ID == graphVariableData.ID), "Tried to spawn a variable that has the same ID as an existing variable.");
 
-            // Make instance using variable type. IE, if the type is float, make an instance of NodeGraphVariable<float>.
-            var type = typeof(NodeGraphVariable<>).MakeGenericType(Type.GetType(graphVariableData.VariableType));
-            var variable = Activator.CreateInstance(type, graphVariableData) as NodeGraphVariable;
+            var variable = new NodeGraphVariable(graphVariableData);
+            Variables.Add(new NodeGraphVariable(graphVariableData));
 
-            Variables.Add(variable);
-
-            NodeEditor.Logger.Log<NodeGraph>("Added variable '{0} ({1})'", variable.Name, variable.GetType());
+            NodeEditor.Logger.Log<NodeGraph>("Added variable '{0}' ({1})", variable.Name, variable.GetType());
 
             Edited.InvokeSafe(this);
         }

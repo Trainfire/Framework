@@ -160,6 +160,11 @@ namespace NodeSystem
             }
         }
 
+        protected void RemoveAllPins()
+        {
+            Pins.ToList().ForEach(pin => RemovePin(pin));
+        }
+
         public NodePin<T> ChangePinType<T>(NodePin pin)
         {
             NodeEditor.Assertions.IsTrue(Pins.Contains(pin), string.Format("'{0}' does not contains pin '{1}'.", Name, pin.Name));
@@ -241,6 +246,16 @@ namespace NodeSystem
         void RemovePin(NodePin pin)
         {
             Pins.Remove(pin);
+
+            if (pin.IsInput())
+            {
+                InputPins.Remove(pin);
+            }
+            else
+            {
+                OutputPins.Remove(pin);
+            }
+
             PinRemoved.InvokeSafe(pin);
             pin.Connected -= OnPinConnected;
             TriggerChange();

@@ -39,6 +39,8 @@ namespace NodeSystem
     {
         private static Dictionary<Type, NodePinType> _registry;
 
+        public static List<NodePinType> AllTypes { get { return _registry.Values.ToList(); } }
+
         static NodePinTypeRegistry()
         {
             _registry = new Dictionary<Type, NodePinType>();
@@ -66,6 +68,11 @@ namespace NodeSystem
         public static NodePinType Get<T>()
         {
             return _registry[typeof(T)]; 
+        }
+
+        public static NodePinType Get(Type type)
+        {
+            return _registry[type];
         }
 
         public static List<NodePinType> GetConstants()

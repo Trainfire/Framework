@@ -136,6 +136,7 @@ namespace NodeSystem
         public string Name;
         public string ID;
         public string VariableType;
+        public string Value;
 
         public NodeGraphVariableData() { }
 
@@ -145,7 +146,8 @@ namespace NodeSystem
             {
                 Name = variable.Name,
                 ID = variable.ID,
-                VariableType = variable.Type,
+                VariableType = variable.WrappedType.ToString(),
+                Value = variable.WrappedValue.ToString(),
             };
         }
     }

@@ -2,6 +2,7 @@
 using UnityEditor;
 using NodeSystem;
 using System;
+using System.Linq;
 using NodeSystem.Editor;
 
 namespace Framework.NodeEditorViews
@@ -18,13 +19,7 @@ namespace Framework.NodeEditorViews
         {
             GUILayout.Label("Variables", EditorStyles.boldLabel);
 
-            foreach (var variable in GraphHelper.Variables)
-            {
-                GUILayout.BeginHorizontal();
-                GUILayout.Label(variable.Name, GUILayout.ExpandWidth(true));
-                GUILayout.Label(variable.Type);
-                GUILayout.EndHorizontal();
-            }
+            GraphHelper.Variables.ForEach(variable => DrawVariable(variable));
 
             GUILayout.BeginHorizontal();
 
@@ -51,6 +46,43 @@ namespace Framework.NodeEditorViews
             if (GUILayout.Button("Set"))
                 AddVariableNode.InvokeSafe(new AddNodeVariableArgs(GraphHelper.Variables[0], NodeGraphVariableAccessorType.Set));
             // END TEMP GARBAGE CODE
+
+            GUILayout.EndHorizontal();
+        }
+
+        void DrawVariable(NodeGraphVariable variable)
+        {
+            GUILayout.BeginHorizontal();
+
+            GUILayout.Label(variable.Name, GUILayout.MinWidth(100f));
+
+            var selectedIndex = NodePinTypeRegistry.AllTypes.IndexOf(NodePinTypeRegistry.Get(variable.WrappedType));
+            selectedIndex = EditorGUILayout.Popup(selectedIndex, NodePinTypeRegistry.AllTypes.Select(x => x.Name).ToArray());
+
+            variable.SetValueWrapper(NodePinTypeRegistry.AllTypes[selectedIndex].WrappedType);
+
+            var fieldValue = variable.WrappedValue.ToString();
+
+            if (variable.WrappedType == typeof(float))
+            {
+                var variableAsType = variable.WrappedValue as NodeValueWrapper<float>;
+                variableAsType.Set(EditorGUILayout.FloatField(variableAsType.Value));
+            }
+            else if (variable.WrappedType == typeof(int))
+            {
+                var variableAsType = variable.WrappedValue as NodeValueWrapper<int>;
+                variableAsType.Set(EditorGUILayout.IntField(variableAsType.Value));
+            }
+            else if (variable.WrappedType == typeof(bool))
+            {
+                var variableAsType = variable.WrappedValue as NodeValueWrapper<bool>;
+                variableAsType.Set(EditorGUILayout.Toggle(variableAsType.Value));
+            }
+            else if (variable.WrappedType == typeof(string))
+            {
+                var variableAsType = variable.WrappedValue as NodeValueWrapper<string>;
+                variableAsType.Set(EditorGUILayout.TextField(variableAsType.Value));
+            }
 
             GUILayout.EndHorizontal();
         }
