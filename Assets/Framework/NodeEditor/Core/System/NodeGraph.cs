@@ -117,9 +117,7 @@ namespace NodeSystem
             var variableData = new NodeVariableData(addNodeVariableArgs.Variable, addNodeVariableArgs.AccessorType, GetNewGuid());
             variableData.Name = "(V) " + addNodeVariableArgs.Variable.Name;
 
-            var classType = typeof(NodeVariable<>).MakeGenericType(addNodeVariableArgs.Variable.WrappedType);
-
-            var node = CreateNodeInstance(classType) as NodeVariable;
+            var node = CreateNodeInstance(typeof(NodeVariable)) as NodeVariable;
             node.Initialize(variableData);
             node.Set(addNodeVariableArgs.Variable, addNodeVariableArgs.AccessorType);
 
