@@ -104,7 +104,7 @@ namespace NodeSystem.Editor
 
         void Event_AddVariableNode(AddNodeVariableArgs addNodeVariableArgs)
         {
-            _graph.AddNode(addNodeVariableArgs);
+            _graph.AddNodeVariable(addNodeVariableArgs);
         }
 
         void Event_RemoveGraphVaraible(RemoveGraphVariableEvent removeGraphVariableEvent)

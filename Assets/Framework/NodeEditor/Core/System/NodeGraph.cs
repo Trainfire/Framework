@@ -43,8 +43,8 @@ namespace NodeSystem
 
             graphData.Variables.ForEach(variable => AddVariable(variable));
             graphData.Nodes.ForEach(x => AddNode(x));
-            graphData.Constants.ForEach(x => AddNode(x as NodeConstantData));
-            graphData.VariableNodes.ForEach(x => AddNode(x as NodeVariableData));
+            graphData.Constants.ForEach(x => AddNodeConstant(x));
+            graphData.VariableNodes.ForEach(x => AddNodeVariable(x));
             graphData.Connections.ForEach(connectionData => Connect(connectionData));
 
             if (PostLoad != null)
@@ -68,17 +68,10 @@ namespace NodeSystem
 
         public void AddVariable(string name, Type type)
         {
-            var data = new NodeGraphVariableData
-            {
-                Name = name,
-                ID = GetNewGuid(),
-                VariableType = type.ToString()
-            };
-
-            AddVariable(data);
+            AddVariable(new NodeGraphVariableData(name, GetNewGuid(), type));
         }
 
-        public void AddVariable(NodeGraphVariableData graphVariableData)
+        NodeGraphVariable AddVariable(NodeGraphVariableData graphVariableData)
         {
             NodeEditor.Assertions.IsFalse(Variables.Any(x => x.ID == graphVariableData.ID), "Tried to spawn a variable that has the same ID as an existing variable.");
 
@@ -88,6 +81,8 @@ namespace NodeSystem
             NodeEditor.Logger.Log<NodeGraph>("Added variable '{0}' ({1})", variable.Name, variable.GetType());
 
             Edited.InvokeSafe(this);
+
+            return variable;
         }
 
         public void RemoveVariable(string variableID)
@@ -105,54 +100,80 @@ namespace NodeSystem
             Edited.InvokeSafe(this);
         }
 
-        public void AddNode(NodeConstantData constantData)
+        public void AddNode(Type type, string name = "")
         {
-            var constant = AddNode((NodeData)constantData) as NodeConstant;
-            constant.Set(constantData);
+            var node = CreateNodeInstance(type);
+            node.Initialize(new NodeData(type, GetNewGuid(), name));
         }
 
-        public NodeVariable AddNode(AddNodeVariableArgs addNodeVariableArgs)
+        public void AddNode<T>(string name = "") where T : Node
         {
+            var node = CreateNodeInstance<T>();
+            node.Initialize(new NodeData(typeof(T), GetNewGuid(), name));
+        }
+
+        public NodeVariable AddNodeVariable(AddNodeVariableArgs addNodeVariableArgs)
+        {
+            var variableData = new NodeVariableData(addNodeVariableArgs.Variable, addNodeVariableArgs.AccessorType, GetNewGuid());
+            variableData.Name = "(V) " + addNodeVariableArgs.Variable.Name;
+
             var classType = typeof(NodeVariable<>).MakeGenericType(addNodeVariableArgs.Variable.WrappedType);
-            var node = AddNode(classType, "Variable") as NodeVariable;
+
+            var node = CreateNodeInstance(classType) as NodeVariable;
+            node.Initialize(variableData);
             node.Set(addNodeVariableArgs.Variable, addNodeVariableArgs.AccessorType);
+
             return node;
         }
 
-        public void AddNode(NodeVariableData nodeVariableData)
+        Node AddNode(NodeData nodeData)
+        {
+            var spawnType = Type.GetType(nodeData.ClassType);
+            var nodeInstance = CreateNodeInstance(spawnType);
+            nodeInstance.Initialize(nodeData);
+            return nodeInstance;
+        }
+
+        NodeConstant AddNodeConstant(NodeConstantData nodeConstantData)
+        {
+            var nodeInstance = AddNode(nodeConstantData) as NodeConstant;
+            nodeInstance.Set(nodeConstantData);
+            return nodeInstance;
+        }
+
+        NodeVariable AddNodeVariable(NodeVariableData nodeVariableData)
         {
             var foundVariable = Variables.Find(x => x.ID == nodeVariableData.VariableID);
             NodeEditor.Assertions.IsNotNull(foundVariable, "The specified variable does not exist in the graph.");
 
-            var node = AddNode(new AddNodeVariableArgs(foundVariable, nodeVariableData.AccessorType));
-            node.Initialize(nodeVariableData);
-            node.Set(foundVariable, nodeVariableData.AccessorType);
+            var nodeInstance = AddNode(nodeVariableData) as NodeVariable;
 
-            NodeEditor.Logger.Log<NodeGraph>("Spawn variable node for '{0}' ({1})", foundVariable.Name, nodeVariableData.AccessorType);
+            if (foundVariable != null)
+            {
+                nodeInstance.Set(foundVariable, nodeVariableData.AccessorType);
+                return nodeInstance;
+            }
+
+            return null;
         }
 
-        public Node AddNode(Type type, string name = "")
+        Node CreateNodeInstance(Type type)
         {
-            var nodeData = new NodeData(type, GetNewGuid(), name);
-            return AddNode(nodeData);
+            var node = Activator.CreateInstance(type) as Node;
+            RegisterNode(node);
+            return node;
         }
 
-        public TNode AddNode<TNode>(string name = "") where TNode : Node
+        TNode CreateNodeInstance<TNode>() where TNode : Node
         {
-            var nodeData = new NodeData(typeof(TNode), GetNewGuid(), name);
-            return AddNode(nodeData) as TNode;
+            var node = Activator.CreateInstance<TNode>() as TNode;
+            RegisterNode(node);
+            return node;
         }
 
-        public TNode AddNode<TNode, TNodeData>(TNodeData nodeData) where TNode : Node where TNodeData : NodeData
+        void RegisterNode(Node node)
         {
-            return AddNode(nodeData) as TNode;
-        }
-
-        public Node AddNode(NodeData nodeData)
-        {
-            var nodeType = Type.GetType(nodeData.ClassType);
-            var node = Activator.CreateInstance(nodeType) as Node;
-            node.Initialize(nodeData);
+            NodeEditor.Assertions.IsFalse(Nodes.Contains(node), "Node already exists in this graph.");
 
             if (!Nodes.Contains(node))
             {
@@ -166,8 +187,6 @@ namespace NodeSystem
 
                 Edited.InvokeSafe(this);
             }
-
-            return node;
         }
 
         public void RemoveNode(Node node)
@@ -249,8 +268,6 @@ namespace NodeSystem
             NodeEditor.Assertions.IsFalse(connection.StartPin == connection.EndPin, "Attempted to connect a pin to itself.");
             //Assert.IsFalse(connection.StartPin.WillPinConnectionCreateCircularDependency(connection.EndPin), "Pin connection would create a circular dependency!");
 
-            NodeEditor.Logger.Log<NodeGraph>("Connected {0}:(1) to {2}:{3}", connection.StartNode.Name, connection.StartPin.Index, connection.EndNode.Name, connection.EndPin.Index);
-
             if (connection.StartPin != null && connection.EndPin != null)
             {
                 if (connection.StartPin.IsInput() || connection.EndPin.IsOutput())
@@ -272,6 +289,8 @@ namespace NodeSystem
                     connection = new NodeConnection(connection.StartNode.Pins[startPinId], connection.EndNode.Pins[endPinId]);
 
                 Connections.Add(connection);
+
+                NodeEditor.Logger.Log<NodeGraph>("Connected {0}:(1) to {2}:{3}", connection.StartNode.Name, connection.StartPin.Index, connection.EndNode.Name, connection.EndPin.Index);
 
                 Edited.InvokeSafe(this);
             }

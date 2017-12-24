@@ -140,6 +140,13 @@ namespace NodeSystem
 
         public NodeGraphVariableData() { }
 
+        public NodeGraphVariableData(string name, string id, Type variableType)
+        {
+            Name = name;
+            ID = id;
+            VariableType = variableType.ToString();
+        }
+
         public static NodeGraphVariableData Convert(NodeGraphVariable variable)
         {
             return new NodeGraphVariableData
