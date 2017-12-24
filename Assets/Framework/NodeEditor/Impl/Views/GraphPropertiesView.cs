@@ -56,11 +56,21 @@ namespace Framework.NodeEditorViews
 
             GUILayout.Label(variable.Name, GUILayout.MinWidth(100f));
 
-            var selectedIndex = NodePinTypeRegistry.AllTypes.IndexOf(NodePinTypeRegistry.Get(variable.WrappedType));
-            selectedIndex = EditorGUILayout.Popup(selectedIndex, NodePinTypeRegistry.AllTypes.Select(x => x.Name).ToArray());
+            // Draw type dropdown.
+            var pinTypeData = NodePinTypeRegistry.Get(variable.WrappedType);
 
-            variable.SetValueWrapper(NodePinTypeRegistry.AllTypes[selectedIndex].WrappedType);
+            if (pinTypeData != null)
+            {
+                var selectedIndex = NodePinTypeRegistry.AllPinTypes.IndexOf(pinTypeData);
+                var dropdownOptions = NodePinTypeRegistry.AllPinTypeNames.ToArray();
 
+                selectedIndex = EditorGUILayout.Popup(selectedIndex, dropdownOptions);
+
+                var selectedPinType = NodePinTypeRegistry.AllPinTypes[selectedIndex];
+                variable.SetValueWrapperFromType(selectedPinType.WrappedType);
+            }
+
+            // Draw field editor.
             var fieldValue = variable.WrappedValue.ToString();
 
             if (variable.WrappedType == typeof(float))

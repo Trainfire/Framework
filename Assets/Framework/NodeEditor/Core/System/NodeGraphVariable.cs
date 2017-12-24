@@ -40,14 +40,14 @@ namespace NodeSystem
             Name = data.Name;
             ID = data.ID;
 
-            SetValueWrapper(Type.GetType(data.VariableType));
+            SetValueWrapperFromType(Type.GetType(data.VariableType));
             WrappedValue.SetFromString(data.Value);
         }
 
         /// <summary>
         /// Sets the wrapped value based on the specified type.
         /// </summary>
-        public void SetValueWrapper(Type wrappedValueType)
+        public void SetValueWrapperFromType(Type wrappedValueType)
         {
             if (wrappedValueType == WrappedType)
                 return;

@@ -111,24 +111,30 @@ namespace NodeSystem
             constant.Set(constantData);
         }
 
-        public void AddNode(AddNodeVariableArgs addNodeVariableArgs)
+        public NodeVariable AddNode(AddNodeVariableArgs addNodeVariableArgs)
         {
-            var variableData = new NodeVariableData(addNodeVariableArgs.Variable, addNodeVariableArgs.AccessorType, GetNewGuid());
-            var node = AddNode<NodeVariable>();
+            var classType = typeof(NodeVariable<>).MakeGenericType(addNodeVariableArgs.Variable.WrappedType);
+            var node = AddNode(classType, "Variable") as NodeVariable;
             node.Set(addNodeVariableArgs.Variable, addNodeVariableArgs.AccessorType);
+            return node;
         }
 
         public void AddNode(NodeVariableData nodeVariableData)
         {
-            var nodeVariable = AddNode<NodeVariable, NodeVariableData>(nodeVariableData);
-            var variable = Variables.Where(x => x.ID == nodeVariableData.VariableID).FirstOrDefault();
+            var foundVariable = Variables.Find(x => x.ID == nodeVariableData.VariableID);
+            NodeEditor.Assertions.IsNotNull(foundVariable, "The specified variable does not exist in the graph.");
 
-            NodeEditor.Assertions.IsNotNull(variable);
+            var node = AddNode(new AddNodeVariableArgs(foundVariable, nodeVariableData.AccessorType));
+            node.Initialize(nodeVariableData);
+            node.Set(foundVariable, nodeVariableData.AccessorType);
 
-            if (variable != null)
-                nodeVariable.Set(variable, nodeVariableData.AccessorType);
+            NodeEditor.Logger.Log<NodeGraph>("Spawn variable node for '{0}' ({1})", foundVariable.Name, nodeVariableData.AccessorType);
+        }
 
-            NodeEditor.Logger.Log<NodeGraph>("Spawn variable node for '{0}' ({1})", variable.Name, nodeVariableData.AccessorType);
+        public Node AddNode(Type type, string name = "")
+        {
+            var nodeData = new NodeData(type, GetNewGuid(), name);
+            return AddNode(nodeData);
         }
 
         public TNode AddNode<TNode>(string name = "") where TNode : Node

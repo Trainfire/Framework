@@ -1,11 +1,17 @@
-﻿using NodeSystem.Editor;
+﻿using System;
+using NodeSystem.Editor;
 
 namespace NodeSystem
 {
-    public class NodeVariable : Node
+    public abstract class NodeVariable : Node, INodeExecuteOutput
     {
-        public NodeGraphVariable Variable { get; private set; }
+        public NodeGraphVariable Variable { get; protected set; }
         public NodeGraphVariableAccessorType AccessorType { get; private set; }
+
+        protected NodePin In { get; private set; }
+        protected NodePin Out { get; private set; }
+
+        public NodePin<NodePinTypeExecute> ExecuteOut { get; private set; }
 
         public void Set(NodeGraphVariable variable, NodeGraphVariableAccessorType accessorType)
         {
@@ -21,19 +27,32 @@ namespace NodeSystem
 
         void SpawnPins()
         {
-            switch (AccessorType)
+            if (AccessorType == NodeGraphVariableAccessorType.GetSet || AccessorType == NodeGraphVariableAccessorType.Set)
             {
-                case NodeGraphVariableAccessorType.Get: AddPin("Get", Variable.WrappedType, true); break;
-                case NodeGraphVariableAccessorType.GetSet:
-                    AddPin("Get", Variable.WrappedType, true);
-                    AddPin("Set", Variable.WrappedType, false);
-                    break;
-                case NodeGraphVariableAccessorType.Set: AddPin("Set", Variable.WrappedType, false); break;
+                AddExecuteInPin();
+                ExecuteOut = AddExecuteOutPin();
             }
+
+            if (AccessorType == NodeGraphVariableAccessorType.GetSet || AccessorType == NodeGraphVariableAccessorType.Get)
+                AddGetPin();
+
+            if (AccessorType == NodeGraphVariableAccessorType.GetSet || AccessorType == NodeGraphVariableAccessorType.Set)
+                AddSetPin();
+        }
+
+        void AddGetPin()
+        {
+            Out = AddPin("Get", Variable.WrappedType, true);
+        }
+
+        void AddSetPin()
+        {
+            In = AddPin("Set", Variable.WrappedType, false);
         }
 
         void Variable_PreTypeChanged(NodeGraphVariableTypeChangeEvent variableTypeChangeEvent)
         {
+            ExecuteOut = null;
             RemoveAllPins();
         }
 
@@ -41,6 +60,18 @@ namespace NodeSystem
         {
             // The type changed so update pins to reflect new type.
             SpawnPins();
+        }
+    }
+
+    public class NodeVariable<T> : NodeVariable
+    {
+        public override void Calculate()
+        {
+            if (In != null)
+                (Variable.WrappedValue as NodeValueWrapper<T>).Value = (In as NodePin<T>).Value;
+
+            if (Out != null)
+                (Out as NodePin<T>).Value = (Variable.WrappedValue as NodeValueWrapper<T>).Value;
         }
     }
 }

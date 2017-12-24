@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using NodeSystem.Editor;
 
 namespace NodeSystem
 {
@@ -39,7 +40,8 @@ namespace NodeSystem
     {
         private static Dictionary<Type, NodePinType> _registry;
 
-        public static List<NodePinType> AllTypes { get { return _registry.Values.ToList(); } }
+        public static List<NodePinType> AllPinTypes { get { return _registry.Values.ToList(); } }
+        public static List<string> AllPinTypeNames { get { return AllPinTypes.Select(x => x.Name).ToList(); } }
 
         static NodePinTypeRegistry()
         {
@@ -67,11 +69,12 @@ namespace NodeSystem
 
         public static NodePinType Get<T>()
         {
-            return _registry[typeof(T)]; 
+            return Get(typeof(T));
         }
 
         public static NodePinType Get(Type type)
         {
+            NodeEditor.Assertions.IsTrue(_registry.ContainsKey(type), "Registry does not contain type");
             return _registry[type];
         }
 
