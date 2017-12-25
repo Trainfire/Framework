@@ -10,6 +10,8 @@ namespace NodeSystem
     /// </summary>
     public class NodeGraphHelper : IDisposable
     {
+        public event Action<NodeGraphVariable> VariableAdded;
+        public event Action<NodeGraphVariable> VariableRemoved;
         public event Action<Node> NodeSelected;
         public event Action<Node> NodeAdded;
         public event Action<Node> NodeRemoved;
@@ -41,10 +43,15 @@ namespace NodeSystem
                 return;
 
             _graph = graph;
+            _graph.VariableAdded += Graph_VariableAdded;
+            _graph.VariableRemoved += Graph_VariableRemoved;
             _graph.NodeAdded += Graph_NodeAdded;
             _graph.NodeRemoved += Graph_NodeRemoved;
             _graph.NodeSelected += Graph_NodeSelected;
         }
+
+        void Graph_VariableRemoved(NodeGraphVariable variable) { VariableRemoved.InvokeSafe(variable); }
+        void Graph_VariableAdded(NodeGraphVariable variable) { VariableAdded.InvokeSafe(variable); }
 
         void Graph_NodeAdded(Node node) { NodeAdded.InvokeSafe(node); }
         void Graph_NodeRemoved(Node node) { NodeRemoved.InvokeSafe(node); }
@@ -127,6 +134,8 @@ namespace NodeSystem
 
         public void Dispose()
         {
+            VariableAdded = null;
+            VariableRemoved = null;
             NodeAdded = null;
             NodeSelected = null;
             NodeRemoved = null;

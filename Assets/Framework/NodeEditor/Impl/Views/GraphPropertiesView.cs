@@ -20,11 +20,25 @@ namespace Framework.NodeEditorViews
             public VariableViewState() { }
         }
 
-        Dictionary<NodeGraphVariable, VariableViewState> _variableViewStates;
+        Dictionary<string, VariableViewState> _variableViewStates;
 
         public GraphPropertiesView(NodeGraphHelper graphHelper) : base(graphHelper)
         {
-            _variableViewStates = new Dictionary<NodeGraphVariable, VariableViewState>();
+            _variableViewStates = new Dictionary<string, VariableViewState>();
+            graphHelper.VariableAdded += GraphHelper_VariableAdded;
+            graphHelper.VariableRemoved += GraphHelper_VariableRemoved;
+        }
+
+        void GraphHelper_VariableRemoved(NodeGraphVariable obj)
+        {
+            if (_variableViewStates.ContainsKey(obj.ID))
+                _variableViewStates.Remove(obj.ID);
+        }
+
+        void GraphHelper_VariableAdded(NodeGraphVariable obj)
+        {
+            if (!_variableViewStates.ContainsKey(obj.ID))
+                _variableViewStates.Add(obj.ID, new VariableViewState());
         }
 
         public override void Draw()
@@ -32,6 +46,13 @@ namespace Framework.NodeEditorViews
             GUILayout.Label("Variables", EditorStyles.boldLabel);
 
             GraphHelper.Variables.ForEach(x => DrawVariable(x));
+
+            GUILayout.BeginVertical();
+            foreach (var kvp in _variableViewStates)
+            {
+                GUILayout.Label(kvp.Key);
+            }
+            GUILayout.EndVertical();
 
             GUILayout.BeginHorizontal();
 
@@ -64,13 +85,11 @@ namespace Framework.NodeEditorViews
 
         void DrawVariable(NodeGraphVariable variable)
         {
-            if (!_variableViewStates.ContainsKey(variable))
-                _variableViewStates.Add(variable, new VariableViewState());
+            if (!_variableViewStates.ContainsKey(variable.ID))
+                return;
 
-            // Todo: Close the UI here.
-
-            var foldOut = _variableViewStates[variable].Foldout;
-            _variableViewStates[variable].Foldout = EditorGUILayout.Foldout(foldOut, variable.Name);
+            var foldOut = _variableViewStates[variable.ID].Foldout;
+            _variableViewStates[variable.ID].Foldout = EditorGUILayout.Foldout(foldOut, variable.Name);
 
             if (foldOut)
             {

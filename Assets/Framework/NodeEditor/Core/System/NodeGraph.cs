@@ -15,6 +15,8 @@ namespace NodeSystem
         public Node Selection { get; private set; }
         public NodeGraphState State { get; private set; }
 
+        public event Action<NodeGraphVariable> VariableAdded;
+        public event Action<NodeGraphVariable> VariableRemoved;
         public event Action<Node> NodeSelected;
         public event Action<Node> NodeAdded;
         public event Action<Node> NodeRemoved;
@@ -57,7 +59,7 @@ namespace NodeSystem
 
             Nodes.ToList().ForEach(x => RemoveNode(x));
             Connections.ToList().ForEach(x => Disconnect(x));
-            Variables.Clear();
+            Variables.ToList().ForEach(x => RemoveVariable(x));
 
             Selection = null;
 
@@ -80,6 +82,7 @@ namespace NodeSystem
 
             NodeEditor.Logger.Log<NodeGraph>("Added variable '{0}' ({1})", variable.Name, variable.GetType());
 
+            VariableAdded.InvokeSafe(variable);
             Edited.InvokeSafe(this);
 
             return variable;
@@ -97,6 +100,7 @@ namespace NodeSystem
             NodeEditor.Assertions.IsTrue(Variables.Contains(graphVariable));
             NodeEditor.Logger.Log<NodeGraph>("Removing variable '{0}'", graphVariable.Name);
             Variables.Remove(graphVariable);
+            VariableRemoved.InvokeSafe(graphVariable);
             Edited.InvokeSafe(this);
         }
 
@@ -142,12 +146,12 @@ namespace NodeSystem
         NodeVariable AddNodeVariable(NodeVariableData nodeVariableData)
         {
             var foundVariable = Variables.Find(x => x.ID == nodeVariableData.VariableID);
-            NodeEditor.Assertions.IsNotNull(foundVariable, "The specified variable does not exist in the graph.");
 
-            var nodeInstance = AddNode(nodeVariableData) as NodeVariable;
+            NodeEditor.Assertions.IsNotNull(foundVariable, "The specified variable does not exist in the graph.");
 
             if (foundVariable != null)
             {
+                var nodeInstance = AddNode(nodeVariableData) as NodeVariable;
                 nodeInstance.Set(foundVariable, nodeVariableData.AccessorType);
                 return nodeInstance;
             }
