@@ -3,121 +3,48 @@ using NodeSystem.Editor;
 
 namespace NodeSystem
 {
-    public enum NodeConstantType
-    {
-        None,
-        Float,
-        Int,
-        Bool,
-        String
-    }
-
     public class NodeConstant : Node
     {
-        private NodeConstantType _pinType;
-        public NodeConstantType PinType
-        {
-            get
-            {
-                return _pinType;
-            }
-            set
-            {
-                // Only trigger pin change when the type is different from the current type.
-                if (_pinType == value)
-                    return;
+        public NodeValueWrapper ValueWrapper { get; private set; }
 
-                _pinType = value;
+        protected NodePin Out { get; private set; }
 
-                NodeEditor.Logger.Log<NodeConstant>("Set pin type to '{0}'", _pinType.ToString());
-
-                UpdatePin();
-            }
-        }
-
-        private object _cachedValue;
+        NodePinValueWrapper _wrappedOutPin;
 
         protected override void OnInitialize()
         {
-            UpdatePin();
+            ValueWrapper = new NodeValueWrapper<NodePinTypeNone>();
+            UpdateOutPin();
         }
 
-        void UpdatePin()
+        public void Set(NodeConstantData nodeConstantData)
         {
-            NodeEditor.Logger.Log<NodeConstant>("Updating pin...");
-
-            if (HasPin(0))
-                RemoveOutputPin(0);
-
-            const string pinName = "Out";
-
-            switch (_pinType)
-            {
-                case NodeConstantType.Float:
-                    AddOutputPin<float>(pinName);
-                    break;
-                case NodeConstantType.Int:
-                    AddOutputPin<int>(pinName);
-                    break;
-                case NodeConstantType.Bool:
-                    AddOutputPin<bool>(pinName);
-                    break;
-                case NodeConstantType.String:
-                    AddOutputPin<string>(pinName);
-                    break;
-            }
-
-            TriggerChange();
+            var constantType = Type.GetType(nodeConstantData.ConstantType);
+            SetType(Type.GetType(nodeConstantData.ConstantType));
+            ValueWrapper.SetFromString(nodeConstantData.Value);
         }
 
-        public void Set(NodeConstantData data)
+        public void SetType(Type type)
         {
-            PinType = data.ConstantType;
+            if (type == ValueWrapper.ValueType)
+                return;
 
-            switch (PinType)
-            {
-                case NodeConstantType.Float: SetFloat(float.Parse(data.Value)); break;
-                case NodeConstantType.Int: SetInt(int.Parse(data.Value)); break;
-                case NodeConstantType.Bool: SetBool(bool.Parse(data.Value)); break;
-                case NodeConstantType.String: SetString(data.Value); break;
-            }
+            NodeEditor.Assertions.IsNotNull(type, "Type cannot be null");
+
+            ValueWrapper = Activator.CreateInstance(typeof(NodeValueWrapper<>).MakeGenericType(type)) as NodeValueWrapper;
+            UpdateOutPin();
         }
 
-        public int GetInt() { return GetValue<int>(NodeConstantType.Int); }
-        public void SetInt(int value) { SetValue(NodeConstantType.Int, value); }
-
-        public float GetFloat() { return GetValue<float>(NodeConstantType.Float); }
-        public void SetFloat(float value) { SetValue(NodeConstantType.Float, value); }
-
-        public string GetString() { return GetValue<string>(NodeConstantType.String, () => string.Empty); }
-        public void SetString(string value) { SetValue(NodeConstantType.String, value); }
-
-        public bool GetBool() { return GetValue<bool>(NodeConstantType.Bool); }
-        public void SetBool(bool value) { SetValue(NodeConstantType.Bool, value); }
-
-        T GetValue<T>(NodeConstantType pinTypeQualifier, Func<T> getDefault = null)
+        void UpdateOutPin()
         {
-            //var defaultValue = getDefault != null ? getDefault() : default(T);
-            return _pinType == pinTypeQualifier ? (OutputPins[0] as NodePin<T>).Value : default(T);
+            RemoveAllPins();
+            Out = AddPin("Out", ValueWrapper.ValueType, true);
+            _wrappedOutPin = NodePinValueWrapper.Instantiate(Out, ValueWrapper);
         }
 
-        void SetValue<T>(NodeConstantType pinTypeQualifier, T value)
+        public override void Calculate()
         {
-            NodeEditor.Assertions.IsTrue(_pinType == pinTypeQualifier);
-
-            if (_pinType == pinTypeQualifier)
-            {
-                var outValue = (OutputPins[0] as NodePin<T>).Value;
-                if (outValue == null || !outValue.Equals(value))
-                {
-                    (OutputPins[0] as NodePin<T>).Value = value;
-
-                    if (_cachedValue != null && !value.Equals(_cachedValue))
-                        TriggerChange();
-                }
-            }
-
-            _cachedValue = value;
+            _wrappedOutPin.Calculate();
         }
     }
 }

@@ -2,7 +2,7 @@
 using UnityEditor;
 using NodeSystem;
 using System;
-using System.Linq;
+using System.Collections.Generic;
 using NodeSystem.Editor;
 
 namespace Framework.NodeEditorViews
@@ -13,13 +13,25 @@ namespace Framework.NodeEditorViews
         public event Action<RemoveGraphVariableEvent> RemoveVariable;
         public event Action<AddNodeVariableArgs> AddVariableNode;
 
-        public GraphPropertiesView(NodeGraphHelper graphHelper) : base(graphHelper) { }
+        class VariableViewState
+        {
+            public bool Foldout { get; set; }
+
+            public VariableViewState() { }
+        }
+
+        Dictionary<NodeGraphVariable, VariableViewState> _variableViewStates;
+
+        public GraphPropertiesView(NodeGraphHelper graphHelper) : base(graphHelper)
+        {
+            _variableViewStates = new Dictionary<NodeGraphVariable, VariableViewState>();
+        }
 
         public override void Draw()
         {
             GUILayout.Label("Variables", EditorStyles.boldLabel);
 
-            GraphHelper.Variables.ForEach(variable => DrawVariable(variable));
+            GraphHelper.Variables.ForEach(x => DrawVariable(x));
 
             GUILayout.BeginHorizontal();
 
@@ -52,14 +64,23 @@ namespace Framework.NodeEditorViews
 
         void DrawVariable(NodeGraphVariable variable)
         {
-            GUILayout.BeginHorizontal();
+            if (!_variableViewStates.ContainsKey(variable))
+                _variableViewStates.Add(variable, new VariableViewState());
 
-            GUILayout.Label(variable.Name, GUILayout.MinWidth(100f));
+            // Todo: Close the UI here.
 
-            NodeEditorPropertiesHelper.DrawTypeField(variable);
-            NodeEditorPropertiesHelper.DrawValueWrapperField(variable.WrappedValue);
+            var foldOut = _variableViewStates[variable].Foldout;
+            _variableViewStates[variable].Foldout = EditorGUILayout.Foldout(foldOut, variable.Name);
 
-            GUILayout.EndHorizontal();
+            if (foldOut)
+            {
+                GUILayout.BeginVertical();
+
+                NodeEditorPropertiesHelper.DrawTypeField(variable);
+                NodeEditorPropertiesHelper.DrawValueWrapperField(variable.WrappedValue);
+
+                GUILayout.EndVertical();
+            }
         }
     }
 }

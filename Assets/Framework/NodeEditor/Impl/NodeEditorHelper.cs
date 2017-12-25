@@ -1,8 +1,10 @@
 ﻿using UnityEngine;
 using UnityEditor;
-using System.Collections.Generic;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using NodeSystem;
+using NodeSystem.Editor;
 
 namespace Framework.NodeEditorViews
 {
@@ -128,16 +130,14 @@ namespace Framework.NodeEditorViews
 
     public static class NodeEditorPropertiesHelper
     {
-        public static NodePinType DrawTypeField(Type type)
+        public static NodePinType DrawTypeField(Type currentType)
         {
-            var pinTypeData = NodePinTypeRegistry.Get(type);
+            return DrawTypeField(currentType, NodePinTypeRegistry.AllPinTypes);
+        }
 
-            var selectedIndex = NodePinTypeRegistry.AllPinTypes.IndexOf(pinTypeData);
-            var dropdownOptions = NodePinTypeRegistry.AllPinTypeNames.ToArray();
-
-            selectedIndex = EditorGUILayout.Popup(selectedIndex, dropdownOptions);
-
-            return NodePinTypeRegistry.AllPinTypes[selectedIndex];
+        public static NodePinType DrawTypeField(Type currentType, params NodePinTypeCategory[] categories)
+        {
+            return DrawTypeField(currentType, NodePinTypeRegistry.Get(categories));
         }
 
         public static void DrawTypeField(NodeGraphVariable graphVariable)
@@ -146,29 +146,51 @@ namespace Framework.NodeEditorViews
             graphVariable.SetValueWrapperFromType(type);
         }
 
+        static NodePinType DrawTypeField(Type currentType, List<NodePinType> dropdownTypes)
+        {
+            var pinTypeData = NodePinTypeRegistry.Get(currentType);
+
+            var typeExists = dropdownTypes.Exists(x => x.WrappedType == pinTypeData.WrappedType);
+            NodeEditor.Assertions.IsTrue(typeExists, "The specified type does not exist in the provided list of pin types.");
+
+            if (typeExists)
+            {
+                var selectedIndex = dropdownTypes.IndexOf(pinTypeData);
+                var dropdownOptions = dropdownTypes.Select(x => x.Name).ToArray();
+
+                selectedIndex = EditorGUILayout.Popup("Type", selectedIndex, dropdownOptions);
+
+                return dropdownTypes[selectedIndex];
+            }
+
+            return dropdownTypes[0];
+        }
+
         public static void DrawValueWrapperField(NodeValueWrapper valueWrapper)
         {
             var fieldValue = valueWrapper.ToString();
 
+            const string prefix = "Value";
+
             if (valueWrapper.ValueType == typeof(float))
             {
                 var variableAsType = valueWrapper as NodeValueWrapper<float>;
-                variableAsType.Set(EditorGUILayout.FloatField(variableAsType.Value));
+                variableAsType.Set(EditorGUILayout.FloatField(prefix, variableAsType.Value));
             }
             else if (valueWrapper.ValueType == typeof(int))
             {
                 var variableAsType = valueWrapper as NodeValueWrapper<int>;
-                variableAsType.Set(EditorGUILayout.IntField(variableAsType.Value));
+                variableAsType.Set(EditorGUILayout.IntField(prefix, variableAsType.Value));
             }
             else if (valueWrapper.ValueType == typeof(bool))
             {
                 var variableAsType = valueWrapper as NodeValueWrapper<bool>;
-                variableAsType.Set(EditorGUILayout.Toggle(variableAsType.Value));
+                variableAsType.Set(EditorGUILayout.Toggle(prefix, variableAsType.Value));
             }
             else if (valueWrapper.ValueType == typeof(string))
             {
                 var variableAsType = valueWrapper as NodeValueWrapper<string>;
-                variableAsType.Set(EditorGUILayout.TextField(variableAsType.Value));
+                variableAsType.Set(EditorGUILayout.TextField(prefix, variableAsType.Value));
             }
         }
     }

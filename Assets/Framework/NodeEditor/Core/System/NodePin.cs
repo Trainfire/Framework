@@ -49,7 +49,8 @@ namespace NodeSystem
         {
             var areWrappedTypesCompatible = pin.WrappedType == this.WrappedType || this.WrappedType == typeof(NodePinTypeAny);
             var areSameType = IsSameType(pin);
-            return areWrappedTypesCompatible && !areSameType;
+            var isNoneType = pin.WrappedType == typeof(NodePinTypeNone);
+            return areWrappedTypesCompatible && !areSameType && !isNoneType;
         }
 
         public bool IsInput()

@@ -36,7 +36,7 @@ namespace NodeSystem
     [Serializable]
     public class NodeConstantData : NodeData
     {
-        public NodeConstantType ConstantType;
+        public string ConstantType;
         public string Value;
 
         public static NodeConstantData Convert(NodeConstant constant)
@@ -50,17 +50,18 @@ namespace NodeSystem
                 Name = nodeData.Name,
                 ID = nodeData.ID,
                 Position = nodeData.Position,
-                ConstantType = constant.PinType
+                ConstantType = constant.ValueWrapper.ValueType.ToString(),
+                Value = constant.ValueWrapper.ToString(),
             };
 
-            switch (constant.PinType)
-            {
-                case NodeConstantType.None: constantData.Value = string.Empty; break;
-                case NodeConstantType.Float: constantData.Value = constant.GetFloat().ToString(); break;
-                case NodeConstantType.Int: constantData.Value = constant.GetInt().ToString(); break;
-                case NodeConstantType.Bool: constantData.Value = constant.GetBool().ToString(); break;
-                case NodeConstantType.String: constantData.Value = constant.GetString(); break;
-            };
+            //switch (constant.PinType)
+            //{
+            //    case NodeConstantType.None: constantData.Value = string.Empty; break;
+            //    case NodeConstantType.Float: constantData.Value = constant.GetFloat().ToString(); break;
+            //    case NodeConstantType.Int: constantData.Value = constant.GetInt().ToString(); break;
+            //    case NodeConstantType.Bool: constantData.Value = constant.GetBool().ToString(); break;
+            //    case NodeConstantType.String: constantData.Value = constant.GetString(); break;
+            //};
 
             return constantData;
         }
