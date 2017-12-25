@@ -56,43 +56,8 @@ namespace Framework.NodeEditorViews
 
             GUILayout.Label(variable.Name, GUILayout.MinWidth(100f));
 
-            // Draw type dropdown.
-            var pinTypeData = NodePinTypeRegistry.Get(variable.WrappedType);
-
-            if (pinTypeData != null)
-            {
-                var selectedIndex = NodePinTypeRegistry.AllPinTypes.IndexOf(pinTypeData);
-                var dropdownOptions = NodePinTypeRegistry.AllPinTypeNames.ToArray();
-
-                selectedIndex = EditorGUILayout.Popup(selectedIndex, dropdownOptions);
-
-                var selectedPinType = NodePinTypeRegistry.AllPinTypes[selectedIndex];
-                variable.SetValueWrapperFromType(selectedPinType.WrappedType);
-            }
-
-            // Draw field editor.
-            var fieldValue = variable.WrappedValue.ToString();
-
-            if (variable.WrappedType == typeof(float))
-            {
-                var variableAsType = variable.WrappedValue as NodeValueWrapper<float>;
-                variableAsType.Set(EditorGUILayout.FloatField(variableAsType.Value));
-            }
-            else if (variable.WrappedType == typeof(int))
-            {
-                var variableAsType = variable.WrappedValue as NodeValueWrapper<int>;
-                variableAsType.Set(EditorGUILayout.IntField(variableAsType.Value));
-            }
-            else if (variable.WrappedType == typeof(bool))
-            {
-                var variableAsType = variable.WrappedValue as NodeValueWrapper<bool>;
-                variableAsType.Set(EditorGUILayout.Toggle(variableAsType.Value));
-            }
-            else if (variable.WrappedType == typeof(string))
-            {
-                var variableAsType = variable.WrappedValue as NodeValueWrapper<string>;
-                variableAsType.Set(EditorGUILayout.TextField(variableAsType.Value));
-            }
+            NodeEditorPropertiesHelper.DrawTypeField(variable);
+            NodeEditorPropertiesHelper.DrawValueWrapperField(variable.WrappedValue);
 
             GUILayout.EndHorizontal();
         }

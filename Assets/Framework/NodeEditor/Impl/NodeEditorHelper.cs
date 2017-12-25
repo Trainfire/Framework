@@ -125,4 +125,51 @@ namespace Framework.NodeEditorViews
             GUILayout.Label(new GUIContent(pin.Name, pin.ToString()));
         }
     }
+
+    public static class NodeEditorPropertiesHelper
+    {
+        public static NodePinType DrawTypeField(Type type)
+        {
+            var pinTypeData = NodePinTypeRegistry.Get(type);
+
+            var selectedIndex = NodePinTypeRegistry.AllPinTypes.IndexOf(pinTypeData);
+            var dropdownOptions = NodePinTypeRegistry.AllPinTypeNames.ToArray();
+
+            selectedIndex = EditorGUILayout.Popup(selectedIndex, dropdownOptions);
+
+            return NodePinTypeRegistry.AllPinTypes[selectedIndex];
+        }
+
+        public static void DrawTypeField(NodeGraphVariable graphVariable)
+        {
+            var type = DrawTypeField(graphVariable.WrappedType).WrappedType;
+            graphVariable.SetValueWrapperFromType(type);
+        }
+
+        public static void DrawValueWrapperField(NodeValueWrapper valueWrapper)
+        {
+            var fieldValue = valueWrapper.ToString();
+
+            if (valueWrapper.ValueType == typeof(float))
+            {
+                var variableAsType = valueWrapper as NodeValueWrapper<float>;
+                variableAsType.Set(EditorGUILayout.FloatField(variableAsType.Value));
+            }
+            else if (valueWrapper.ValueType == typeof(int))
+            {
+                var variableAsType = valueWrapper as NodeValueWrapper<int>;
+                variableAsType.Set(EditorGUILayout.IntField(variableAsType.Value));
+            }
+            else if (valueWrapper.ValueType == typeof(bool))
+            {
+                var variableAsType = valueWrapper as NodeValueWrapper<bool>;
+                variableAsType.Set(EditorGUILayout.Toggle(variableAsType.Value));
+            }
+            else if (valueWrapper.ValueType == typeof(string))
+            {
+                var variableAsType = valueWrapper as NodeValueWrapper<string>;
+                variableAsType.Set(EditorGUILayout.TextField(variableAsType.Value));
+            }
+        }
+    }
 }
