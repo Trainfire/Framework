@@ -26,10 +26,8 @@ namespace NodeSystem
 
         public void SetType(Type type)
         {
-            if (type == ValueWrapper.ValueType)
+            if (type == ValueWrapper.ValueType || type == null)
                 return;
-
-            NodeEditor.Assertions.IsNotNull(type, "Type cannot be null");
 
             ValueWrapper = Activator.CreateInstance(typeof(NodeValueWrapper<>).MakeGenericType(type)) as NodeValueWrapper;
             UpdateOutPin();
