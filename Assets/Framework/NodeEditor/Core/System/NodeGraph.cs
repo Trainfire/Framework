@@ -272,12 +272,19 @@ namespace NodeSystem
 
             if (connection.StartPin != null && connection.EndPin != null)
             {
-                if (connection.StartPin.IsInput() || connection.EndPin.IsOutput())
+                var existingConnectionOnStartPin = Helper.GetConnections(connection.StartPin);
+                var existingConnectionOnEndPin = Helper.GetConnections(connection.EndPin);
+
+                if (connection.Type == NodeConnectionType.Execute)
                 {
-                    // Input pins can never have multiple connections. Remove it.
-                    var existingConnection = Helper.GetConnections(connection.StartPin);
-                    if (existingConnection != null)
-                        existingConnection.ForEach(x => Connections.Remove(x));
+                    // Only one connection is allowed between any two execute pins.
+                    existingConnectionOnStartPin.ForEach(x => Connections.Remove(x));
+                    existingConnectionOnEndPin.ForEach(x => Connections.Remove(x));
+                }
+                else if (connection.Type == NodeConnectionType.Value)
+                {
+                    // Input pins on value types can never have multiple connections. Remove existing connections.
+                    existingConnectionOnStartPin.ForEach(x => Connections.Remove(x));
                 }
 
                 var startPinId = connection.StartPin.Index;

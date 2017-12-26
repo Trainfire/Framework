@@ -71,6 +71,11 @@ namespace NodeSystem
             return IsInput() && otherPin.IsInput() || IsOutput() && otherPin.IsOutput();
         }
 
+        public bool IsExecutePin()
+        {
+            return WrappedType == typeof(NodePinTypeExecute);
+        }
+
         public virtual void SetValueFromPin(NodePin pin) { }
 
         protected virtual void OnDisconnect() { }
