@@ -24,6 +24,8 @@ namespace NodeSystem
         public string Name { get; private set; }
         public int Index { get; private set; }
         public Type WrappedType { get { return Type.WrappedType; } }
+        public bool IsInput { get { return Node.IsInputPin(this); } }
+        public bool IsOutput { get { return Node.IsOutputPin(this); } }
 
         public abstract NodePinType Type { get; }
 
@@ -53,22 +55,22 @@ namespace NodeSystem
             return areWrappedTypesCompatible && !areSameType && !isNoneType;
         }
 
-        public bool IsInput()
-        {
-            return Node.IsInputPin(this);
-        }
+        //public bool IsInput()
+        //{
+        //    return Node.IsInputPin(this);
+        //}
 
-        public bool IsOutput()
-        {
-            return Node.IsOutputPin(this);
-        }
+        //public bool IsOutput()
+        //{
+        //    return Node.IsOutputPin(this);
+        //}
 
         /// <summary>
         /// Returns true if both pins are inputs or outputs;
         /// </summary>
         public bool IsSameType(NodePin otherPin)
         {
-            return IsInput() && otherPin.IsInput() || IsOutput() && otherPin.IsOutput();
+            return IsInput && otherPin.IsInput || IsOutput && otherPin.IsOutput;
         }
 
         public bool IsExecutePin()

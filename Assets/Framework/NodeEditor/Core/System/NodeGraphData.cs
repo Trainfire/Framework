@@ -127,7 +127,7 @@ namespace NodeSystem
 
         public static NodeConnectionData Convert(NodeConnection connection)
         {
-            return new NodeConnectionData(connection.StartNode.ID, connection.StartPin.Index, connection.EndNode.ID, connection.EndPin.Index);
+            return new NodeConnectionData(connection.LeftNode.ID, connection.SourcePin.Index, connection.RightNode.ID, connection.TargetPin.Index);
         }
     }
 

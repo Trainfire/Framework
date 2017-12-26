@@ -65,7 +65,7 @@ namespace NodeSystem
                     var connection = _graph.Helper.GetConnectionFromStartPin(executeOutput.ExecuteOut);
                     if (connection != null)
                     {
-                        _currentNode = connection.EndNode;
+                        _currentNode = connection.RightNode;
                         MoveNext();
                     }
                 }

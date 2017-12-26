@@ -186,6 +186,11 @@ namespace NodeSystem.Editor
 
     public interface INodeEditorAssertions
     {
+        void WarnIsFalse(bool condition, string message = "");
+        void WarnIsTrue(bool condition, string message = "");
+        void WarnIsNull<TObject>(TObject value, string message = "") where TObject : class;
+        void WarnIsNotNull<TObject>(TObject value, string message = "") where TObject : class;
+
         void IsFalse(bool condition, string message = "");
         void IsTrue(bool condition, string message = "");
         void IsNull<TObject>(TObject value, string message = "") where TObject : class;
@@ -194,6 +199,11 @@ namespace NodeSystem.Editor
 
     public class NullNodeEditorAssertions : INodeEditorAssertions
     {
+        public void WarnIsFalse(bool condition, string message) { }
+        public void WarnIsNotNull<TObject>(TObject value, string message) where TObject : class { }
+        public void WarnIsNull<TObject>(TObject value, string message) where TObject : class { }
+        public void WarnIsTrue(bool condition, string message) { }
+
         public void IsFalse(bool condition, string message) { }
         public void IsNotNull<TObject>(TObject value, string message) where TObject : class { }
         public void IsNull<TObject>(TObject value, string message) where TObject : class { }

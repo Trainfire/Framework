@@ -62,28 +62,30 @@
 
         void Input_SelectPin(NodePin nodePin)
         {
-            if (nodePin.IsInput())
+            if (nodePin.IsInput)
             {
-                NodeEditor.Logger.Log<NodeEditorPinConnector>("Modifying a connection...");
-
                 _modifyingConnection = _graph.Helper.GetConnection(nodePin);
 
                 if (_modifyingConnection != null)
                 {
+                    NodeEditor.Logger.Log<NodeEditorPinConnector>("Modifying a connection...");
+
                     _modifyingConnection.Hide();
 
+                    _sourcePin = _modifyingConnection.SourcePin;
+
                     // Executes flow left to right so get the correct starting pin.
-                    var startPin = nodePin.WrappedType == typeof(NodePinTypeExecute) ? _modifyingConnection.StartPin : _modifyingConnection.EndPin;
-                    _view.EnterDrawState(startPin);
+                    _view.EnterDrawState(_modifyingConnection.SourcePin);
                 }
             }
             else
             {
                 NodeEditor.Logger.Log<NodeEditorPinConnector>("Creating a new connection...");
+
+                _sourcePin = nodePin;
+
                 _view.EnterDrawState(nodePin);
             }
-
-            _sourcePin = nodePin;
         }
 
         void Input_MouseUp()
@@ -119,38 +121,16 @@
             NodePin startPin = null;
             NodePin endPin = null;
 
-            // Execution pins flow left right.
-            // Value pins flow right to left.
-            if (_sourcePin.WrappedType == typeof(NodePinTypeExecute))
+            if (IsModifyingConnection())
             {
-                NodeEditor.Logger.Log<NodeEditorPinConnector>("Connected execution pins.");
-
-                if (IsModifyingConnection())
-                {
-                    startPin = _modifyingConnection.StartPin;
-                    endPin = _sourcePin;
-                }
-                else
-                {
-                    startPin = _sourcePin;
-                    endPin = targetPin;
-                }
+                startPin = _modifyingConnection.SourcePin;   
             }
             else
             {
-                NodeEditor.Logger.Log<NodeEditorPinConnector>("Connected value pins.");
-
-                if (IsModifyingConnection())
-                {
-                    startPin = targetPin;
-                    endPin = _modifyingConnection.EndPin;
-                }
-                else
-                {
-                    startPin = targetPin;
-                    endPin = _sourcePin;
-                }
+                startPin = _sourcePin;
             }
+
+            endPin = targetPin;
 
             connection = new NodeConnection(startPin, endPin);
 
@@ -176,7 +156,7 @@
 
         ValidationResult ValidateConnection(NodePin targetPin)
         {
-            if (targetPin == null || _sourcePin == null)
+            if (targetPin == null || _sourcePin == null || targetPin.IsOutput || _sourcePin.IsInput)
                 return ValidationResult.Invalid;
 
             if (!IsModifyingConnection() && targetPin.Node == _sourcePin.Node)

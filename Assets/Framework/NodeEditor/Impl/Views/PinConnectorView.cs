@@ -60,9 +60,9 @@ namespace Framework.NodeEditorViews
 
                     if (Tooltip != string.Empty)
                     {
-                        GUILayout.BeginArea(rect);
-                        GUILayout.Box(Tooltip);
-                        GUILayout.EndArea();
+                        //GUILayout.BeginArea(rect);
+                        //GUILayout.Box(Tooltip);
+                        //GUILayout.EndArea();
                     }
                 }
             }

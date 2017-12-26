@@ -175,7 +175,7 @@ namespace NodeSystem
                 Pins.Remove(pin);
 
                 // Replace old pin with the new pin at the same index as the old pin.
-                var targetList = pin.IsInput() ? InputPins : OutputPins;
+                var targetList = pin.IsInput ? InputPins : OutputPins;
                 targetList.Insert(targetList.IndexOf(pin), replacementPin);
                 targetList.Remove(pin);
 
@@ -247,7 +247,7 @@ namespace NodeSystem
         {
             Pins.Remove(pin);
 
-            if (pin.IsInput())
+            if (pin.IsInput)
             {
                 InputPins.Remove(pin);
             }

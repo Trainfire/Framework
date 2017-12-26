@@ -3,6 +3,8 @@ using UnityEditor;
 using Framework.NodeEditorViews;
 using NodeSystem;
 using NodeSystem.Editor;
+using System;
+using UnityEngine;
 
 namespace Framework
 {
@@ -85,6 +87,30 @@ namespace Framework
         public void IsNull<TObject>(TObject value, string message) where TObject : class
         {
             Assert.IsNull(value, message);
+        }
+
+        public void WarnIsFalse(bool condition, string message = "")
+        {
+            if (condition)
+                Debug.LogWarning(message);
+        }
+
+        public void WarnIsTrue(bool condition, string message = "")
+        {
+            if (!condition)
+                Debug.LogWarning(message);
+        }
+
+        public void WarnIsNull<TObject>(TObject value, string message = "") where TObject : class
+        {
+            if (value != null)
+                Debug.LogWarning(message);
+        }
+
+        public void WarnIsNotNull<TObject>(TObject value, string message = "") where TObject : class
+        {
+            if (value == null)
+                Debug.LogWarning(message);
         }
     }
 }

@@ -205,7 +205,7 @@ namespace NodeSystem
 
                 // TODO: Gracefully handle disconnections...
                 var connections = Connections
-                    .Where(x => x.StartPin.Node.ID == node.ID || x.EndPin.Node.ID == node.ID)
+                    .Where(x => x.SourcePin.Node.ID == node.ID || x.TargetPin.Node.ID == node.ID)
                     .ToList();
 
                 connections.ForEach(x => Disconnect(x));
@@ -254,10 +254,10 @@ namespace NodeSystem
 
         public void Connect(NodeConnectionData connectionData)
         {
-            var startPin = Helper.GetPin(connectionData.SourceNodeId, connectionData.SourcePinId);
-            var endPin = Helper.GetPin(connectionData.TargetNodeId, connectionData.TargetPinId);
+            var sourcePin = Helper.GetPin(connectionData.SourceNodeId, connectionData.SourcePinId);
+            var targetPin = Helper.GetPin(connectionData.TargetNodeId, connectionData.TargetPinId);
 
-            Connect(new NodeConnection(startPin, endPin));
+            Connect(new NodeConnection(sourcePin, targetPin));
         }
 
         public void Connect(NodeConnection connection)
@@ -265,15 +265,19 @@ namespace NodeSystem
             bool hasConnection = Connections.Contains(connection);
 
             NodeEditor.Assertions.IsFalse(hasConnection);
-            NodeEditor.Assertions.IsNotNull(connection.StartPin, "Attempted to connect two pins where the start pin was null.");
-            NodeEditor.Assertions.IsNotNull(connection.EndPin, "Attempted to connect two pins where the end pin was null.");
-            NodeEditor.Assertions.IsFalse(connection.StartPin == connection.EndPin, "Attempted to connect a pin to itself.");
+            NodeEditor.Assertions.WarnIsNotNull(connection.SourcePin, "Attempted to connect two pins where the start pin was null.");
+            NodeEditor.Assertions.WarnIsNotNull(connection.TargetPin, "Attempted to connect two pins where the end pin was null.");
+            NodeEditor.Assertions.WarnIsFalse(connection.SourcePin == connection.TargetPin, "Attempted to connect a pin to itself.");
             //Assert.IsFalse(connection.StartPin.WillPinConnectionCreateCircularDependency(connection.EndPin), "Pin connection would create a circular dependency!");
 
-            if (connection.StartPin != null && connection.EndPin != null)
+            var canConnect = connection.SourcePin != null 
+                && connection.TargetPin != null 
+                && connection.SourcePin != connection.TargetPin;
+
+            if (canConnect)
             {
-                var existingConnectionOnStartPin = Helper.GetConnections(connection.StartPin);
-                var existingConnectionOnEndPin = Helper.GetConnections(connection.EndPin);
+                var existingConnectionOnStartPin = Helper.GetConnections(connection.SourcePin);
+                var existingConnectionOnEndPin = Helper.GetConnections(connection.TargetPin);
 
                 if (connection.Type == NodeConnectionType.Execute)
                 {
@@ -284,22 +288,22 @@ namespace NodeSystem
                 else if (connection.Type == NodeConnectionType.Value)
                 {
                     // Input pins on value types can never have multiple connections. Remove existing connections.
-                    existingConnectionOnStartPin.ForEach(x => Connections.Remove(x));
+                    existingConnectionOnEndPin.ForEach(x => Connections.Remove(x));
                 }
 
-                var startPinId = connection.StartPin.Index;
-                var endPinId = connection.EndPin.Index;
+                var startPinId = connection.SourcePin.Index;
+                var endPinId = connection.TargetPin.Index;
 
-                connection.StartPin.Connect(connection.EndPin);
-                connection.EndPin.Connect(connection.StartPin);
+                connection.SourcePin.Connect(connection.TargetPin);
+                connection.TargetPin.Connect(connection.SourcePin);
 
                 // Check if the pin has changed after connecting. This will happen for dynamic pin types.
-                if (connection.StartPin.Node.Pins[startPinId] != connection.StartPin || connection.EndPin.Node.Pins[endPinId] != connection.EndPin)
-                    connection = new NodeConnection(connection.StartNode.Pins[startPinId], connection.EndNode.Pins[endPinId]);
+                if (connection.SourcePin.Node.Pins[startPinId] != connection.SourcePin || connection.TargetPin.Node.Pins[endPinId] != connection.TargetPin)
+                    connection = new NodeConnection(connection.LeftNode.Pins[startPinId], connection.RightNode.Pins[endPinId]);
 
                 Connections.Add(connection);
 
-                NodeEditor.Logger.Log<NodeGraph>("Connected {0}:(1) to {2}:{3}", connection.StartNode.Name, connection.StartPin.Index, connection.EndNode.Name, connection.EndPin.Index);
+                NodeEditor.Logger.Log<NodeGraph>("Connected {0}:(1) to {2}:{3}", connection.LeftNode.Name, connection.SourcePin.Name, connection.RightNode.Name, connection.TargetPin.Name);
 
                 Edited.InvokeSafe(this);
             }
@@ -314,7 +318,7 @@ namespace NodeSystem
             if (containsConnection)
             {
                 Connections.Remove(connection);
-                NodeEditor.Logger.Log<NodeGraph>("Disconnected {0} from {1}.", connection.StartPin.Node.Name, connection.EndPin.Node.Name);
+                NodeEditor.Logger.Log<NodeGraph>("Disconnected {0} from {1}.", connection.SourcePin.Node.Name, connection.TargetPin.Node.Name);
                 Edited.InvokeSafe(this);
             }
         }
@@ -322,7 +326,7 @@ namespace NodeSystem
         public void Disconnect(NodePin pin)
         {
             var connection = Connections
-                .Where(x => x.StartNode == pin.Node && x.StartPin == pin || x.EndNode == pin.Node && x.EndPin == pin)
+                .Where(x => x.LeftNode == pin.Node && x.SourcePin == pin || x.RightNode == pin.Node && x.TargetPin == pin)
                 .ToList();
 
             if (connection.Count != 0)

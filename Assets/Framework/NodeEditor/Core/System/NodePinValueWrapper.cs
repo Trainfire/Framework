@@ -35,7 +35,7 @@ namespace NodeSystem
             NodeEditor.Assertions.IsNotNull(Pin as NodePin<T>);
             NodeEditor.Assertions.IsNotNull(ValueWrapper as NodeValueWrapper<T>);
 
-            if (Pin.IsInput())
+            if (Pin.IsInput)
             {
                 (ValueWrapper as NodeValueWrapper<T>).Value = (Pin as NodePin<T>).Value;
             }

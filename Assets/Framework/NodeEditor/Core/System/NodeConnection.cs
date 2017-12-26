@@ -12,15 +12,16 @@ namespace NodeSystem
     {
         public bool Hidden { get; private set; }
 
-        public NodePin StartPin { get; private set; }
-        public NodePin EndPin { get; private set; }
-        public Node StartNode { get { return StartPin.Node; } }
-        public Node EndNode { get { return EndPin.Node; } }
+        public NodePin SourcePin { get; private set; }
+        public NodePin TargetPin { get; private set; }
+        public Node LeftNode { get { return SourcePin.Node; } }
+        public Node RightNode { get { return TargetPin.Node; } }
+
         public NodeConnectionType Type
         {
             get
             {
-                if (StartPin.IsExecutePin() && EndPin.IsExecutePin())
+                if (SourcePin.IsExecutePin() && TargetPin.IsExecutePin())
                 {
                     return NodeConnectionType.Execute;
                 }
@@ -31,10 +32,17 @@ namespace NodeSystem
             }
         }
 
-        public NodeConnection(NodePin startPin, NodePin endPin)
+        public NodeConnection(NodePin sourcePin, NodePin targetPin)
         {
-            StartPin = startPin;
-            EndPin = endPin;
+            NodeEditor.Assertions.WarnIsTrue(sourcePin.IsOutput, "Expected source pin to be an output.");
+            NodeEditor.Assertions.WarnIsTrue(targetPin.IsInput, "Expected target pin to be an input.");
+
+            if (sourcePin.IsOutput && targetPin.IsInput)
+            {
+                // Execute go left to right.
+                SourcePin = sourcePin;
+                TargetPin = targetPin;
+            }
         }
 
         public void Hide()

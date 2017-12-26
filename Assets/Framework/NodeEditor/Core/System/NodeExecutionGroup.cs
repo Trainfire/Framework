@@ -41,27 +41,32 @@ namespace NodeSystem
                 {
                     Log("Subgroup '{0}' has finished. Setting pin value for '{1}' on '{2}'...",
                         SubGroup.Node.Name,
-                        CurrentConnection.StartNode.InputPins[_currentPin].Name,
-                        CurrentConnection.StartNode.Name);
-                    CurrentConnection.StartPin.SetValueFromPin(CurrentConnection.EndPin);
+                        GetExecutionStartNode(CurrentConnection).InputPins[_currentPin].Name,
+                        GetExecutionStartNode(CurrentConnection).Name);
+                    GetExecutionStartPin(CurrentConnection).SetValueFromPin(GetExecutionEndPin(CurrentConnection));
                     SubGroup = null;
                 }
             }
             else
             {
                 var pin = Node.InputPins[_currentPin];
-                CurrentConnection = _graphHelper.GetConnectionFromStartPin(pin);
+                CurrentConnection = _graphHelper.GetConnectionFromEndPin(pin);
 
                 if (CurrentConnection != null)
                 {
+                    var startPin = GetExecutionStartPin(CurrentConnection);
+                    var endPin = GetExecutionEndPin(CurrentConnection);
+                    var startNode = GetExecutionStartNode(CurrentConnection);
+                    var endNode = GetExecutionEndNode(CurrentConnection);
+
                     // Early out when hitting an execute node and take the value from it's pin.
-                    if (CurrentConnection.EndNode != null && CurrentConnection.EndNode.HasExecutePins())
+                    if (endNode != null && endNode.HasExecutePins())
                     {
-                        CurrentConnection.StartPin.SetValueFromPin(CurrentConnection.EndPin);
+                        startPin.SetValueFromPin(endPin);
                     }
                     else
                     {
-                        SubGroup = new NodeExecutionGroup(Depth + 1, CurrentConnection.EndNode, _graphHelper);
+                        SubGroup = new NodeExecutionGroup(Depth + 1, GetExecutionEndNode(CurrentConnection), _graphHelper);
                     }
                 }
                 else
@@ -79,6 +84,27 @@ namespace NodeSystem
         {
             var prefix = string.Format("Depth: {0} - ", Depth);
             NodeEditor.Logger.Log<NodeExecutionGroup>(prefix + message, args);
+        }
+
+        NodePin GetExecutionStartPin(NodeConnection connection)
+        {
+            // Pins flow left to right when of execute type and right to left when of value type.
+            return connection.Type == NodeConnectionType.Execute ? connection.SourcePin : connection.TargetPin;
+        }
+
+        Node GetExecutionStartNode(NodeConnection connection)
+        {
+            return connection.Type == NodeConnectionType.Execute ? connection.LeftNode : connection.RightNode;
+        }
+
+        NodePin GetExecutionEndPin(NodeConnection connection)
+        {
+            return connection.Type == NodeConnectionType.Execute ? connection.TargetPin : connection.SourcePin;
+        }
+
+        Node GetExecutionEndNode(NodeConnection connection)
+        {
+            return connection.Type == NodeConnectionType.Execute ? connection.RightNode : connection.LeftNode;
         }
     }
 }

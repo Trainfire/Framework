@@ -59,7 +59,7 @@ namespace NodeSystem
 
         public bool IsPinConnected(NodePin pin)
         {
-            return Connections.Any(connection => connection.StartPin == pin || connection.EndPin == pin);
+            return Connections.Any(connection => connection.SourcePin == pin || connection.TargetPin == pin);
         }
 
         public T GetNode<T>() where T : Node
@@ -79,17 +79,22 @@ namespace NodeSystem
 
         public NodeConnection GetConnection(NodePin pin)
         {
-            return _graph.Connections.ToList().Where(x => x.StartPin == pin || x.EndPin == pin).FirstOrDefault();
+            return _graph.Connections.ToList().Where(x => x.SourcePin == pin || x.TargetPin == pin).FirstOrDefault();
         }
 
         public List<NodeConnection> GetConnections(NodePin pin)
         {
-            return _graph.Connections.ToList().Where(x => x.StartPin == pin || x.EndPin == pin).ToList();
+            return _graph.Connections.ToList().Where(x => x.SourcePin == pin || x.TargetPin == pin).ToList();
         }
 
         public NodeConnection GetConnectionFromStartPin(NodePin startPin)
         {
-            return _graph.Connections.ToList().Where(x => x.StartPin == startPin).FirstOrDefault();
+            return _graph.Connections.ToList().Where(x => x.SourcePin == startPin).FirstOrDefault();
+        }
+
+        public NodeConnection GetConnectionFromEndPin(NodePin endPin)
+        {
+            return _graph.Connections.ToList().Where(x => x.TargetPin == endPin).FirstOrDefault();
         }
 
         public NodePin GetPin(string nodeId, int pinId)

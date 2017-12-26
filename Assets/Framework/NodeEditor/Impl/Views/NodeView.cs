@@ -96,13 +96,13 @@ namespace Framework.NodeEditorViews
 
             // Inputs
             GUILayout.BeginVertical();
-            _pinViews.Keys.Where(x => x.IsInput()).ToList().ForEach(x => DrawPin(x));
+            _pinViews.Keys.Where(x => x.IsInput).ToList().ForEach(x => DrawPin(x));
             //Node.InputPins.ForEach(x => DrawPin(x));
             GUILayout.EndVertical();
 
             // Outputs
             GUILayout.BeginVertical();
-            _pinViews.Keys.Where(x => x.IsOutput()).ToList().ForEach(x => DrawPin(x));
+            _pinViews.Keys.Where(x => x.IsOutput).ToList().ForEach(x => DrawPin(x));
             //Node.OutputPins.ForEach(x => DrawPin(x));
             GUILayout.EndVertical();
 

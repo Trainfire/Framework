@@ -34,7 +34,7 @@ namespace Framework.NodeEditorViews
 
                 GraphHelper.SelectedNode.Pins.ForEach(pin =>
                 {
-                    DrawField(string.Format("{0} (ID: {1}) (Connected: {2}) (Is Input?: {3})", pin.Name, pin.Index, GraphHelper.IsPinConnected(pin), pin.IsInput()), pin.ToString());
+                    DrawField(string.Format("{0} (ID: {1}) (Connected: {2}) (Is Input?: {3})", pin.Name, pin.Index, GraphHelper.IsPinConnected(pin), pin.IsInput), pin.ToString());
                 });
 
                 GUILayout.EndArea();

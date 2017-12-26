@@ -81,11 +81,14 @@ namespace Framework.NodeEditorViews
 
             GraphHelper.Connections.ForEach(connection =>
             {
-                Assert.IsTrue(HasNodeView(connection.StartNode), "Could not find a view for the start node of a connection.");
-                Assert.IsTrue(HasNodeView(connection.EndNode), "Could not find a view for the end node of a connection.");
+                if (connection.Hidden)
+                    return;
 
-                var startPinView = HasNodeView(connection.StartNode) ? _nodeViews[connection.StartNode].GetPinViewData(connection.StartPin) : null;
-                var endPinView = HasNodeView(connection.EndNode) ? _nodeViews[connection.EndNode].GetPinViewData(connection.EndPin) : null;
+                Assert.IsTrue(HasNodeView(connection.LeftNode), "Could not find a view for the start node of a connection.");
+                Assert.IsTrue(HasNodeView(connection.RightNode), "Could not find a view for the end node of a connection.");
+
+                var startPinView = HasNodeView(connection.LeftNode) ? _nodeViews[connection.LeftNode].GetPinViewData(connection.SourcePin) : null;
+                var endPinView = HasNodeView(connection.RightNode) ? _nodeViews[connection.RightNode].GetPinViewData(connection.TargetPin) : null;
 
                 Assert.IsNotNull(endPinView, "Failed to find a pin view for the start pin on a connection.");
                 Assert.IsNotNull(endPinView, "Failed to find a pin view for the end pin on a connection.");

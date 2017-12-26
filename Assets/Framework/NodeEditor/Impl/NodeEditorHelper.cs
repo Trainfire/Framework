@@ -80,12 +80,12 @@ namespace Framework.NodeEditorViews
             GUILayout.BeginHorizontal();
 
             // Hack to align the element to the right.
-            if (!pin.IsInput())
+            if (!pin.IsInput)
                 GUILayout.FlexibleSpace();
 
             Rect pinRect = new Rect();
 
-            if (pin.IsInput())
+            if (pin.IsInput)
             {
                 pinRect = DrawPin(pin, highlighted);
                 DrawLabel(pin);
