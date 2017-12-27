@@ -78,7 +78,7 @@ namespace NodeSystem
             NodeEditor.Assertions.IsFalse(Variables.Any(x => x.ID == graphVariableData.ID), "Tried to spawn a variable that has the same ID as an existing variable.");
 
             var variable = new NodeGraphVariable(graphVariableData);
-            Variables.Add(new NodeGraphVariable(graphVariableData));
+            Variables.Add(variable);
 
             NodeEditor.Logger.Log<NodeGraph>("Added variable '{0}' ({1})", variable.Name, variable.GetType());
 
