@@ -38,7 +38,7 @@ namespace NodeSystem
                 return;
             }
 
-            if (eventNodes.Count > 0)
+            if (eventNodes.Count > 1)
                 _logger.LogWarning<NodeGraphRunner>("Found multiple nodes for event '{0}'. Using the first found node...", eventName);
 
             _logger.Log<NodeGraphRunner>("Executing...");
