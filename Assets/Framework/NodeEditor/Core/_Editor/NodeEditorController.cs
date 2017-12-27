@@ -177,8 +177,16 @@ namespace NodeSystem.Editor
         event Action Delete;
     }
 
+    public enum NodeEditorLogLevel
+    {
+        All,
+        ErrorsOnly,
+        ErrorsAndWarnings,
+    }
+
     public interface INodeEditorLogger
     {
+        NodeEditorLogLevel LogLevel { set; }
         void Log<TSource>(string message, params object[] args);
         void LogWarning<TSource>(string message, params object[] args);
         void LogError<TSource>(string message, params object[] args);
@@ -212,6 +220,7 @@ namespace NodeSystem.Editor
 
     public class NullNodeEditorLogger : INodeEditorLogger
     {
+        public NodeEditorLogLevel LogLevel { set { } }
         public void Log<TSource>(string message, params object[] args) { }
         public void LogError<TSource>(string message, params object[] args) { }
         public void LogWarning<TSource>(string message, params object[] args) { }

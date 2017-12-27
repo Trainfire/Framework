@@ -4,6 +4,7 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using NodeSystem;
+using NodeSystem.Editor;
 
 namespace Framework.NodeEditorViews
 {
@@ -48,13 +49,13 @@ namespace Framework.NodeEditorViews
 
                 _nodeViews.Remove(node);
 
-                DebugEx.Log<NodeEditorGraphView>("Node was removed.");
+                NodeEditor.Logger.Log<NodeEditorGraphView>("Node was removed.");
             }
         }
 
         public void Clear()
         {
-            DebugEx.Log<NodeEditorGraphView>("Clearing graph view...");
+            NodeEditor.Logger.Log<NodeEditorGraphView>("Clearing graph view...");
 
             _nodeViews.ToList().ForEach(x => RemoveNodeView(x.Key));
 

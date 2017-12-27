@@ -25,7 +25,7 @@ namespace Framework
 
         public NodeEditorWindow()
         {
-            NodeEditor.Logger = new NodeEditorLogger();
+            NodeEditor.Logger = new NodeEditorLogger(NodeEditorLogLevel.ErrorsAndWarnings);
             NodeEditor.Assertions = new NodeEditorAssertions();
 
             _graph = new NodeGraph();
@@ -57,9 +57,30 @@ namespace Framework
 
     public class NodeEditorLogger : INodeEditorLogger
     {
-        public void Log<TSource>(string message, params object[] args) { DebugEx.Log<TSource>(message, args); }
-        public void LogError<TSource>(string message, params object[] args) { DebugEx.Log<TSource>(message, args); }
-        public void LogWarning<TSource>(string message, params object[] args) { DebugEx.Log<TSource>(message, args); }
+        public NodeEditorLogLevel LogLevel { set { _logLevel = value; } }
+
+        NodeEditorLogLevel _logLevel;
+
+        public NodeEditorLogger(NodeEditorLogLevel logLevel = NodeEditorLogLevel.All)
+        {
+            _logLevel = logLevel;
+        }
+
+        public void Log<TSource>(string message, params object[] args)
+        {
+            if (_logLevel == NodeEditorLogLevel.All)
+                DebugEx.Log<TSource>(message, args);
+        }
+        public void LogError<TSource>(string message, params object[] args)
+        {
+            if (_logLevel == NodeEditorLogLevel.All || _logLevel == NodeEditorLogLevel.ErrorsOnly || _logLevel == NodeEditorLogLevel.ErrorsAndWarnings)
+                DebugEx.Log<TSource>(message, args);
+        }
+        public void LogWarning<TSource>(string message, params object[] args)
+        {
+            if (_logLevel == NodeEditorLogLevel.All || _logLevel == NodeEditorLogLevel.ErrorsAndWarnings)
+             DebugEx.Log<TSource>(message, args);
+        }
     }
 
     public class NodeEditorAssertions : INodeEditorAssertions

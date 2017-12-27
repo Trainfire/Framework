@@ -71,7 +71,7 @@ namespace Framework
         {
             _editorView.GraphView.GetPinViewUnderMouse((view) =>
             {
-                DebugEx.Log<NodeEditorUserEventsListener>("Mouse released over Pin {0}. (Node ID: {1}) (Button: {2})", 
+                NodeEditor.Logger.Log<NodeEditorUserEventsListener>("Mouse released over Pin {0}. (Node ID: {1}) (Button: {2})", 
                     view.Pin.Name, 
                     view.Pin.Node.ID, 
                     mouseEvent.Button);
