@@ -3,15 +3,9 @@ using NodeSystem.Editor;
 
 namespace NodeSystem
 {
-    /// <summary>
-    /// Dummy class. Probably want to implement graph events of some sort.
-    /// </summary>
-    public class CoreStart : NodeExecute
+    public class NodeGraphEvent : Node1Out<NodePinTypeExecute>, INodeExecuteOutput
     {
-        public override void Execute()
-        {
-            NodeEditor.Logger.Log<CoreStart>("Executing...");
-        }
+        public NodePin<NodePinTypeExecute> ExecuteOut { get { return Out; } }
     }
 
     public class CoreDebugLog : NodeExecute1In1Out<string, string>

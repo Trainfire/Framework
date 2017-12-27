@@ -1,4 +1,5 @@
-﻿using NodeSystem.Editor;
+﻿using System;
+using NodeSystem.Editor;
 
 namespace NodeSystem
 {
@@ -22,17 +23,20 @@ namespace NodeSystem
             _graph = graph;
             _runner = new NodeRunner(_graph.Helper, true);
 
-            var startNode = graph.Helper.GetNode<CoreStart>();
+            var startNode = graph.Helper.GetNodes<NodeGraphEvent>("Start");
 
-            if (startNode == null)
+            if (startNode.Count == 0)
             {
                 NodeEditor.Logger.LogError<NodeGraphRunner>("Cannot run graph as no start node was found.");
                 return;
             }
 
+            if (startNode.Count > 0)
+                NodeEditor.Logger.LogWarning<NodeGraphRunner>("Found multiple 'Start' nodes. Using the first found node...");
+
             NodeEditor.Logger.Log<NodeGraphRunner>("Executing...");
 
-            _currentNode = startNode;
+            _currentNode = startNode[0];
             MoveNext();
         }
 

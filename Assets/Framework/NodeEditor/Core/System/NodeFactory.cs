@@ -22,11 +22,16 @@ namespace NodeSystem
             Register<ConversionToString<int>>("Int to String", conversion);
 
             const string core = "Core";
-            Register<CoreStart>("Start", core);
             Register<CoreDebugLog>("Debug Log", core);
 
             const string execute = "Execute";
             Register<ExecuteBranch>("Branch", execute);
+
+            // TODO: Register these dynamically from the graph type.
+            const string events = "Events";
+            Register<NodeGraphEvent>("Awake", events);
+            Register<NodeGraphEvent>("Start", events);
+            Register<NodeGraphEvent>("Update", events);
 
             const string logic = "Logic";
             Register<LogicEquals>("Equals", logic);

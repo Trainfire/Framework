@@ -122,6 +122,7 @@ namespace NodeSystem
             return pin;
         }
 
+        [Obsolete("Use AddInputPin<T> and specify NodePinTypeExecute instead.")]
         protected NodePin<NodePinTypeExecute> AddExecuteInPin()
         {
             var pin = new NodePin<NodePinTypeExecute>("In", Pins.Count, this);
@@ -130,6 +131,7 @@ namespace NodeSystem
             return pin;
         }
 
+        [Obsolete("Use AddOutputPin<T> and specify NodePinTypeExecute instead.")]
         protected NodePin<NodePinTypeExecute> AddExecuteOutPin(string name = "Out")
         {
             var pin = new NodePin<NodePinTypeExecute>(name, Pins.Count, this);
@@ -280,6 +282,17 @@ namespace NodeSystem
         {
             base.OnInitialize();
             In = AddInputPin<TIn>("In");
+        }
+    }
+
+    public abstract class Node1Out<TOut> : Node
+    {
+        protected NodePin<TOut> Out { get; private set; }
+
+        protected override void OnInitialize()
+        {
+            base.OnInitialize();
+            Out = AddOutputPin<TOut>("Out");
         }
     }
 

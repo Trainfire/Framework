@@ -25,7 +25,7 @@ namespace Framework
 
         public NodeEditorWindow()
         {
-            NodeEditor.Logger = new NodeEditorLogger(NodeEditorLogLevel.ErrorsAndWarnings);
+            NodeEditor.Logger = new NodeEditorLogger();
             NodeEditor.Assertions = new NodeEditorAssertions();
 
             _graph = new NodeGraph();
@@ -74,12 +74,12 @@ namespace Framework
         public void LogError<TSource>(string message, params object[] args)
         {
             if (_logLevel == NodeEditorLogLevel.All || _logLevel == NodeEditorLogLevel.ErrorsOnly || _logLevel == NodeEditorLogLevel.ErrorsAndWarnings)
-                DebugEx.Log<TSource>(message, args);
+                DebugEx.LogError<TSource>(message, args);
         }
         public void LogWarning<TSource>(string message, params object[] args)
         {
             if (_logLevel == NodeEditorLogLevel.All || _logLevel == NodeEditorLogLevel.ErrorsAndWarnings)
-             DebugEx.Log<TSource>(message, args);
+             DebugEx.LogWarning<TSource>(message, args);
         }
     }
 

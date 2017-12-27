@@ -67,14 +67,19 @@ namespace NodeSystem
             return _graph.Nodes.Find(x => x.GetType() == typeof(T)) as T;
         }
 
+        public Node GetNode(string nodeId)
+        {
+            return _graph.Nodes.Find(x => x.ID == nodeId);
+        }
+
         public List<T> GetNodes<T>() where T : Node
         {
             return _graph.Nodes.OfType<T>().ToList();
         }
 
-        public Node GetNode(string nodeId)
+        public List<T> GetNodes<T>(string name) where T : Node
         {
-            return _graph.Nodes.Find(x => x.ID == nodeId);
+            return GetNodes<T>().Where(x => x.Name == name).ToList();
         }
 
         public NodeConnection GetConnection(NodePin pin)
