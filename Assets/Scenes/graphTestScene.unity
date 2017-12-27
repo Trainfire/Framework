@@ -141,47 +141,67 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   GraphData:
     ID: N/A
-    Nodes: []
-    Connections: []
+    Nodes:
+    - ClassType: NodeSystem.CoreDebugLog
+      Name: Debug Log
+      ID: 9f5c80f7-4008-49ca-a1f6-20cd8a07730f
+      Position:
+        x: 269
+        y: 51
+    - ClassType: NodeSystem.NodeGraphEvent
+      Name: Start
+      ID: 217eabdb-7e54-4e34-b7ae-cceb1a143899
+      Position:
+        x: 39
+        y: 43
+    - ClassType: NodeSystem.CoreDebugLog
+      Name: Debug Log
+      ID: 7c447ac0-b937-41f1-934c-42491fedad92
+      Position:
+        x: 275
+        y: 160
+    - ClassType: NodeSystem.NodeGraphEvent
+      Name: Update
+      ID: 2d92a897-e68d-4e04-b24e-105610b281a2
+      Position:
+        x: 45
+        y: 161
+    Connections:
+    - SourceNodeId: a46f3f4c-ea53-4354-a016-3bf3d1c74c96
+      SourcePinId: 0
+      TargetNodeId: 9f5c80f7-4008-49ca-a1f6-20cd8a07730f
+      TargetPinId: 2
+    - SourceNodeId: 217eabdb-7e54-4e34-b7ae-cceb1a143899
+      SourcePinId: 0
+      TargetNodeId: 9f5c80f7-4008-49ca-a1f6-20cd8a07730f
+      TargetPinId: 0
+    - SourceNodeId: fe74ebb2-fc20-4e29-b524-8792e11de7dd
+      SourcePinId: 0
+      TargetNodeId: 7c447ac0-b937-41f1-934c-42491fedad92
+      TargetPinId: 2
+    - SourceNodeId: 2d92a897-e68d-4e04-b24e-105610b281a2
+      SourcePinId: 0
+      TargetNodeId: 7c447ac0-b937-41f1-934c-42491fedad92
+      TargetPinId: 0
     Constants:
     - ClassType: NodeSystem.NodeConstant
       Name: Constant
-      ID: 2a667ca8-f8c0-4be7-b6c3-8d001b889c5b
+      ID: a46f3f4c-ea53-4354-a016-3bf3d1c74c96
       Position:
-        x: 50
-        y: 127
+        x: 85
+        y: 96
       ConstantType: System.String
-      Value: get good, kid
-    Variables:
-    - Name: Test
-      ID: b35c2bde-e217-4eb0-974c-edfd97bfb705
-      VariableType: System.Single
-      Value: 0
-    VariableNodes:
-    - ClassType: NodeSystem.NodeVariable
-      Name: (V) Test
-      ID: 30dcdede-5b2f-4694-aa90-2ff4f98d2d61
+      Value: Start
+    - ClassType: NodeSystem.NodeConstant
+      Name: Constant
+      ID: fe74ebb2-fc20-4e29-b524-8792e11de7dd
       Position:
-        x: 50
-        y: 50
-      VariableID: b35c2bde-e217-4eb0-974c-edfd97bfb705
-      AccessorType: 0
-    - ClassType: NodeSystem.NodeVariable
-      Name: (V) Test
-      ID: 2ebd2ae2-7968-4987-95d7-066e9f837a2e
-      Position:
-        x: 183
-        y: 151
-      VariableID: b35c2bde-e217-4eb0-974c-edfd97bfb705
-      AccessorType: 1
-    - ClassType: NodeSystem.NodeVariable
-      Name: (V) Test
-      ID: f46771ed-b033-4a82-a9ff-1cd2bc60010f
-      Position:
-        x: 286
-        y: 59
-      VariableID: b35c2bde-e217-4eb0-974c-edfd97bfb705
-      AccessorType: 2
+        x: 111
+        y: 217
+      ConstantType: System.String
+      Value: Update
+    Variables: []
+    VariableNodes: []
 --- !u!4 &932632399
 Transform:
   m_ObjectHideFlags: 0

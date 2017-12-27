@@ -49,6 +49,12 @@ namespace Framework.NodeEditorViews
             float menuHeight = EditorStyles.toolbar.fixedHeight;
             const float propertiesWidth = 350f;
 
+            if (Application.isPlaying)
+            {
+                GUILayout.Label("Cannot edit whilst playing.");
+                return;
+            }
+
             GUILayout.BeginArea(new Rect(0f, 0f, Screen.width, menuHeight));
             MenuView.Draw();
             GUILayout.EndArea();

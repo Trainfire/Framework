@@ -1,22 +1,26 @@
 ﻿using System;
+using System.Collections.Generic;
 using NodeSystem.Editor;
 
 namespace NodeSystem
 {
     public class NodeGraphRunner
     {
-        private const int MaxExecutions = 256;
+        private const int MaxExecutions = -1;
 
         private INodeEditorLogger _logger;
         private NodeGraph _graph;
         private NodeRunner _runner;
         private Node _currentNode;
+        private Dictionary<string, NodeGraphEvent> _graphEventCache;
         private int _executions;
 
         public NodeGraphRunner()
         {
             _logger = NodeEditor.GetNewLoggerInstance();
             _logger.LogLevel = NodeEditorLogLevel.ErrorsAndWarnings;
+
+            _graphEventCache = new Dictionary<string, NodeGraphEvent>();
         }
 
         public void ExecuteEvent(NodeGraph graph, string eventName)
@@ -30,20 +34,31 @@ namespace NodeSystem
             _graph = graph;
             _runner = new NodeRunner(_graph.Helper, true);
 
-            var eventNodes = graph.Helper.GetNodes<NodeGraphEvent>(eventName);
+            NodeGraphEvent startNode = null;
 
-            if (eventNodes.Count == 0)
+            if (_graphEventCache.ContainsKey(eventName))
             {
-                _logger.LogError<NodeGraphRunner>("Cannot run graph as no node was found for event '{0}'.", eventName);
-                return;
+                startNode = _graphEventCache[eventName];
             }
+            else
+            {
+                var eventNodes = graph.Helper.GetNodes<NodeGraphEvent>(eventName);
 
-            if (eventNodes.Count > 1)
-                _logger.LogWarning<NodeGraphRunner>("Found multiple nodes for event '{0}'. Using the first found node...", eventName);
+                if (eventNodes.Count == 0)
+                {
+                    _logger.LogWarning<NodeGraphRunner>("Cannot run graph as no node was found for event '{0}'.", eventName);
+                    return;
+                }
+
+                if (eventNodes.Count > 1)
+                    _logger.LogWarning<NodeGraphRunner>("Found multiple nodes for event '{0}'. Using the first found node...", eventName);
+
+                startNode = eventNodes[0];
+            }
 
             _logger.Log<NodeGraphRunner>("Executing...");
 
-            _currentNode = eventNodes[0];
+            _currentNode = startNode;
             MoveNext();
         }
 
@@ -62,7 +77,7 @@ namespace NodeSystem
 
             _executions++;
 
-            if (_executions == MaxExecutions)
+            if (MaxExecutions != -1 && _executions == MaxExecutions)
             {
                 _logger.LogWarning<NodeGraphRunner>("Max executions have been reached!");
                 return;

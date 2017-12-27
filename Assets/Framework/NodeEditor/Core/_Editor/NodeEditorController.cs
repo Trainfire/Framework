@@ -29,7 +29,7 @@ namespace NodeSystem.Editor
             _eventListener.AddNode += Event_AddNode;
             _eventListener.AddVariableNode += Event_AddVariableNode;
 
-            _runner = new NodeGraphRunner();
+            //_runner = new NodeGraphRunner();
         }
 
         public void Load(NodeGraphData graphData)
@@ -57,7 +57,8 @@ namespace NodeSystem.Editor
 
         void RunGraph()
         {
-            _runner.ExecuteEvent(_graph, "Start");
+            //_runner.ExecuteEvent(_graph, "Start");
+            NodeEditor.Logger.LogWarning<NodeEditorController>("RunGraph is no longer a valid function.");
         }
 
         void RevertGraph()
