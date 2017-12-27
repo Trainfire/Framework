@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using NodeSystem.Editor;
 
 namespace NodeSystem
 {
@@ -8,6 +9,7 @@ namespace NodeSystem
         public bool Completed { get; private set; }
 
         private NodeGraphHelper _graphHelper;
+        private INodeEditorLogger _logger;
         private bool _autoIterate;
 
         private Stack<NodeExecutionGroup> _stack;
@@ -16,6 +18,9 @@ namespace NodeSystem
         {
             _graphHelper = graphHelper;
             _autoIterate = autoIterate;
+
+            _logger = NodeEditor.GetNewLoggerInstance();
+            _logger.LogLevel = NodeEditorLogLevel.ErrorsAndWarnings; 
         }
 
         public void StartFrom(Node startNode)
@@ -23,7 +28,7 @@ namespace NodeSystem
             StartNode = startNode;
 
             _stack = new Stack<NodeExecutionGroup>();
-            _stack.Push(new NodeExecutionGroup(0, startNode, _graphHelper)); // Auto-iterate on start node.
+            _stack.Push(new NodeExecutionGroup(_logger, 0, startNode, _graphHelper)); // Auto-iterate on start node.
 
             if (_autoIterate)
                 Iterate();

@@ -57,7 +57,7 @@ namespace NodeSystem.Editor
 
         void RunGraph()
         {
-            _runner.Run(_graph);
+            _runner.ExecuteEvent(_graph, "Start");
         }
 
         void RevertGraph()

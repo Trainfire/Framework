@@ -27,6 +27,7 @@ namespace Framework
         {
             NodeEditor.Logger = new NodeEditorLogger();
             NodeEditor.Assertions = new NodeEditorAssertions();
+            NodeEditor.InstantiateLoggerFunc = () => new NodeEditorLogger();
 
             _graph = new NodeGraph();
             _view = new NodeEditorView(_graph.Helper);

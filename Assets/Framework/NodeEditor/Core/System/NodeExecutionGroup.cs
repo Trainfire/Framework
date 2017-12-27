@@ -11,14 +11,16 @@ namespace NodeSystem
         public bool Finished { get; private set; }
 
         private NodeGraphHelper _graphHelper;
+        private INodeEditorLogger _logger;
         private int _currentPin;
         private int _pinCount;
 
-        public NodeExecutionGroup(int depth, Node node, NodeGraphHelper graphHelper)
+        public NodeExecutionGroup(INodeEditorLogger logger, int depth, Node node, NodeGraphHelper graphHelper)
         {
             Depth = depth;
             Node = node;
 
+            _logger = logger;
             _graphHelper = graphHelper;
             _pinCount = node.InputPins.Count;
         }
@@ -66,7 +68,7 @@ namespace NodeSystem
                     }
                     else
                     {
-                        SubGroup = new NodeExecutionGroup(Depth + 1, GetExecutionEndNode(CurrentConnection), _graphHelper);
+                        SubGroup = new NodeExecutionGroup(_logger, Depth + 1, GetExecutionEndNode(CurrentConnection), _graphHelper);
                     }
                 }
                 else
@@ -83,7 +85,7 @@ namespace NodeSystem
         void Log(string message, params object[] args)
         {
             var prefix = string.Format("Depth: {0} - ", Depth);
-            NodeEditor.Logger.Log<NodeExecutionGroup>(prefix + message, args);
+            _logger.Log<NodeExecutionGroup>(prefix + message, args);
         }
 
         NodePin GetExecutionStartPin(NodeConnection connection)

@@ -59,5 +59,15 @@ namespace NodeSystem.Editor
                     _assertions = value;
             }
         }
+
+        private static Func<INodeEditorLogger> _instantiateLoggerFunc;
+        public static Func<INodeEditorLogger> InstantiateLoggerFunc { set { _instantiateLoggerFunc = value; } }
+
+        public static INodeEditorLogger GetNewLoggerInstance()
+        {
+            if (_instantiateLoggerFunc == null)
+                return new NullNodeEditorLogger();
+            return _instantiateLoggerFunc();
+        }
     }
 }

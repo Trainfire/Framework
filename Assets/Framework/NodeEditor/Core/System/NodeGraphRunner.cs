@@ -7,36 +7,43 @@ namespace NodeSystem
     {
         private const int MaxExecutions = 256;
 
+        private INodeEditorLogger _logger;
         private NodeGraph _graph;
         private NodeRunner _runner;
         private Node _currentNode;
         private int _executions;
 
-        public void Run(NodeGraph graph)
+        public NodeGraphRunner()
+        {
+            _logger = NodeEditor.GetNewLoggerInstance();
+            _logger.LogLevel = NodeEditorLogLevel.ErrorsAndWarnings;
+        }
+
+        public void ExecuteEvent(NodeGraph graph, string eventName)
         {
             if (graph == null)
             {
-                NodeEditor.Logger.LogError<NodeGraphRunner>("Cannot run graph as it is null.");
+                _logger.LogError<NodeGraphRunner>("Cannot run graph as it is null.");
                 return;
             }
 
             _graph = graph;
             _runner = new NodeRunner(_graph.Helper, true);
 
-            var startNode = graph.Helper.GetNodes<NodeGraphEvent>("Start");
+            var eventNodes = graph.Helper.GetNodes<NodeGraphEvent>(eventName);
 
-            if (startNode.Count == 0)
+            if (eventNodes.Count == 0)
             {
-                NodeEditor.Logger.LogError<NodeGraphRunner>("Cannot run graph as no start node was found.");
+                _logger.LogError<NodeGraphRunner>("Cannot run graph as no node was found for event '{0}'.", eventName);
                 return;
             }
 
-            if (startNode.Count > 0)
-                NodeEditor.Logger.LogWarning<NodeGraphRunner>("Found multiple 'Start' nodes. Using the first found node...");
+            if (eventNodes.Count > 0)
+                _logger.LogWarning<NodeGraphRunner>("Found multiple nodes for event '{0}'. Using the first found node...", eventName);
 
-            NodeEditor.Logger.Log<NodeGraphRunner>("Executing...");
+            _logger.Log<NodeGraphRunner>("Executing...");
 
-            _currentNode = startNode[0];
+            _currentNode = eventNodes[0];
             MoveNext();
         }
 
@@ -44,7 +51,7 @@ namespace NodeSystem
         {
             NodeEditor.Assertions.IsNotNull(_currentNode);
 
-            NodeEditor.Logger.Log<NodeGraphRunner>("Move next: {0} ({1})", _currentNode.Name, _currentNode.ID);
+            _logger.Log<NodeGraphRunner>("Move next: {0} ({1})", _currentNode.Name, _currentNode.ID);
 
             // Run through all the nodes connected to the current node to prepare it for execution.
             _runner.StartFrom(_currentNode);
@@ -57,7 +64,7 @@ namespace NodeSystem
 
             if (_executions == MaxExecutions)
             {
-                NodeEditor.Logger.LogWarning<NodeGraphRunner>("Max executions have been reached!");
+                _logger.LogWarning<NodeGraphRunner>("Max executions have been reached!");
                 return;
             }
             else
@@ -74,7 +81,7 @@ namespace NodeSystem
                     }
                 }
 
-                NodeEditor.Logger.Log<NodeGraphRunner>("Finished execution of all nodes.");
+                _logger.Log<NodeGraphRunner>("Finished execution of all nodes.");
             }
         }
     }
