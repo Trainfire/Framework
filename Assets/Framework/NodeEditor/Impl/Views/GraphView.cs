@@ -10,6 +10,7 @@ namespace Framework.NodeEditorViews
 {
     public class NodeEditorGraphView : BaseView
     {
+        public NodeEditorPinConnectorView ConnectorView { get; private set; }
         public Rect WindowSize { get; set; }
 
         private Dictionary<Node, NodeEditorNodeView> _nodeViews;
@@ -17,6 +18,8 @@ namespace Framework.NodeEditorViews
 
         protected override void OnInitialize()
         {
+            ConnectorView = new NodeEditorPinConnectorView(this);
+
             _nodeViews = new Dictionary<Node, NodeEditorNodeView>();
 
             GraphHelper.NodeAdded += AddNodeView;
@@ -67,6 +70,7 @@ namespace Framework.NodeEditorViews
             _scrollPosition = GUI.BeginScrollView(WindowSize, _scrollPosition, new Rect(0, 0, 2000f, 0f));
             DrawNodes();
             DrawConnections();
+            ConnectorView.Draw();
             GUI.EndScrollView();
         }
 

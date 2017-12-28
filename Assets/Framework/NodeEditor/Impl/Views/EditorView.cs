@@ -12,7 +12,7 @@ namespace Framework.NodeEditorViews
         public NodeEditorGraphView GraphView { get; private set; }
         public NodeEditorContextMenuView ContextMenu { get; private set; }
         public NodeEditorMenuStripView MenuView { get; private set; }
-        public NodeEditorPinConnectorView ConnectorView { get; private set; }
+        public NodeEditorPinConnectorView ConnectorView { get { return GraphView.ConnectorView; } }
         public NodeEditorPropertiesView Properties { get; private set; }
         public NodeEditorDebugView Debugger { get; private set; }
 
@@ -28,7 +28,6 @@ namespace Framework.NodeEditorViews
             GraphView = AddView(new NodeEditorGraphView());
             ContextMenu = AddView(new NodeEditorContextMenuView());
             MenuView = AddView(new NodeEditorMenuStripView());
-            ConnectorView = AddView(new NodeEditorPinConnectorView(GraphView));
             Properties = AddView(new NodeEditorPropertiesView());
             Debugger = AddView(new NodeEditorDebugView());
         }
@@ -68,9 +67,8 @@ namespace Framework.NodeEditorViews
             Properties.Draw();
             GUILayout.EndArea();
 
-            Debugger.Draw();
+            //Debugger.Draw();
             ContextMenu.Draw();
-            ConnectorView.Draw();
         }
 
         public void Dispose()
