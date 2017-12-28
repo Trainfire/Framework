@@ -91,7 +91,7 @@ namespace NodeSystem
                 Name = nodeData.Name,
                 ID = nodeData.ID,
                 Position = nodeData.Position,
-                VariableID = nodeVariable.Variable.ID,
+                VariableID = nodeVariable.VariableID,
                 AccessorType = nodeVariable.AccessorType,
             };
 

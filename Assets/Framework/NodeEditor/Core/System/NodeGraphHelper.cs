@@ -92,6 +92,11 @@ namespace NodeSystem
             return _graph.Connections.ToList().Where(x => x.SourcePin == pin || x.TargetPin == pin).ToList();
         }
 
+        public List<NodeConnection> GetConnections(Node node)
+        {
+            return _graph.Connections.ToList().Where(x => x.SourcePin.Node == node || x.TargetPin.Node == node).ToList();
+        }
+
         public NodeConnection GetConnectionFromStartPin(NodePin startPin)
         {
             return _graph.Connections.ToList().Where(x => x.SourcePin == startPin).FirstOrDefault();
@@ -111,6 +116,11 @@ namespace NodeSystem
                     return node.Pins[pinId];
             }
             return null;
+        }
+
+        public List<NodeVariable> GetNodesByVariableReference(NodeGraphVariable variable)
+        {
+            return GetNodes<NodeVariable>().Where(x => x.VariableID == variable.ID).ToList();
         }
 
         public static NodeGraphData GetGraphData(NodeGraph graph)

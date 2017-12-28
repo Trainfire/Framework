@@ -38,6 +38,9 @@ namespace Framework.NodeEditorViews
             tex.Apply();
             style.normal.background = tex;
 
+            if (!GraphHelper.IsGraphLoaded)
+                return;
+
             GUILayout.BeginVertical(style, GUILayout.ExpandHeight(true));
 
             GUILayout.BeginHorizontal();

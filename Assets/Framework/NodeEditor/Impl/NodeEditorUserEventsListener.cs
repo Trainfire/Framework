@@ -96,7 +96,9 @@ namespace Framework
 
         void InputListener_DeletePressed()
         {
-            Delete.InvokeSafe();
+            // Hacks! I have no idea how Unity decides how elements are focused. ¯\_(ツ)_/¯
+            if (_editorView.GraphView.WindowSize.Contains(_inputListener.MousePosition))
+                Delete.InvokeSafe();
         }
 
         void InputListener_KeyPressed(EditorKeyboardEvent keyboardEvent)

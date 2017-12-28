@@ -70,6 +70,12 @@ namespace NodeSystem
 
         public void AddVariable(string name, Type type)
         {
+            var existingNewVariables = Variables.Where(x => x.Name.Contains(name)).ToList();
+
+            // Add number if an variable exists with the same name.
+            if (existingNewVariables.Count != 0)
+                name = string.Format("{0} ({1})", name, existingNewVariables.Count + 1);
+
             AddVariable(new NodeGraphVariableData(name, GetNewGuid(), type));
         }
 
@@ -78,6 +84,7 @@ namespace NodeSystem
             NodeEditor.Assertions.IsFalse(Variables.Any(x => x.ID == graphVariableData.ID), "Tried to spawn a variable that has the same ID as an existing variable.");
 
             var variable = new NodeGraphVariable(graphVariableData);
+            variable.NameChangeRequested += Variable_NameChangeRequested;
             Variables.Add(variable);
 
             NodeEditor.Logger.Log<NodeGraph>("Added variable '{0}' ({1})", variable.Name, variable.GetType());
@@ -99,8 +106,11 @@ namespace NodeSystem
         {
             NodeEditor.Assertions.IsTrue(Variables.Contains(graphVariable));
             NodeEditor.Logger.Log<NodeGraph>("Removing variable '{0}'", graphVariable.Name);
+
             Variables.Remove(graphVariable);
             VariableRemoved.InvokeSafe(graphVariable);
+            graphVariable.Remove();
+
             Edited.InvokeSafe(this);
         }
 
@@ -119,7 +129,6 @@ namespace NodeSystem
         public NodeVariable AddNodeVariable(AddNodeVariableArgs addNodeVariableArgs)
         {
             var variableData = new NodeVariableData(addNodeVariableArgs.Variable, addNodeVariableArgs.AccessorType, GetNewGuid());
-            variableData.Name = "(V) " + addNodeVariableArgs.Variable.Name;
 
             var node = CreateNodeInstance(typeof(NodeVariable)) as NodeVariable;
             node.Initialize(variableData);
@@ -147,16 +156,11 @@ namespace NodeSystem
         {
             var foundVariable = Variables.Find(x => x.ID == nodeVariableData.VariableID);
 
-            NodeEditor.Assertions.IsNotNull(foundVariable, "The specified variable does not exist in the graph.");
+            NodeEditor.Assertions.WarnIsNotNull(foundVariable, string.Format("The specified variable ({0}) does not exist in the graph.", nodeVariableData.VariableID));
 
-            if (foundVariable != null)
-            {
-                var nodeInstance = AddNode(nodeVariableData) as NodeVariable;
-                nodeInstance.Set(foundVariable, nodeVariableData.AccessorType);
-                return nodeInstance;
-            }
-
-            return null;
+            var nodeInstance = AddNode(nodeVariableData) as NodeVariable;
+            nodeInstance.Set(foundVariable, nodeVariableData.AccessorType);
+            return nodeInstance;
         }
 
         Node CreateNodeInstance(Type type)
@@ -357,6 +361,23 @@ namespace NodeSystem
         {
             Disconnect(pin);
             Edited.InvokeSafe(this);
+        }
+
+        void Variable_NameChangeRequested(NodeGraphVariableNameChangeRequestEvent nameChangeEvent)
+        {
+            if (nameChangeEvent.Variable.Name == nameChangeEvent.ReplacementName)
+                return;
+
+            NodeEditor.Logger.Log<NodeGraph>("Update name");
+
+            var nameExists = Variables
+                .Where(x => x != nameChangeEvent.Variable)
+                .Any(x => x.Name == nameChangeEvent.ReplacementName);
+
+            NodeEditor.Assertions.WarnIsFalse(nameExists, string.Format("A variable already exists with the name '{0}'", nameChangeEvent.ReplacementName));
+
+            if (!nameExists)
+                nameChangeEvent.Variable.Name = nameChangeEvent.ReplacementName;
         }
         #endregion
     }

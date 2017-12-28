@@ -255,6 +255,12 @@ namespace NodeSystem.Editor
         public string VariableName { get; private set; }
         public Type VariableType { get; private set; }
 
+        public AddGraphVariableEvent(Type variableType)
+        {
+            VariableName = "New Variable";
+            VariableType = variableType;
+        }
+
         public AddGraphVariableEvent(string variableName, Type variableType)
         {
             VariableName = variableName;

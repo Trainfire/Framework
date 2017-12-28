@@ -11,6 +11,9 @@ namespace Framework.NodeEditorViews
             const float height = 150f;
             GUILayout.BeginArea(new Rect(new Vector2(0f, Screen.height - height), new Vector2(Screen.width * 0.5f, height)), EditorStyles.inspectorFullWidthMargins);
 
+            DrawField("Focused UI", GUI.GetNameOfFocusedControl());
+            DrawField("Mouse Pos", InputListener.MousePosition);
+
             DrawHeader("Graph Info");
 
             if (GraphHelper == null)
@@ -20,7 +23,6 @@ namespace Framework.NodeEditorViews
             else
             {
                 DrawField("Node Count", GraphHelper.NodeCount);
-                DrawField("Mouse Pos", InputListener.MousePosition);
             }
 
             GUILayout.EndArea();

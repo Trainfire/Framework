@@ -62,7 +62,7 @@ namespace NodeSystem
         public List<NodePin> InputPins { get; private set; }
         public List<NodePin> OutputPins { get; private set; }
 
-        public string Name { get; private set; }
+        public virtual string Name { get; private set; }
         public string ID { get; private set; }
         public NodeVec2 Position { get; set; }
 
@@ -198,6 +198,8 @@ namespace NodeSystem
             Changed.InvokeSafe(this);
         }
 
+        protected virtual void NameOveride() { }
+
         protected virtual void OnPinConnected(NodePinConnectEvent pinConnectEvent) { }
 
         public bool IsInputPin(NodePin pin)
@@ -272,7 +274,6 @@ namespace NodeSystem
             Destroyed = null;
         }
     }
-
 
     public abstract class Node1In<TIn> : Node
     {

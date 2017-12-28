@@ -24,12 +24,52 @@ namespace NodeSystem
         }
     }
 
+    public class NodeGraphVariableNameChangeRequestEvent
+    {
+        public NodeGraphVariable Variable { get; private set; }
+        public string ReplacementName { get; private set; }
+
+        public NodeGraphVariableNameChangeRequestEvent(NodeGraphVariable variable, string replacementName)
+        {
+            Variable = variable;
+            ReplacementName = replacementName;
+        }
+    }
+
     public class NodeGraphVariable
     {
         public event Action<NodeGraphVariableTypeChangeEvent> PreTypeChanged;
         public event Action<NodeGraphVariableTypeChangeEvent> PostTypeChanged;
+        public event Action<NodeGraphVariableNameChangeRequestEvent> NameChangeRequested;
+        public event Action<NodeGraphVariable> NameChanged;
+        public event Action<NodeGraphVariable> Removed;
 
-        public string Name { get; private set; }
+        string _name;
+        /// <summary>
+        /// Do not set directly. If you want to set the name, use SetName instead as it needs to be validated by the graph.
+        /// </summary>
+        public string Name
+        {
+            get { return _name; }
+            set
+            {
+                _name = value;
+                NameChanged.InvokeSafe(this);
+            }
+        }
+
+        /// <summary>
+        /// Triggers a request to replace the current name with the specified value.
+        /// </summary>
+        public string ReplacementName
+        {
+            set
+            {
+                if (value != Name)
+                    NameChangeRequested.InvokeSafe(new NodeGraphVariableNameChangeRequestEvent(this, value));
+            }
+        }
+
         public string ID { get; private set; }
 
         public Type WrappedType { get { return WrappedValue != null ? WrappedValue.ValueType : null; } }
@@ -59,6 +99,12 @@ namespace NodeSystem
             WrappedValue = Activator.CreateInstance(classType) as NodeValueWrapper;
 
             PostTypeChanged.InvokeSafe(new NodeGraphVariableTypeChangeEvent(this, WrappedType, wrappedValueType));
+        }
+
+        public void Remove()
+        {
+            Removed.InvokeSafe(this);
+            WrappedValue = null;
         }
     }
 }
