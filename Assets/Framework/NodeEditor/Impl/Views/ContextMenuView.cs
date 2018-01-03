@@ -16,13 +16,19 @@ namespace Framework.NodeEditorViews
         protected override void OnInitialize()
         {
             InputListener.ContextClicked += OnContextClicked;
+            GraphHelper.GraphPostLoaded += GraphHelper_GraphPostLoadComplete;
+        }
 
+        void GraphHelper_GraphPostLoadComplete()
+        {
             _menu = new GenericMenu();
 
-            var factory = new NodeFactory();
-            factory.Registry.ForEach(x =>
+            GraphHelper.NodeRegister.ForEach(entry =>
             {
-                _menu.AddItem(new GUIContent(x), false, () => AddNode.InvokeSafe(new AddNodeEvent(x)));
+                // Format into a folder using slashes, if one is defined.
+                var formattedName = entry.Folder != string.Empty ? string.Format("{0}/{1}", entry.Folder, entry.Name) : entry.Name;
+
+                _menu.AddItem(new GUIContent(formattedName), false, () => AddNode.InvokeSafe(new AddNodeEvent(entry)));
             });
 
             _menu.AddSeparator("");

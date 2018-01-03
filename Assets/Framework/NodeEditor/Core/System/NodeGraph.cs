@@ -25,12 +25,14 @@ namespace NodeSystem
         public List<Node> Nodes { get; private set; }
         public List<NodeConnection> Connections { get; private set; }
         public List<NodeGraphVariable> Variables { get; private set; }
+        public List<NodeRegistryEntry> NodeRegistry { get; private set; }
 
         public NodeGraph()
         {
             Nodes = new List<Node>();
             Connections = new List<NodeConnection>();
             Variables = new List<NodeGraphVariable>();
+            NodeRegistry = new List<NodeRegistryEntry>();
             Helper = new NodeGraphHelper(this);
             State = new NodeGraphState(this);
         }
@@ -40,6 +42,9 @@ namespace NodeSystem
             NodeEditor.Logger.Log<NodeGraph>("Initializing...");
 
             Unload();
+
+            NodeRegistry.AddRange(CoreNodesRegister.Register.Entries);
+            // TODO: Register nodes here from the graph type.
 
             NodeEditor.Logger.Log<NodeGraph>("Reading from graph data...");
 
@@ -60,6 +65,7 @@ namespace NodeSystem
             Nodes.ToList().ForEach(x => RemoveNode(x));
             Connections.ToList().ForEach(x => Disconnect(x));
             Variables.ToList().ForEach(x => RemoveVariable(x));
+            NodeRegistry.Clear();
 
             Selection = null;
 
@@ -112,6 +118,17 @@ namespace NodeSystem
             graphVariable.Remove();
 
             Edited.InvokeSafe(this);
+        }
+
+        public void AddNode(NodeRegistryEntry registryEntry)
+        {
+            if (!NodeRegistry.Contains(registryEntry))
+            {
+                NodeEditor.Logger.LogWarning<NodeGraph>("Cannot spawn node of type '{0}' as it is not registered in the graph.", registryEntry.Name);
+                return;
+            }
+
+            AddNode(registryEntry.NodeType, registryEntry.Name);
         }
 
         public void AddNode(Type type, string name = "")

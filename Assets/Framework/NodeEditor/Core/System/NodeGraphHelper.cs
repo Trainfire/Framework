@@ -10,6 +10,8 @@ namespace NodeSystem
     /// </summary>
     public class NodeGraphHelper : IDisposable
     {
+        public event Action GraphPostUnloaded;
+        public event Action GraphPostLoaded;
         public event Action<NodeGraphVariable> VariableAdded;
         public event Action<NodeGraphVariable> VariableRemoved;
         public event Action<Node> NodeSelected;
@@ -35,6 +37,11 @@ namespace NodeSystem
             get { return _graph != null ? _graph.Variables.ToList() : new List<NodeGraphVariable>(); }
         }
 
+        public List<NodeRegistryEntry> NodeRegister
+        {
+            get { return _graph != null ? _graph.NodeRegistry.ToList() : new List<NodeRegistryEntry>(); }
+        }
+
         private NodeGraph _graph;
 
         public NodeGraphHelper(NodeGraph graph)
@@ -43,12 +50,17 @@ namespace NodeSystem
                 return;
 
             _graph = graph;
+            _graph.PostLoad += Graph_PostLoad;
+            _graph.PostUnload += Graph_PostUnload;
             _graph.VariableAdded += Graph_VariableAdded;
             _graph.VariableRemoved += Graph_VariableRemoved;
             _graph.NodeAdded += Graph_NodeAdded;
             _graph.NodeRemoved += Graph_NodeRemoved;
             _graph.NodeSelected += Graph_NodeSelected;
         }
+
+        void Graph_PostUnload(NodeGraph graph) { GraphPostUnloaded.InvokeSafe(); }
+        void Graph_PostLoad(NodeGraph graph, NodeGraphData graphData) { GraphPostLoaded.InvokeSafe(); }
 
         void Graph_VariableRemoved(NodeGraphVariable variable) { VariableRemoved.InvokeSafe(variable); }
         void Graph_VariableAdded(NodeGraphVariable variable) { VariableAdded.InvokeSafe(variable); }

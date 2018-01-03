@@ -97,10 +97,7 @@ namespace NodeSystem.Editor
         void Event_AddNode(AddNodeEvent addNodeEvent)
         {
             if (_graph != null)
-            {
-                var factory = new NodeFactory();
-                factory.Instantiate(addNodeEvent.NodeId, _graph);
-            }
+                _graph.AddNode(addNodeEvent.NodeRegistryEntry);
         }
 
         void Event_AddVariableNode(AddNodeVariableArgs addNodeVariableArgs)
@@ -230,11 +227,11 @@ namespace NodeSystem.Editor
 #region Events
     public class AddNodeEvent
     {
-        public string NodeId { get; private set; }
+        public NodeRegistryEntry NodeRegistryEntry { get; private set; }
 
-        public AddNodeEvent(string nodeId)
+        public AddNodeEvent(NodeRegistryEntry nodeRegistryEntry)
         {
-            NodeId = nodeId;
+            NodeRegistryEntry = nodeRegistryEntry;
         }
     }
 
