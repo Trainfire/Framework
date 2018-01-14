@@ -30,6 +30,7 @@ namespace Framework
             NodeEditor.InstantiateLoggerFunc = () => new NodeEditorLogger();
 
             _graph = new NodeGraph();
+            _graph.SetDefaultGraphType(new GameObjectGraphType());
             _view = new NodeEditorView(_graph.Helper);
             _input = new NodeEditorUserEventsListener(_view);
             _controller = new NodeEditorController(_graph, _input);

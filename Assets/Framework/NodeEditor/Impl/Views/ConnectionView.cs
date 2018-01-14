@@ -9,7 +9,7 @@ namespace Framework.NodeEditorViews
     {
         public static void DrawConnection(NodeEditorPinView startPin, NodeEditorPinView endPin)
         {
-            DrawConnection(GetPinPosition(startPin), GetPinPosition(endPin), NodeEditorColorHelper.GetPinColor(startPin.Pin));
+            DrawConnection(GetPinPosition(startPin), GetPinPosition(endPin), NodeEditorColorHelper.GetPinColor(startPin.Pin.WrappedType));
         }
 
         public static void DrawConnection(Vector2 start, Vector2 end, Color color)

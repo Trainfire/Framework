@@ -29,7 +29,7 @@ namespace Framework.NodeEditorViews
         {
             var constant = GraphHelper.SelectedNode as NodeConstant;
 
-            var selectedType = NodeEditorPropertiesHelper.DrawTypeField(constant.ValueWrapper.ValueType, NodePinTypeCategory.Constant);
+            var selectedType = NodeEditorPropertiesHelper.DrawTypeField(constant.ValueWrapper.ValueType, GraphHelper.GraphType, NodePinTypeCategory.Constant);
             constant.SetType(selectedType.WrappedType);
 
             NodeEditorPropertiesHelper.DrawValueWrapperField(constant.ValueWrapper);

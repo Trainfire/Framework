@@ -67,7 +67,7 @@ namespace Framework.NodeEditorViews
             Properties.Draw();
             GUILayout.EndArea();
 
-            //Debugger.Draw();
+            Debugger.Draw();
             ContextMenu.Draw();
         }
 

@@ -82,7 +82,7 @@ namespace Framework.NodeEditorViews
                 EditorGUILayout.BeginVertical();
 
                 variable.ReplacementName = EditorGUILayout.DelayedTextField("Name", variable.Name);
-                NodeEditorPropertiesHelper.DrawTypeField(variable);
+                NodeEditorPropertiesHelper.DrawTypeField(variable, GraphHelper.GraphType);
                 NodeEditorPropertiesHelper.DrawValueWrapperField(variable.WrappedValue);
 
                 EditorGUILayout.BeginHorizontal();

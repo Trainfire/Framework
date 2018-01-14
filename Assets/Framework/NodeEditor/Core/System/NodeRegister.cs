@@ -19,6 +19,11 @@ namespace NodeSystem
         }
     }
 
+    public class NodeRegistryEntry<T> : NodeRegistryEntry
+    {
+        public NodeRegistryEntry(string name, string folder) : base(typeof(T), name, folder) { }
+    }
+
     public class NodeRegister
     {
         private List<NodeRegistryEntry> _entries;

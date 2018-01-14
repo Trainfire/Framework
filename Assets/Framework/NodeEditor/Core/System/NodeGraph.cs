@@ -25,16 +25,25 @@ namespace NodeSystem
         public List<Node> Nodes { get; private set; }
         public List<NodeConnection> Connections { get; private set; }
         public List<NodeGraphVariable> Variables { get; private set; }
-        public List<NodeRegistryEntry> NodeRegistry { get; private set; }
+        public NodeGraphType GraphType { get; private set; }
+
+        private NodeGraphType _defaultGraphType;
 
         public NodeGraph()
         {
+            // Default graph type.
+            GraphType = new NodeGraphType();
+
             Nodes = new List<Node>();
             Connections = new List<NodeConnection>();
             Variables = new List<NodeGraphVariable>();
-            NodeRegistry = new List<NodeRegistryEntry>();
             Helper = new NodeGraphHelper(this);
             State = new NodeGraphState(this);
+        }
+
+        public void SetDefaultGraphType<T>(T graphType) where T : NodeGraphType
+        {
+            _defaultGraphType = graphType;
         }
 
         public void Load(NodeGraphData graphData)
@@ -43,10 +52,30 @@ namespace NodeSystem
 
             Unload();
 
-            NodeRegistry.AddRange(CoreNodesRegister.Register.Entries);
-            // TODO: Register nodes here from the graph type.
-
             NodeEditor.Logger.Log<NodeGraph>("Reading from graph data...");
+
+            if (string.IsNullOrEmpty(graphData.GraphType))
+            {
+                NodeEditor.Logger.LogWarning<NodeGraph>("Loading graph with no graph type. Defaulting...");
+                GraphType = _defaultGraphType;
+            }
+            else
+            {
+                var type = Type.GetType(graphData.GraphType);
+
+                NodeEditor.Assertions.IsNotNull(type, "Invalid graph type.");
+
+                if (type != null)
+                {
+                    GraphType = Activator.CreateInstance(type) as NodeGraphType;
+                    NodeEditor.Logger.Log<NodeGraph>("Graph type set to '{0}'", GraphType.GetType().ToString());
+                }
+                else
+                {
+                    GraphType = _defaultGraphType;
+                    NodeEditor.Logger.Log<NodeGraph>("Graph type invalid. Setting to default.");
+                }
+            }
 
             graphData.Variables.ForEach(variable => AddVariable(variable));
             graphData.Nodes.ForEach(x => AddNode(x));
@@ -65,7 +94,6 @@ namespace NodeSystem
             Nodes.ToList().ForEach(x => RemoveNode(x));
             Connections.ToList().ForEach(x => Disconnect(x));
             Variables.ToList().ForEach(x => RemoveVariable(x));
-            NodeRegistry.Clear();
 
             Selection = null;
 
@@ -122,7 +150,7 @@ namespace NodeSystem
 
         public void AddNode(NodeRegistryEntry registryEntry)
         {
-            if (!NodeRegistry.Contains(registryEntry))
+            if (!GraphType.NodeRegister.Contains(registryEntry))
             {
                 NodeEditor.Logger.LogWarning<NodeGraph>("Cannot spawn node of type '{0}' as it is not registered in the graph.", registryEntry.Name);
                 return;

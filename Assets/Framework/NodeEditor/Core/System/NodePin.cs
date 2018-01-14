@@ -1,8 +1,48 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using NodeSystem.Editor;
 
 namespace NodeSystem
 {
+    public enum NodePinTypeCategory
+    {
+        Uncategorized,
+        Special,
+        Constant,
+    }
+
+    public class NodePinType
+    {
+        public string Name { get; private set; }
+        public Type WrappedType { get; private set; }
+        public NodePinTypeCategory Category { get; private set; }
+        public List<Type> CompatibleTypes { get; private set; }
+
+        public NodePinType(string name, Type type, NodePinTypeCategory category, params Type[] compatibleTypes)
+        {
+            Name = name;
+            WrappedType = type;
+            Category = category;
+
+            CompatibleTypes = new List<Type>();
+            CompatibleTypes.Add(type);
+            foreach (var compatibleType in compatibleTypes)
+            {
+                CompatibleTypes.Add(compatibleType);
+            }
+        }
+
+        public bool AreTypesCompatible<T>()
+        {
+            return CompatibleTypes.Any(x => x == typeof(T));
+        }
+    }
+
+    public class NodePinTypeNone { }
+    public class NodePinTypeExecute { }
+    public class NodePinTypeAny { }
+
     public class NodePinConnectEvent
     {
         public NodePin Pin { get; private set; }
@@ -23,11 +63,9 @@ namespace NodeSystem
         public Node Node { get; private set; }
         public string Name { get; private set; }
         public int Index { get; private set; }
-        public Type WrappedType { get { return Type.WrappedType; } }
+        public abstract Type WrappedType { get; }
         public bool IsInput { get { return Node.IsInputPin(this); } }
         public bool IsOutput { get { return Node.IsOutputPin(this); } }
-
-        public abstract NodePinType Type { get; }
 
         public NodePin(string name, int index, Node node)
         {
@@ -87,7 +125,7 @@ namespace NodeSystem
     {
         public NodePin(string name, int index, Node node) : base(name, index, node) { }
 
-        public override NodePinType Type { get { return NodePinTypeRegistry.Get<T>(); } }
+        public override Type WrappedType { get { return typeof(T); } }
 
         private T _value;
         public T Value

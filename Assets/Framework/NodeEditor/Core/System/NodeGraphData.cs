@@ -164,6 +164,7 @@ namespace NodeSystem
     public class NodeGraphData
     {
         public string ID;
+        public string GraphType;
         public List<NodeData> Nodes;
         public List<NodeConnectionData> Connections;
         public List<NodeConstantData> Constants;
@@ -183,6 +184,7 @@ namespace NodeSystem
         public NodeGraphData(NodeGraphData original)
         {
             ID = original.ID;
+            GraphType = original.GraphType;
             Nodes = original.Nodes;
             Connections = original.Connections;
             Constants = original.Constants;

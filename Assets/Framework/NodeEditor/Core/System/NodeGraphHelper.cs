@@ -39,7 +39,17 @@ namespace NodeSystem
 
         public List<NodeRegistryEntry> NodeRegister
         {
-            get { return _graph != null ? _graph.NodeRegistry.ToList() : new List<NodeRegistryEntry>(); }
+            get { return _graph != null ? _graph.GraphType.NodeRegister.ToList() : new List<NodeRegistryEntry>(); }
+        }
+
+        public List<NodePinType> PinTypeRegister
+        {
+            get { return _graph != null ? _graph.GraphType.PinTypeRegister.ToList() : new List<NodePinType>(); }
+        }
+
+        public NodeGraphType GraphType
+        {
+            get { return _graph != null ? _graph.GraphType : null; }
         }
 
         private NodeGraph _graph;
@@ -140,6 +150,8 @@ namespace NodeSystem
             NodeEditor.Logger.Log<NodeGraphState>("Serializing graph state...");
 
             var outGraphData = new NodeGraphData();
+
+            outGraphData.GraphType = graph.GraphType.GetType().ToString();
 
             // TODO: Find a nicer way to do this...
             graph.Nodes.ForEach(node =>

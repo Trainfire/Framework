@@ -33,14 +33,14 @@ namespace Framework.NodeEditorViews
             { typeof(string), new Color(0.2f, 0.2f, 0.2f) }
         };
 
-        public static Color GetPinColor(NodePin pin)
+        public static Color GetPinColor(NodePinType type)
         {
-            return GetPinColor(pin.Type);
+            return GetPinColor(type.WrappedType);
         }
 
-        public static Color GetPinColor(NodePinType pinType)
+        public static Color GetPinColor(Type type)
         {
-            return _colorRegistry.ContainsKey(pinType.WrappedType) ? _colorRegistry[pinType.WrappedType] : Color.white;
+            return _colorRegistry.ContainsKey(type) ? _colorRegistry[type] : Color.white;
         }
     }
 
@@ -48,12 +48,12 @@ namespace Framework.NodeEditorViews
     {
         public static void Draw(NodeEditorPinView startPin, NodeEditorPinView endPin)
         {
-            Draw(GetPinPosition(startPin), GetPinPosition(endPin), NodeEditorColorHelper.GetPinColor(startPin.Pin));
+            Draw(GetPinPosition(startPin), GetPinPosition(endPin), NodeEditorColorHelper.GetPinColor(startPin.Pin.WrappedType));
         }
 
         public static void Draw(NodeEditorPinView startPin, Vector2 endPosition)
         {
-            Draw(GetPinPosition(startPin), endPosition, NodeEditorColorHelper.GetPinColor(startPin.Pin));
+            Draw(GetPinPosition(startPin), endPosition, NodeEditorColorHelper.GetPinColor(startPin.Pin.WrappedType));
         }
 
         public static void Draw(Vector2 start, Vector2 end, Color color)
@@ -105,7 +105,7 @@ namespace Framework.NodeEditorViews
         {
             var startingBg = GUI.backgroundColor;
 
-            var color = NodeEditorColorHelper.GetPinColor(pin.Type);
+            var color = NodeEditorColorHelper.GetPinColor(pin.WrappedType);
 
             if (highlighted)
             {
@@ -130,25 +130,25 @@ namespace Framework.NodeEditorViews
 
     public static class NodeEditorPropertiesHelper
     {
-        public static NodePinType DrawTypeField(Type currentType)
+        public static NodePinType DrawTypeField(Type currentType, NodeGraphType graphType)
         {
-            return DrawTypeField(currentType, NodePinTypeRegistry.AllPinTypes);
+            return DrawTypeField(currentType, graphType, graphType.PinTypeRegister.ToList());
         }
 
-        public static NodePinType DrawTypeField(Type currentType, params NodePinTypeCategory[] categories)
+        public static NodePinType DrawTypeField(Type currentType, NodeGraphType graphType, params NodePinTypeCategory[] categories)
         {
-            return DrawTypeField(currentType, NodePinTypeRegistry.Get(categories));
+            return DrawTypeField(currentType, graphType, graphType.GetPins(categories));
         }
 
-        public static void DrawTypeField(NodeGraphVariable graphVariable)
+        public static void DrawTypeField(NodeGraphVariable graphVariable, NodeGraphType graphType)
         {
-            var type = DrawTypeField(graphVariable.WrappedType).WrappedType;
+            var type = DrawTypeField(graphVariable.WrappedType, graphType).WrappedType;
             graphVariable.SetValueWrapperFromType(type);
         }
 
-        static NodePinType DrawTypeField(Type currentType, List<NodePinType> dropdownTypes)
+        static NodePinType DrawTypeField(Type currentType, NodeGraphType graphType, List<NodePinType> dropdownTypes)
         {
-            var pinTypeData = NodePinTypeRegistry.Get(currentType);
+            var pinTypeData = graphType.GetPinType(currentType);
 
             var typeExists = dropdownTypes.Exists(x => x.WrappedType == pinTypeData.WrappedType);
             NodeEditor.Assertions.IsTrue(typeExists, "The specified type does not exist in the provided list of pin types.");
