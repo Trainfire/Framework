@@ -87,8 +87,11 @@ namespace Framework
         {
             _editorView.GraphView.GetNodeViewUnderMouse((view) =>
             {
-                if (_editorView.GraphView.WindowSize.Contains(mouseEvent.Position) && view != null)
-                    SelectNode.InvokeSafe(view.Node);
+                if (_editorView.GraphView.WindowSize.Contains(mouseEvent.Position))
+                {
+                    var node = view != null ? view.Node : null;
+                    SelectNode.InvokeSafe(node);
+                }
             });
 
             _editorView.GraphView.GetPinViewUnderMouse((view) => MouseDownOverPin.InvokeSafe(view.Pin));
