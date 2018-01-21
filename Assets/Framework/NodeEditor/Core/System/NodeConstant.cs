@@ -13,8 +13,7 @@ namespace NodeSystem
 
         protected override void OnInitialize()
         {
-            ValueWrapper = new NodeValueWrapper<NodePinTypeNone>();
-            UpdateOutPin();
+            SetType(typeof(NodePinTypeNone));
         }
 
         public void Set(NodeConstantData nodeConstantData)
@@ -26,10 +25,15 @@ namespace NodeSystem
 
         public void SetType(Type type)
         {
-            if (type == ValueWrapper.ValueType || type == null)
+            if (ValueWrapper != null && type == ValueWrapper.ValueType || type == null)
                 return;
 
+            if (ValueWrapper != null)
+                ValueWrapper.Changed -= ValueWrapper_Changed;
+
             ValueWrapper = Activator.CreateInstance(typeof(NodeValueWrapper<>).MakeGenericType(type)) as NodeValueWrapper;
+            ValueWrapper.Changed += ValueWrapper_Changed;
+
             UpdateOutPin();
         }
 
@@ -38,6 +42,11 @@ namespace NodeSystem
             RemoveAllPins();
             Out = AddPin("Out", ValueWrapper.ValueType, true);
             _wrappedOutPin = NodePinValueWrapper.Instantiate(Out, ValueWrapper);
+        }
+
+        void ValueWrapper_Changed(NodeValueWrapper valueWrapper)
+        {
+            TriggerChange();
         }
 
         public override void Calculate()

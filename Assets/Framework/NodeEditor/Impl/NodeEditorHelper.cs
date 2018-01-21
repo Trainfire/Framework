@@ -175,12 +175,12 @@ namespace Framework.NodeEditorViews
             if (valueWrapper.ValueType == typeof(float))
             {
                 var variableAsType = valueWrapper as NodeValueWrapper<float>;
-                variableAsType.Set(EditorGUILayout.FloatField(prefix, variableAsType.Value));
+                variableAsType.Set(EditorGUILayout.DelayedFloatField(prefix, variableAsType.Value));
             }
             else if (valueWrapper.ValueType == typeof(int))
             {
                 var variableAsType = valueWrapper as NodeValueWrapper<int>;
-                variableAsType.Set(EditorGUILayout.IntField(prefix, variableAsType.Value));
+                variableAsType.Set(EditorGUILayout.DelayedIntField(prefix, variableAsType.Value));
             }
             else if (valueWrapper.ValueType == typeof(bool))
             {
@@ -190,7 +190,7 @@ namespace Framework.NodeEditorViews
             else if (valueWrapper.ValueType == typeof(string))
             {
                 var variableAsType = valueWrapper as NodeValueWrapper<string>;
-                variableAsType.Set(EditorGUILayout.TextField(prefix, variableAsType.Value));
+                variableAsType.Set(EditorGUILayout.DelayedTextField(prefix, variableAsType.Value));
             }
         }
     }
