@@ -28,6 +28,9 @@ namespace NodeSystem
             RegisterConstantPinType<bool>("Bool");
             RegisterConstantPinType<string>("String");
 
+            const string conversion = "Conversion";
+            RegisterNodeType<ConversionToString<float>>("Float to String", conversion);
+
             const string core = "Core";
             RegisterNodeType<CoreDebugLog>("Debug Log", core);
 
