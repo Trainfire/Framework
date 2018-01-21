@@ -15,7 +15,8 @@ namespace Framework
             _graph = new NodeGraph();
             _graph.Load(GraphData);
 
-            _runner = new NodeGraphRunner();
+            _runner = new NodeGraphRunner(_graph);
+            _runner.RegisterCallback(OnCallback);
             _runner.ExecuteEvent(_graph, "Awake");
         }
 
@@ -27,6 +28,13 @@ namespace Framework
         void Update()
         {
             _runner.ExecuteEvent(_graph, "Update");
+        }
+
+        void OnCallback(Node node)
+        {
+            var castNode = node as GameObjectNode;
+            if (castNode != null)
+                castNode.GameObject = gameObject;
         }
     }
 }

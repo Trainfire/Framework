@@ -341,4 +341,36 @@ namespace NodeSystem
             Out = AddOutputPin<TOut>("Out");
         }
     }
+
+    public abstract class Node1In2Out<TIn, TOut1, TOut2> : Node
+    {
+        protected NodePin<TIn> In { get; private set; }
+        protected NodePin<TOut1> Out1 { get; private set; }
+        protected NodePin<TOut2> Out2 { get; private set; }
+
+        protected override void OnInitialize()
+        {
+            base.OnInitialize();
+            In = AddInputPin<TIn>("In");
+            Out1 = AddOutputPin<TOut1>("Out 1");
+            Out2 = AddOutputPin<TOut2>("Out 2");
+        }
+    }
+
+    public abstract class Node1In3Out<TIn, TOut1, TOut2, TOut3> : Node
+    {
+        protected NodePin<TIn> In { get; private set; }
+        protected NodePin<TOut1> Out1 { get; private set; }
+        protected NodePin<TOut2> Out2 { get; private set; }
+        protected NodePin<TOut3> Out3 { get; private set; }
+
+        protected override void OnInitialize()
+        {
+            base.OnInitialize();
+            In = AddInputPin<TIn>("In");
+            Out1 = AddOutputPin<TOut1>("Out 1");
+            Out2 = AddOutputPin<TOut2>("Out 2");
+            Out3 = AddOutputPin<TOut3>("Out 3");
+        }
+    }
 }

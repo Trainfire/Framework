@@ -13,17 +13,10 @@ namespace NodeSystem
         private NodeRunner _runner;
         private Node _currentNode;
         private Dictionary<string, NodeGraphEvent> _graphEventCache;
+        private List<Action<Node>> _callbackRegister;
         private int _executions;
 
-        public NodeGraphRunner()
-        {
-            _logger = NodeEditor.GetNewLoggerInstance();
-            _logger.LogLevel = NodeEditorLogLevel.ErrorsAndWarnings;
-
-            _graphEventCache = new Dictionary<string, NodeGraphEvent>();
-        }
-
-        public void ExecuteEvent(NodeGraph graph, string eventName)
+        public NodeGraphRunner(NodeGraph graph)
         {
             if (graph == null)
             {
@@ -32,8 +25,18 @@ namespace NodeSystem
             }
 
             _graph = graph;
-            _runner = new NodeRunner(_graph.Helper, true);
 
+            _logger = NodeEditor.GetNewLoggerInstance();
+            _logger.LogLevel = NodeEditorLogLevel.ErrorsAndWarnings;
+
+            _graphEventCache = new Dictionary<string, NodeGraphEvent>();
+            _callbackRegister = new List<Action<Node>>();
+
+            _runner = new NodeRunner(_graph.Helper, true);
+        }
+
+        public void ExecuteEvent(NodeGraph graph, string eventName)
+        {
             NodeGraphEvent startNode = null;
 
             if (_graphEventCache.ContainsKey(eventName))
@@ -62,6 +65,30 @@ namespace NodeSystem
             MoveNext();
         }
 
+        public void RegisterCallback(Action<Node> callback)
+        {
+            if (_callbackRegister.Contains(callback))
+            {
+                _logger.LogWarning<NodeGraphRunner>("Cannot add callback as it is already registered.");
+            }
+            else
+            {
+                _callbackRegister.Add(callback as Action<Node>);
+            }
+        }
+
+        public void RemoveCallback(Action<Node> callback)
+        {
+            if (!_callbackRegister.Contains(callback))
+            {
+                _logger.LogWarning<NodeGraphRunner>("Cannot remove callback as it was never registered.");
+            }
+            else
+            {
+                _callbackRegister.Remove(callback as Action<Node>);
+            }
+        }
+
         void MoveNext()
         {
             NodeEditor.Assertions.IsNotNull(_currentNode);
@@ -69,7 +96,7 @@ namespace NodeSystem
             _logger.Log<NodeGraphRunner>("Move next: {0} ({1})", _currentNode.Name, _currentNode.ID);
 
             // Run through all the nodes connected to the current node to prepare it for execution.
-            _runner.StartFrom(_currentNode);
+            _runner.StartFrom(_currentNode, (iteratedNode) => _callbackRegister.ForEach(x => x.Invoke(iteratedNode)));
 
             var executeHandler = _currentNode as INodeExecuteHandler;
             if (executeHandler != null)

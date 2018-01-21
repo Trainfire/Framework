@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using NodeSystem.Editor;
 
 namespace NodeSystem
@@ -13,6 +14,7 @@ namespace NodeSystem
         private bool _autoIterate;
 
         private Stack<NodeExecutionGroup> _stack;
+        private Action<Node> _callback;
 
         public NodeRunner(NodeGraphHelper graphHelper, bool autoIterate = false)
         {
@@ -20,12 +22,13 @@ namespace NodeSystem
             _autoIterate = autoIterate;
 
             _logger = NodeEditor.GetNewLoggerInstance();
-            _logger.LogLevel = NodeEditorLogLevel.ErrorsAndWarnings; 
+            _logger.LogLevel = NodeEditorLogLevel.ErrorsAndWarnings;
         }
 
-        public void StartFrom(Node startNode)
+        public void StartFrom(Node startNode, Action<Node> callback = null)
         {
             StartNode = startNode;
+            _callback = callback;
 
             _stack = new Stack<NodeExecutionGroup>();
             _stack.Push(new NodeExecutionGroup(_logger, 0, startNode, _graphHelper)); // Auto-iterate on start node.
@@ -43,6 +46,7 @@ namespace NodeSystem
             }
 
             var currentGroup = _stack.Peek();
+            _callback.InvokeSafe(currentGroup.Node);
             currentGroup.Iterate();
 
             if (currentGroup.SubGroup != null)
