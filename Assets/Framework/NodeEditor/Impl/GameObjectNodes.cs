@@ -23,18 +23,23 @@ namespace Framework
         }
     }
 
-    public class GameObjectSetPosition : GameObjectNode
+    public class GameObjectSetPosition : GameObjectNode, INodeExecuteHandler, INodeExecuteOutput
     {
-        private NodePin<Vector3> _in;
+        private NodePin<Vector3> _inPosition;
+        private NodePin<NodePinTypeExecute> _executeIn;
+
+        public NodePin<NodePinTypeExecute> ExecuteOut { get; private set; }
 
         protected override void OnInitialize()
         {
-            _in = AddInputPin<Vector3>("In");
+            _executeIn = AddInputPin<NodePinTypeExecute>("In");
+            ExecuteOut = AddOutputPin<NodePinTypeExecute>("Out");
+            _inPosition = AddInputPin<Vector3>("Pos");
         }
 
-        public override void Calculate()
+        public void Execute()
         {
-            var inPosition = Read<Vector3>(_in);
+            var inPosition = Read<Vector3>(_inPosition);
             GameObject.transform.position = inPosition;
         }
     }

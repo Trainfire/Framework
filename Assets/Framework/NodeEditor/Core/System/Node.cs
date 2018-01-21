@@ -337,7 +337,7 @@ namespace NodeSystem
             base.OnInitialize();
             In1 = AddInputPin<TIn1>("In 1");
             In2 = AddInputPin<TIn2>("In 2");
-            In2 = AddInputPin<TIn2>("In 3");
+            In3 = AddInputPin<TIn3>("In 3");
             Out = AddOutputPin<TOut>("Out");
         }
     }

@@ -88,6 +88,7 @@ LightmapSettings:
     m_PVRFilteringAtrousPositionSigmaDirect: 0.5
     m_PVRFilteringAtrousPositionSigmaIndirect: 2
     m_PVRFilteringAtrousPositionSigmaAO: 1
+    m_ShowResolutionOverlay: 1
   m_LightingDataAsset: {fileID: 0}
   m_UseShadowmask: 0
 --- !u!196 &4
@@ -141,13 +142,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   GraphData:
     ID: N/A
+    GraphType: Framework.GameObjectGraphType
     Nodes:
-    - ClassType: NodeSystem.CoreDebugLog
-      Name: Debug Log
-      ID: 9f5c80f7-4008-49ca-a1f6-20cd8a07730f
-      Position:
-        x: 269
-        y: 51
     - ClassType: NodeSystem.NodeGraphEvent
       Name: Start
       ID: 217eabdb-7e54-4e34-b7ae-cceb1a143899
@@ -158,50 +154,182 @@ MonoBehaviour:
       Name: Debug Log
       ID: 7c447ac0-b937-41f1-934c-42491fedad92
       Position:
-        x: 275
-        y: 160
+        x: 1203
+        y: 296
     - ClassType: NodeSystem.NodeGraphEvent
       Name: Update
       ID: 2d92a897-e68d-4e04-b24e-105610b281a2
       Position:
-        x: 45
-        y: 161
+        x: 40
+        y: 250
+    - ClassType: Framework.GameObjectGetPosition
+      Name: Get Position
+      ID: 1ef0ffbb-960d-415f-bdff-e96f38082209
+      Position:
+        x: 44
+        y: 114
+    - ClassType: Framework.UnityMathSplit3
+      Name: Split3
+      ID: 1076bcf8-533c-4c4c-8176-351b91caff48
+      Position:
+        x: 222
+        y: 114
+    - ClassType: NodeSystem.ConversionToString`1[System.Single]
+      Name: Float to String
+      ID: 2cb3fdaa-2498-4a95-a1db-f47d8dcb9e5e
+      Position:
+        x: 967
+        y: 434
+    - ClassType: Framework.UnityMathCombine3
+      Name: Combine3
+      ID: 4ddbd057-0a65-4b3f-b3aa-73e461cc674f
+      Position:
+        x: 1000
+        y: 529
+    - ClassType: NodeSystem.MathMultiply
+      Name: Multiply
+      ID: 05efd04a-37c6-41d0-9eb7-8e1a5f172593
+      Position:
+        x: 649
+        y: 599
+    - ClassType: Framework.UnityTimeSinceLevelLoad
+      Name: Time Since Level Loaded
+      ID: fd3549b6-119b-46d0-9272-9b01b91efc4f
+      Position:
+        x: 32
+        y: 637
+    - ClassType: NodeSystem.MathDivide
+      Name: Divide
+      ID: c47cbb7e-c139-4f24-9bc3-5593d91618b6
+      Position:
+        x: 183
+        y: 665
+    - ClassType: NodeSystem.MathMultiply
+      Name: Multiply
+      ID: 9c176090-d341-4db5-9ac9-01090caafe3d
+      Position:
+        x: 464
+        y: 687
+    - ClassType: Framework.UnityMathSin
+      Name: Sin
+      ID: da9df228-1f71-40ce-9a06-7f3c2927623e
+      Position:
+        x: 325
+        y: 662
+    - ClassType: NodeSystem.MathAdd
+      Name: Add
+      ID: d93f0a6f-0b9b-46d0-a2e3-2dae5d3d5dd4
+      Position:
+        x: 789
+        y: 500
     Connections:
-    - SourceNodeId: a46f3f4c-ea53-4354-a016-3bf3d1c74c96
-      SourcePinId: 0
-      TargetNodeId: 9f5c80f7-4008-49ca-a1f6-20cd8a07730f
-      TargetPinId: 2
-    - SourceNodeId: 217eabdb-7e54-4e34-b7ae-cceb1a143899
-      SourcePinId: 0
-      TargetNodeId: 9f5c80f7-4008-49ca-a1f6-20cd8a07730f
-      TargetPinId: 0
-    - SourceNodeId: fe74ebb2-fc20-4e29-b524-8792e11de7dd
-      SourcePinId: 0
-      TargetNodeId: 7c447ac0-b937-41f1-934c-42491fedad92
-      TargetPinId: 2
     - SourceNodeId: 2d92a897-e68d-4e04-b24e-105610b281a2
       SourcePinId: 0
       TargetNodeId: 7c447ac0-b937-41f1-934c-42491fedad92
       TargetPinId: 0
+    - SourceNodeId: 1ef0ffbb-960d-415f-bdff-e96f38082209
+      SourcePinId: 0
+      TargetNodeId: 1076bcf8-533c-4c4c-8176-351b91caff48
+      TargetPinId: 0
+    - SourceNodeId: 1076bcf8-533c-4c4c-8176-351b91caff48
+      SourcePinId: 2
+      TargetNodeId: 169c8c1a-3d34-4b46-8acc-d9f40dd13e52
+      TargetPinId: 2
+    - SourceNodeId: 217eabdb-7e54-4e34-b7ae-cceb1a143899
+      SourcePinId: 0
+      TargetNodeId: 169c8c1a-3d34-4b46-8acc-d9f40dd13e52
+      TargetPinId: 0
+    - SourceNodeId: 2cb3fdaa-2498-4a95-a1db-f47d8dcb9e5e
+      SourcePinId: 1
+      TargetNodeId: 7c447ac0-b937-41f1-934c-42491fedad92
+      TargetPinId: 2
+    - SourceNodeId: fd3549b6-119b-46d0-9272-9b01b91efc4f
+      SourcePinId: 0
+      TargetNodeId: c47cbb7e-c139-4f24-9bc3-5593d91618b6
+      TargetPinId: 0
+    - SourceNodeId: 33feb187-f162-4bff-b031-c2154c4a62b5
+      SourcePinId: 0
+      TargetNodeId: c47cbb7e-c139-4f24-9bc3-5593d91618b6
+      TargetPinId: 1
+    - SourceNodeId: c47cbb7e-c139-4f24-9bc3-5593d91618b6
+      SourcePinId: 2
+      TargetNodeId: da9df228-1f71-40ce-9a06-7f3c2927623e
+      TargetPinId: 0
+    - SourceNodeId: da9df228-1f71-40ce-9a06-7f3c2927623e
+      SourcePinId: 1
+      TargetNodeId: 9c176090-d341-4db5-9ac9-01090caafe3d
+      TargetPinId: 0
+    - SourceNodeId: 2e361fff-7cc4-435a-8be9-9211d69f1df1
+      SourcePinId: 0
+      TargetNodeId: 9c176090-d341-4db5-9ac9-01090caafe3d
+      TargetPinId: 1
+    - SourceNodeId: 9c176090-d341-4db5-9ac9-01090caafe3d
+      SourcePinId: 2
+      TargetNodeId: 05efd04a-37c6-41d0-9eb7-8e1a5f172593
+      TargetPinId: 1
+    - SourceNodeId: 65bd5733-5ab7-4f34-95ea-4a31314a3942
+      SourcePinId: 0
+      TargetNodeId: 05efd04a-37c6-41d0-9eb7-8e1a5f172593
+      TargetPinId: 0
+    - SourceNodeId: 05efd04a-37c6-41d0-9eb7-8e1a5f172593
+      SourcePinId: 2
+      TargetNodeId: d93f0a6f-0b9b-46d0-a2e3-2dae5d3d5dd4
+      TargetPinId: 1
+    - SourceNodeId: b9ead62e-3c27-430f-8cc7-625fe1f138e7
+      SourcePinId: 0
+      TargetNodeId: d93f0a6f-0b9b-46d0-a2e3-2dae5d3d5dd4
+      TargetPinId: 0
+    - SourceNodeId: d93f0a6f-0b9b-46d0-a2e3-2dae5d3d5dd4
+      SourcePinId: 2
+      TargetNodeId: 2cb3fdaa-2498-4a95-a1db-f47d8dcb9e5e
+      TargetPinId: 0
     Constants:
     - ClassType: NodeSystem.NodeConstant
       Name: Constant
-      ID: a46f3f4c-ea53-4354-a016-3bf3d1c74c96
+      ID: 65bd5733-5ab7-4f34-95ea-4a31314a3942
       Position:
-        x: 85
-        y: 96
-      ConstantType: System.String
-      Value: Start
+        x: 445
+        y: 564
+      ConstantType: System.Single
+      Value: 20
     - ClassType: NodeSystem.NodeConstant
       Name: Constant
-      ID: fe74ebb2-fc20-4e29-b524-8792e11de7dd
+      ID: 33feb187-f162-4bff-b031-c2154c4a62b5
       Position:
-        x: 111
-        y: 217
-      ConstantType: System.String
-      Value: Update
-    Variables: []
-    VariableNodes: []
+        x: 25
+        y: 737
+      ConstantType: System.Single
+      Value: 5
+    - ClassType: NodeSystem.NodeConstant
+      Name: Constant
+      ID: 2e361fff-7cc4-435a-8be9-9211d69f1df1
+      Position:
+        x: 329
+        y: 764
+      ConstantType: System.Single
+      Value: 1
+    Variables:
+    - Name: Start Position
+      ID: f89435f1-4b38-4875-98bf-85747a21b12f
+      VariableType: System.Single
+      Value: 0
+    VariableNodes:
+    - ClassType: NodeSystem.NodeVariable
+      Name: (V) Start Position
+      ID: 169c8c1a-3d34-4b46-8acc-d9f40dd13e52
+      Position:
+        x: 463
+        y: 62
+      VariableID: f89435f1-4b38-4875-98bf-85747a21b12f
+      AccessorType: 2
+    - ClassType: NodeSystem.NodeVariable
+      Name: (V) Start Position
+      ID: b9ead62e-3c27-430f-8cc7-625fe1f138e7
+      Position:
+        x: 577
+        y: 506
+      VariableID: f89435f1-4b38-4875-98bf-85747a21b12f
+      AccessorType: 0
 --- !u!4 &932632399
 Transform:
   m_ObjectHideFlags: 0
@@ -209,7 +337,7 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 932632397}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 512, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -351,6 +479,7 @@ Camera:
   m_TargetEye: 3
   m_HDR: 0
   m_AllowMSAA: 1
+  m_AllowDynamicResolution: 0
   m_ForceIntoRT: 0
   m_OcclusionCulling: 1
   m_StereoConvergence: 10
