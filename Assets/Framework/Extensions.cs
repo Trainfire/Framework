@@ -198,8 +198,14 @@ namespace Framework
         public static void Focus(this InputField inputField)
         {
             // Hack to keep focus on inputfield after submitting a command. Classic Unity.
-            EventSystem.current.SetSelectedGameObject(inputField.gameObject, null);
-            inputField.OnPointerClick(new PointerEventData(EventSystem.current));
+            if (EventSystem.current == null)
+            {
+                Debug.Log("The current Event System is null.");
+                return;
+            }
+
+            //EventSystem.current.SetSelectedGameObject(inputField.gameObject, null);
+            //inputField.OnPointerClick(new PointerEventData(EventSystem.current));
         }
 
         public static void ScrollToBottom(this ScrollRect scrollRect)

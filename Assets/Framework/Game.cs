@@ -13,10 +13,10 @@ namespace Framework
 
     public abstract class Game : MonoBehaviour
     {
-        private ConsoleController _console;
         private List<GameRule> _rules;
 
         public GameController Controller { get; private set; }
+        protected ConsoleController Console { get; private set; }
         protected SceneLoader SceneLoader { get; private set; }
 
         private StateManager _stateManager;
@@ -52,8 +52,8 @@ namespace Framework
             }
             else
             {
-                _console = new ConsoleController();
-                consoleView.SetConsole(_console);
+                Console = new ConsoleController();
+                consoleView.SetConsole(Console);
             }
 
             // Relay

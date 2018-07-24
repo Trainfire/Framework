@@ -51,4 +51,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 756485980c691ab4c8432da2d0cebeb0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _rootSceneName: root
+  _rootSceneName: Main

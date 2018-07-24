@@ -57,6 +57,7 @@ namespace Framework
                     log += "<color=#f00>Assert: " + condition + "</color>";
                     break;
                 case LogType.Warning:
+                    log += "<color=#ff0>Assert: " + condition + "</color>";
                     break;
                 case LogType.Log:
                     log += condition;
@@ -82,14 +83,16 @@ namespace Framework
             {
                 Console.SubmitInput(InputField.text);
                 InputField.text = "";
-                InputField.Focus();
+                InputField.ActivateInputField();
+                InputField.Select();
             }
 
             if (Input.GetKeyUp(KeyCode.Tab) || Input.GetKeyUp(KeyCode.F1))
             {
                 StopAllCoroutines();
                 StartCoroutine(Toggle());
-                InputField.Focus();
+                InputField.ActivateInputField();
+                InputField.Select();
             }
         }
 

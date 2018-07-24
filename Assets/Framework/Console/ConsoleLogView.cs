@@ -12,10 +12,13 @@ namespace Framework
 
         const float FadeTime = 1f;
 
-        public void SetText(string text, float timeToLive)
+        private void Awake()
         {
             Canvas = gameObject.GetOrAddComponent<CanvasGroup>();
+        }
 
+        public void SetText(string text, float timeToLive)
+        {
             GetComponent<Text>().text = text;
             TimeToLive = timeToLive;
             TimeStamp = Time.time;
@@ -23,7 +26,7 @@ namespace Framework
             gameObject.SetActive(true);
         }
 
-        void Update()
+        private void Update()
         {
             if (Time.time > TimeStamp + TimeToLive)
             {
