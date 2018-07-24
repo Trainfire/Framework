@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.Assertions;
 using System.Collections;
 
 namespace Framework
@@ -10,28 +11,35 @@ namespace Framework
     /// </summary>
     class Bootstrapper : MonoBehaviour
     {
-        private string _sceneName;
+        [SerializeField] private string _rootSceneName = "root";
+
+        private string _startingSceneName;
 
         public void Start()
         {
-            _sceneName = SceneManager.GetActiveScene().name;
+            _startingSceneName = SceneManager.GetActiveScene().name;
 
             var game = FindObjectOfType<Game>();
             if (game == null)
             {
-                // We're not in the 'main' scene that contains the Game, so we'll need to initialize.
+                // We're not in the root scene that contains the Game, so we'll need to initialize.
                 StartCoroutine(Initialize());
             }
             else if (!game.Initialized)
             {
-                // We're must be in the 'main' scene. So let's initialize the game.
+                DebugEx.Log<Bootstrapper>("Bootstrap complete.");
+
+                // We must be in the root scene. So let's initialize the game.
                 game.Initialize();
             }
         }
 
         IEnumerator Initialize()
         {
-            yield return SceneManager.LoadSceneAsync("Main", LoadSceneMode.Additive);
+            // NB: There is no good way to know if the root scene is in the build settings.
+            // So...if it's not in the build, the runtime will error on the next line.
+
+            yield return SceneManager.LoadSceneAsync(_rootSceneName, LoadSceneMode.Additive);
 
             // Look for an existing bootstrapper in the freshly loaded scene. Destroy it, if one is found.
             var existingBootstrappers = FindObjectsOfType<Bootstrapper>();
@@ -39,16 +47,19 @@ namespace Framework
             {
                 if (bootstrapper != this)
                 {
-                    Debug.Log("Found an existing bootstrapper in 'Main' during initialization. Removing it...");
+                    Debug.Log("Found an existing bootstrapper in root scene during initialization. Removing it...");
                     Destroy(bootstrapper);
                 }
             }
 
-            // Move Bootstrapper to Main.
-            SceneManager.MoveGameObjectToScene(gameObject, SceneManager.GetActiveScene());
+            // Move Bootstrapper to root.
+
+            var rootScene = SceneManager.GetSceneByName(_rootSceneName);
+
+            SceneManager.MoveGameObjectToScene(gameObject, rootScene);
 
             // Unload the scene the bootstrapper is in.
-            SceneManager.UnloadScene(_sceneName);
+            yield return SceneManager.UnloadSceneAsync(_startingSceneName);
 
             // Initialize game passing in the level name as an argument.
             var game = FindObjectOfType<Game>();
@@ -58,7 +69,9 @@ namespace Framework
             }
             else
             {
-                game.Initialize(_sceneName);
+                DebugEx.Log<Bootstrapper>("Bootstrap complete.");
+
+                game.Initialize(_startingSceneName);
             }
         }
     }

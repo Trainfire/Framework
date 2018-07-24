@@ -4,6 +4,9 @@ namespace Framework
 {
     public class GameController : IInputHandler
     {
+        private const string FrontEndScene = "frontend";
+        private const string InGameScene = "ingame";
+
         private StateManager _stateManager;
         private ZoneManager<GameZone> _zoneManager;
 
@@ -42,9 +45,9 @@ namespace Framework
 #endif
         }
 
-        public void LoadMainMenu()
+        public void LoadFrontEnd()
         {
-            _zoneManager.SetZone(GameZone.MainMenu, "MainMenu");
+            _zoneManager.SetZone(GameZone.InFrontEnd, FrontEndScene);
         }
 
         public void LoadLevel(string sceneName)
@@ -54,12 +57,12 @@ namespace Framework
             if (bootstrapper != null)
                 GameObject.Destroy(bootstrapper);
 
-            _zoneManager.SetZone(GameZone.InGame, "InGame", sceneName);
+            _zoneManager.SetZone(GameZone.InGame, InGameScene, sceneName);
         }
 
         public void ReloadLevel()
         {
-            _zoneManager.SetZone(GameZone.InGame, "InGame", _zoneManager.ActiveScene);
+            _zoneManager.SetZone(GameZone.InGame, InGameScene, _zoneManager.ActiveScene);
         }
 
         void IInputHandler.HandleInput(InputActionEvent action)

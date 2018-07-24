@@ -7,7 +7,7 @@ namespace Framework
     {
         None,
         Loading,
-        MainMenu,
+        InFrontEnd,
         InGame,
     }
 
@@ -16,17 +16,8 @@ namespace Framework
         private ConsoleController _console;
         private List<GameRule> _rules;
 
-        private SceneLoader _sceneLoader;
-        protected SceneLoader SceneLoader
-        {
-            get { return _sceneLoader; }
-        }
-
-        private GameController _controller;
-        public GameController Controller
-        {
-            get { return _controller; }
-        }
+        public GameController Controller { get; private set; }
+        protected SceneLoader SceneLoader { get; private set; }
 
         private StateManager _stateManager;
         public StateListener StateListener
@@ -73,14 +64,15 @@ namespace Framework
             _stateManager.Listener.StateChanged += Listener_StateChanged;
 
             // Scene Loader
-            _sceneLoader = gameObject.GetOrAddComponent<SceneLoader>();
+            SceneLoader = gameObject.GetOrAddComponent<SceneLoader>();
+            SceneLoader.LoadingScene = "Loader";
 
             // Zone
-            _zoneManager = new ZoneManager<GameZone>(_sceneLoader);
+            _zoneManager = new ZoneManager<GameZone>(SceneLoader);
             _zoneManager.Listener.ZoneChanged += Listener_ZoneChanged;
 
             // Allows the control of the game, such as level loading, resuming and pausing the game.
-            _controller = new GameController(this, _stateManager, _zoneManager);
+            Controller = new GameController(this, _stateManager, _zoneManager);
 
             // Audio
             Services.Provide(FindObjectOfType<AudioSystem>());
@@ -115,7 +107,7 @@ namespace Framework
 
             if (gameZone == GameZone.InGame)
             {
-                _rules.ForEach(x => x.Initialize(_controller));
+                _rules.ForEach(x => x.Initialize(Controller));
             }
         }
     }
