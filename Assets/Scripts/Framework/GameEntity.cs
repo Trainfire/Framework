@@ -38,6 +38,16 @@ namespace Framework
 
         protected virtual void OnInitialize() { }
         protected virtual void OnStateChanged(State state) { }
+        protected virtual void OnUpdate() { }
+
+        private void Update()
+        {
+            if (!_initialized)
+                return;
+
+            OnUpdate();
+        }
+
         public virtual void HandleInput(InputActionEvent action) { }
 
         /// <summary>

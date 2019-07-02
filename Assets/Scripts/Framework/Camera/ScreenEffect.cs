@@ -5,16 +5,15 @@ namespace Framework.Components
 {
     public abstract class ScreenEffect : MonoBehaviour
     {
-        public event Action<ScreenEffect> Finished;
+        public bool Finished { get; private set; }
 
         public abstract void ProcessEffect();
         public abstract void Activate();
         public abstract void Deactivate();
 
-        protected virtual void OnFinish()
+        protected void Finish()
         {
-            if (Finished != null)
-                Finished(this);
+            Finished = true;
         }
 
         public void SetActive(bool active)

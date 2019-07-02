@@ -7,16 +7,6 @@ public class YourGame : Game
     {
         base.OnInitialize(args);
 
-        DebugEx.Log<YourGame>("Let the game's begin!");
-
-        // Determines where to go first.
-        if (args != null && args.Length != 0)
-        {
-            Controller.LoadLevel(args[0]);
-        }
-        else
-        {
-            Controller.LoadFrontEnd();
-        }
+        DebugEx.Log<YourGame>("Let the game begin!");
     }
 }

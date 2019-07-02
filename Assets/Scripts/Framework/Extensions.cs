@@ -95,6 +95,13 @@ namespace Framework
                 onFind(obj);
             return obj;
         }
+
+        public static T FindObjectOfTypeAssert<T>(string message = "") where T : MonoBehaviour
+        {
+            var obj = GameObject.FindObjectOfType<T>();
+            Assert.IsNotNull(obj, "Failed to find a GameObject with '{0}' component.");
+            return obj;
+        }
     }
 
     static class GameObjectEx
@@ -112,6 +119,13 @@ namespace Framework
             var comp = obj.GetComponent<T>();
             if (comp != null)
                 onGet(comp);
+            return comp;
+        }
+
+        public static T GetComponentAssert<T>(this GameObject obj) where T : MonoBehaviour
+        {
+            var comp = obj.GetComponent<T>();
+            Assert.IsNotNull(comp, $"{obj.name} expected a component of type {typeof(T).Name}");
             return comp;
         }
 
@@ -190,6 +204,13 @@ namespace Framework
 
             }
             return components;
+        }
+
+        public static T AddComponent<T>(this GameObject obj, Action<T> onAdd) where T : MonoBehaviour
+        {
+            var comp = obj.AddComponent<T>();
+            onAdd(comp);
+            return comp;
         }
     }
 

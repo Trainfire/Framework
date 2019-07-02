@@ -30,7 +30,7 @@ namespace Framework.Components
         {
             Shaking = false;
             Offset = Vector2.zero;
-            OnFinish();
+            Finish();
         }
 
         private void OnTick()

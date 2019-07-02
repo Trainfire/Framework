@@ -21,6 +21,7 @@ namespace Framework
         const float LogToggleTime = 0.2f;
         const float LogTimeToLive = 60f;
         AnimationCurve LogAnimCurve = AnimationCurve.EaseInOut(0f, 0f, 1f, 1f);
+        bool Initialized = false;
 
         enum State
         {
@@ -28,6 +29,11 @@ namespace Framework
             Open,
         }
         State ConsoleState;
+
+        private void Start()
+        {
+            Initialized = true;
+        }
 
         public void SetConsole(ConsoleController console)
         {
@@ -45,6 +51,9 @@ namespace Framework
 
         void OnLogMessageRecieved(string condition, string stackTrace, LogType type)
         {
+            if (!Initialized)
+                return;
+
             var logView = UIUtility.Add<ConsoleLogView>(LogItemContainer.transform, LogViewItem.gameObject);
 
             string log = "";

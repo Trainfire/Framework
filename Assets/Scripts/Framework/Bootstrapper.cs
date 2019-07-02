@@ -11,13 +11,14 @@ namespace Framework
     /// </summary>
     class Bootstrapper : MonoBehaviour
     {
-        [SerializeField] private string _rootSceneName = "root";
-
+        private const string _rootSceneName = "Main";
         private string _startingSceneName;
 
         public void Start()
         {
             _startingSceneName = SceneManager.GetActiveScene().name;
+
+            //StartCoroutine(Initialize());
 
             var game = FindObjectOfType<Game>();
             if (game == null)
@@ -30,7 +31,7 @@ namespace Framework
                 DebugEx.Log<Bootstrapper>("Bootstrap complete.");
 
                 // We must be in the root scene. So let's initialize the game.
-                game.Initialize();
+                game.Initialize(_startingSceneName);
             }
         }
 

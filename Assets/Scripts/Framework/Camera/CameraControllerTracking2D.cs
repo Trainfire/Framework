@@ -1,39 +1,41 @@
 using UnityEngine;
-using Framework;
 
-public class CameraControllerTracking2D : MonoBehaviour, IGameCameraController
+namespace Framework
 {
-    [Range(0f, 1f)] [SerializeField] private float _moveSpeed;
-    [SerializeField] private Vector2 _offset;
-
-    private GameObject _trackingTarget;
-    private Vector2 _worldToScreen;
-    private Vector2 _lerp;
-
-    public Transform Target
+    public class CameraControllerTracking2D : MonoBehaviour, IGameCameraController
     {
-        get { return _trackingTarget.transform; }
-    }
+        [Range(0f, 1f)] [SerializeField] private float _moveSpeed;
+        [SerializeField] private Vector2 _offset;
 
-    public void SetTarget(GameObject target)
-    {
-        _trackingTarget = target;
-    }
+        private GameObject _trackingTarget;
+        private Vector2 _worldToScreen;
+        private Vector2 _lerp;
 
-    void IGameCameraController.Update(GameCamera gameCamera)
-    {
-        if (_trackingTarget == null)
-            return;
+        public Transform Target
+        {
+            get { return _trackingTarget.transform; }
+        }
 
-        _moveSpeed = Mathf.Clamp(_moveSpeed, 0f, 1f);
+        public void SetTarget(GameObject target)
+        {
+            _trackingTarget = target;
+        }
 
-        // Get target in screen space and centralise.
-        _worldToScreen = gameCamera.Camera.WorldToScreenPoint(_trackingTarget.transform.position).ToVec2();
-        _worldToScreen += new Vector2(-Screen.width / 2f, -Screen.height / 2f) + _offset;
+        void IGameCameraController.Update(GameCamera gameCamera)
+        {
+            if (_trackingTarget == null)
+                return;
 
-        _lerp = Vector2.Lerp(gameCamera.transform.position, _worldToScreen, Time.deltaTime * _moveSpeed);
+            _moveSpeed = Mathf.Clamp(_moveSpeed, 0f, 1f);
 
-        // Set position ignoring Z.
-        gameCamera.transform.position = new Vector3(_lerp.x, _lerp.y, gameCamera.transform.position.z);
+            // Get target in screen space and centralise.
+            _worldToScreen = gameCamera.Camera.WorldToScreenPoint(_trackingTarget.transform.position).ToVec2();
+            _worldToScreen += new Vector2(-Screen.width / 2f, -Screen.height / 2f) + _offset;
+
+            _lerp = Vector2.Lerp(gameCamera.transform.position, _worldToScreen, Time.deltaTime * _moveSpeed);
+
+            // Set position ignoring Z.
+            gameCamera.transform.position = new Vector3(_lerp.x, _lerp.y, gameCamera.transform.position.z);
+        }
     }
 }

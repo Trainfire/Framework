@@ -38,26 +38,28 @@ namespace Framework
         {
             if (_controller != null)
                 _controller.Update(this);
-            _screenEffects.ForEach(x => x.ProcessEffect());
+
+            var currentEffects = _screenEffects.ToArray();
+
+            foreach (var effect in currentEffects)
+            {
+                if (effect.Finished)
+                {
+                    _screenEffects.Remove(effect);
+                    Destroy(effect);
+                }
+                else
+                {
+                    effect.ProcessEffect();
+                }
+            }
         }
 
         public T AddScreenEffect<T>() where T : ScreenEffect
         {
             var effect = gameObject.AddComponent<T>();
-            effect.Finished += ScreenEffect_Finished;
             _screenEffects.Add(effect);
             return effect;
-        }
-
-        private void ScreenEffect_Finished(ScreenEffect screenEffect)
-        {
-            Assert.IsTrue(_screenEffects.Contains(screenEffect));
-
-            if (_screenEffects.Contains(screenEffect))
-            {
-                _screenEffects.Remove(screenEffect);
-                Destroy(screenEffect);
-            }
         }
     }
 

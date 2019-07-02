@@ -83,6 +83,15 @@ namespace Framework
             // Rules
             _rules = new List<GameRule>();
 
+            if (args != null && args.Length != 0)
+            {
+                Controller.LoadLevel(args[0]);
+            }
+            else
+            {
+                Controller.LoadFrontEnd();
+            }
+
             // Game implementation
             OnInitialize(args);
         }
