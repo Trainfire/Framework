@@ -18,8 +18,6 @@ namespace Framework
         {
             _startingSceneName = SceneManager.GetActiveScene().name;
 
-            //StartCoroutine(Initialize());
-
             var game = FindObjectOfType<Game>();
             if (game == null)
             {

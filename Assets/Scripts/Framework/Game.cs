@@ -83,7 +83,7 @@ namespace Framework
             // Rules
             _rules = new List<GameRule>();
 
-            if (args != null && args.Length != 0)
+            if (args != null && args.Length != 0 && args[0] != "Main")
             {
                 Controller.LoadLevel(args[0]);
             }
