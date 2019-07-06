@@ -1,25 +1,34 @@
 using UnityEngine;
+using System;
 using System.Collections.Generic;
 
 namespace Framework
 {
+    public class CommandExecutionArgs
+    {
+        public string[] Args { get; private set; }
+
+        public CommandExecutionArgs(string[] args)
+        {
+            Args = args;
+        }
+    }
+
     public class ConsoleCommand
     {
-        public delegate void CommandDelegate(ConsoleCommand command, string[] args);
-
         public string Command { get; private set; }
-        public CommandDelegate Action { get; private set; }
+        public Action<CommandExecutionArgs> Action { get; private set; }
         public string Help { get; private set; }
         public bool Elevated { get; private set; }
 
-        public ConsoleCommand(string command, CommandDelegate action, string help = "")
+        public ConsoleCommand(string command, Action<CommandExecutionArgs> action, string help = "")
         {
             Command = command;
             Action = action;
             Help = help;
         }
 
-        public ConsoleCommand(string command, CommandDelegate action, bool elevated, string help = "") : this(command, action, help)
+        public ConsoleCommand(string command, Action<CommandExecutionArgs> action, bool elevated, string help = "") : this(command, action, help)
         {
             Elevated = elevated;
         }
@@ -106,7 +115,10 @@ namespace Framework
                 }
 
                 if (execute)
-                    Execute(command, parsedArgs.ToArray());
+                {
+                    var executionArgs = new CommandExecutionArgs(parsedArgs.ToArray());
+                    command.Action(executionArgs);
+                }
             }
             else
             {
@@ -114,12 +126,7 @@ namespace Framework
             }
         }
 
-        void Execute(ConsoleCommand consoleCommand, string[] args)
-        {
-            consoleCommand.Action(consoleCommand, args);
-        }
-
-        void Help(ConsoleCommand command, string[] args)
+        void Help(CommandExecutionArgs args)
         {
             Debug.LogFormat("Available Commands:");
 
