@@ -5,25 +5,28 @@ using System;
 
 namespace Framework
 {
-    public class InputMapPC : InputMap
+    public enum InputPCAxis
+    {
+        Mouse,
+    }
+
+    public class InputMapPC : InputMap<KeyCode, InputPCAxis>
     {
         private Dictionary<string, KeyCode> _bindings;
 
-        protected override InputContext Context
-        {
-            get { return InputContext.PC; }
-        }
+        protected override bool Active => true; // TODO.
+        public override InputContext Context { get { return InputContext.PC; } }
 
         public void Awake()
         {
             _bindings = new Dictionary<string, KeyCode>();
         }
 
-        public void AddBinding(string action, KeyCode key)
+        public void Bind(string action, KeyCode key)
         {
             if (_bindings.ContainsKey(action))
             {
-                Debug.LogErrorFormat("InputMapPC: '{0}' is already bound to '{1}'", action, key);
+                DebugEx.LogError<InputMapPC>("'{0}' is already bound to '{1}'", action, key);
             }
             else
             {
@@ -31,37 +34,27 @@ namespace Framework
             }
         }
 
-        public void LateUpdate()
-        {
-            foreach (var kvp in _bindings)
-            {
-                if (Input.anyKey)
-                {
-                    if (Input.GetKeyDown(kvp.Value))
-                        FireTrigger(kvp.Key, InputActionType.Down);
+        //protected override void OnLateUpdate()
+        //{
+        //    foreach (var kvp in _bindings)
+        //    {
+        //        if (Input.anyKey)
+        //        {
+        //            if (Input.GetKeyDown(kvp.Value))
+        //                AddButtonActionEvent(kvp.Key, InputActionType.Down);
 
-                    if (Input.GetKey(kvp.Value))
-                        FireTrigger(kvp.Key, InputActionType.Held);
-                }
+        //            if (Input.GetKey(kvp.Value))
+        //                AddButtonActionEvent(kvp.Key, InputActionType.Held);
+        //        }
 
-                if (Input.GetKeyUp(kvp.Value))
-                    FireTrigger(kvp.Key, InputActionType.Up);
-            }
+        //        if (Input.GetKeyUp(kvp.Value))
+        //            AddButtonActionEvent(kvp.Key, InputActionType.Up);
+        //    }
 
-            GetAxis("Mouse X", Horizontal);
-            GetAxis("Mouse Y", Vertical);
-
-            if (Input.GetAxis("Mouse ScrollWheel") > 0f)
-                FireTrigger(ScrollUp, InputActionType.Down);
-
-            if (Input.GetAxis("Mouse ScrollWheel") < 0f)
-                FireTrigger(ScrollDown, InputActionType.Down);
-
-            if (Input.GetMouseButtonDown(0))
-                FireTrigger(LeftClick, InputActionType.Down);
-
-            if (Input.GetMouseButtonDown(1))
-                FireTrigger(RightClick, InputActionType.Down);
-        }
+        //    if (Input.GetAxis("Mouse ScrollWheel") > 0f) AddButtonActionEvent(ScrollUp, InputActionType.Down);
+        //    if (Input.GetAxis("Mouse ScrollWheel") < 0f) AddButtonActionEvent(ScrollDown, InputActionType.Down);
+        //    if (Input.GetMouseButtonDown(0)) AddButtonActionEvent(LeftClick, InputActionType.Down);
+        //    if (Input.GetMouseButtonDown(1)) AddButtonActionEvent(RightClick, InputActionType.Down);
+        //}
     }
 }

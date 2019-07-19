@@ -25,14 +25,14 @@ namespace Framework
             movePosition = Vector2.zero;
         }
 
-        void IInputHandler.HandleInput(InputActionEvent action)
+        void IInputHandler.HandleInput(InputButtonEvent action)
         {
             if (action.Type == InputActionType.Axis)
             {
-                if (action.Action == InputMap.Horizontal)
+                if (action.Action == InputMapCoreBindings.Horizontal)
                     movePosition.x += action.Delta * _sensitivity;
 
-                if (action.Action == InputMap.Vertical)
+                if (action.Action == InputMapCoreBindings.Vertical)
                     movePosition.y += action.Delta * _sensitivity;
             }
         }

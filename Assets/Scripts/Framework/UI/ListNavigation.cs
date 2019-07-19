@@ -22,10 +22,10 @@ namespace Framework.UI
         {
             lists = new List<DataViewList>();
 
-            holdBehaviourDown = new InputHoldBehaviour(InputMap.Down);
+            holdBehaviourDown = new InputHoldBehaviour(InputMapCoreBindings.Down);
             holdBehaviourDown.OnTrigger += HoldBehaviourDown_OnTrigger;
 
-            holdBehaviourUp = new InputHoldBehaviour(InputMap.Up);
+            holdBehaviourUp = new InputHoldBehaviour(InputMapCoreBindings.Up);
             holdBehaviourUp.OnTrigger += HoldBehaviourUp_OnTrigger;
         }
 
@@ -92,7 +92,7 @@ namespace Framework.UI
             }
         }
 
-        public void HandleInput(InputActionEvent action)
+        public void HandleInput(InputButtonEvent action)
         {
             if (lists.Count == 0)
                 return;
@@ -104,22 +104,22 @@ namespace Framework.UI
             {
                 switch (action.Action)
                 {
-                    case InputMap.Up:
+                    case InputMapCoreBindings.Up:
                         lists[index].MovePrev();
                         break;
-                    case InputMap.Down:
+                    case InputMapCoreBindings.Down:
                         lists[index].MoveNext();
                         break;
-                    case InputMap.ScrollUp:
+                    case InputMapCoreBindings.ScrollUp:
                         lists[index].MovePrev();
                         break;
-                    case InputMap.ScrollDown:
+                    case InputMapCoreBindings.ScrollDown:
                         lists[index].MoveNext();
                         break;
-                    case InputMap.Right:
+                    case InputMapCoreBindings.Right:
                         FocusNext();
                         break;
-                    case InputMap.Left:
+                    case InputMapCoreBindings.Left:
                         FocusPrev();
                         break;
                     default:

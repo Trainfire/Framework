@@ -23,7 +23,7 @@ namespace Framework
             this.trigger = trigger;
         }
 
-        public void HandleInput(InputActionEvent action)
+        public void HandleInput(InputButtonEvent action)
         {
             if (action.Type == InputActionType.Held && action.Action == trigger)
             {

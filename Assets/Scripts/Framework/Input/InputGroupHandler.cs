@@ -27,7 +27,7 @@ namespace Framework
                 _inputHandlers.Remove(handler);
         }
 
-        void IInputHandler.HandleInput(InputActionEvent action)
+        void IInputHandler.HandleInput(InputButtonEvent action)
         {
             if (InputEnabled)
                 _inputHandlers.ForEach(x => x.HandleInput(action));
