@@ -3,7 +3,7 @@
 namespace Framework
 {
     /// <summary>
-    /// Maps an input axis to an action.
+    /// Converts a Unity Input Axis so it works like a button with down, hold, and up events.
     /// </summary>
     public class InputUnityAxisToButtonConverter
     {

@@ -215,16 +215,12 @@ namespace Framework
                 if (_twinAxes.ContainsKey(axis))
                 {
                     var twinAxes = _twinAxes[axis];
-                    twinAxes.Update();
-
                     AddTwinAxisEvent(action, twinAxes.Delta);
                 }
 
                 if (_singleAxes.ContainsKey(axis))
                 {
                     var singleAxis = _singleAxes[axis];
-                    singleAxis.Update();
-
                     AddSingleAxisEvent(action, singleAxis.Delta);
                 }
             }
