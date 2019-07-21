@@ -102,28 +102,40 @@ namespace Framework.UI
 
             if (action.Type == InputActionType.Down)
             {
-                switch (action.Action)
+                if (action.ID == InputMapCoreBindings.Up)
                 {
-                    case InputMapCoreBindings.Up:
-                        lists[index].MovePrev();
-                        break;
-                    case InputMapCoreBindings.Down:
-                        lists[index].MoveNext();
-                        break;
-                    case InputMapCoreBindings.ScrollUp:
-                        lists[index].MovePrev();
-                        break;
-                    case InputMapCoreBindings.ScrollDown:
-                        lists[index].MoveNext();
-                        break;
-                    case InputMapCoreBindings.Right:
-                        FocusNext();
-                        break;
-                    case InputMapCoreBindings.Left:
-                        FocusPrev();
-                        break;
-                    default:
-                        break;
+                    lists[index].MovePrev();
+                    return;
+                }
+
+                if (action.ID == InputMapCoreBindings.Down)
+                {
+                    lists[index].MoveNext();
+                    return;
+                }
+
+                if (action.ID == InputMapCoreBindings.ScrollUp)
+                {
+                    lists[index].MovePrev();
+                    return;
+                }
+
+                if (action.ID == InputMapCoreBindings.ScrollDown)
+                {
+                    lists[index].MoveNext();
+                    return;
+                }
+
+                if (action.ID == InputMapCoreBindings.Right)
+                {
+                    FocusNext();
+                    return;
+                }
+
+                if (action.ID == InputMapCoreBindings.Left)
+                {
+                    FocusPrev();
+                    return;
                 }
             }
         }

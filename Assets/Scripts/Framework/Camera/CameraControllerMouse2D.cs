@@ -29,10 +29,10 @@ namespace Framework
         {
             if (action.Type == InputActionType.Axis)
             {
-                if (action.Action == InputMapCoreBindings.Horizontal)
+                if (action.ID == InputMapCoreBindings.Horizontal)
                     movePosition.x += action.Delta * _sensitivity;
 
-                if (action.Action == InputMapCoreBindings.Vertical)
+                if (action.ID == InputMapCoreBindings.Vertical)
                     movePosition.y += action.Delta * _sensitivity;
             }
         }

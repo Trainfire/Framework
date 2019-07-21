@@ -9,9 +9,6 @@ namespace Framework
         void Update();
     }
 
-    /// <summary>
-    /// Combines two axes (one horizontal and one vertical).
-    /// </summary>
     public class InputSingleAxis : IInputAxis
     {
         public string Name { get; private set; }
