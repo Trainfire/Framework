@@ -12,21 +12,24 @@ namespace Framework
         public InputActionType LastAction { get; private set; }
         public float Delta { get; private set; }
 
+        /// <summary>
+        /// Returns true if the state changed during the last update.
+        /// </summary>
+        public bool DidUpdate { get; private set; }
+
         public InputUnityAxisToButtonConverter(string unityAxis, bool inverted = false)
         {
             UnityAxis = unityAxis;
             Inverted = inverted;
         }
 
-        /// <summary>
-        /// Returns true for the frame this axis changed from 0.0f to > 0.0f
-        /// </summary>
-        /// <returns></returns>
         public void Update()
         {
             var thisFrameValue = Input.GetAxis(UnityAxis);
             var thisFrameAction = InputActionType.None;
             var isAboveThreshold = Inverted ? thisFrameValue < 0.0f : thisFrameValue > 0.0f;
+
+            DidUpdate = false;
 
             if (isAboveThreshold)
             {
@@ -43,6 +46,9 @@ namespace Framework
             {
                 thisFrameAction = InputActionType.Up;
             }
+
+            if (LastAction != thisFrameAction)
+                DidUpdate = true;
 
             LastAction = thisFrameAction;
             Delta = thisFrameValue;

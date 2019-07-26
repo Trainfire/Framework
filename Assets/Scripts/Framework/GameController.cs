@@ -67,7 +67,7 @@ namespace Framework
 
         void IInputHandler.HandleInput(InputButtonEvent action)
         {
-            if (action.ID == InputMapCoreBindings.Start && action.Type == InputActionType.Down)
+            if (action.ID == InputMapCoreEventsRegister.Start && action.Type == InputActionType.Down)
             {
                 _stateManager.ToggleState();
                 Debug.Log("Game is now " + _stateManager.State);

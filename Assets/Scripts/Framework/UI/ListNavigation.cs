@@ -22,10 +22,10 @@ namespace Framework.UI
         {
             lists = new List<DataViewList>();
 
-            holdBehaviourDown = new InputHoldBehaviour(InputMapCoreBindings.Down);
+            holdBehaviourDown = new InputHoldBehaviour(InputMapCoreEventsRegister.Down);
             holdBehaviourDown.OnTrigger += HoldBehaviourDown_OnTrigger;
 
-            holdBehaviourUp = new InputHoldBehaviour(InputMapCoreBindings.Up);
+            holdBehaviourUp = new InputHoldBehaviour(InputMapCoreEventsRegister.Up);
             holdBehaviourUp.OnTrigger += HoldBehaviourUp_OnTrigger;
         }
 
@@ -102,37 +102,37 @@ namespace Framework.UI
 
             if (action.Type == InputActionType.Down)
             {
-                if (action.ID == InputMapCoreBindings.Up)
+                if (action.ID == InputMapCoreEventsRegister.Up)
                 {
                     lists[index].MovePrev();
                     return;
                 }
 
-                if (action.ID == InputMapCoreBindings.Down)
+                if (action.ID == InputMapCoreEventsRegister.Down)
                 {
                     lists[index].MoveNext();
                     return;
                 }
 
-                if (action.ID == InputMapCoreBindings.ScrollUp)
+                if (action.ID == InputMapCoreEventsRegister.ScrollUp)
                 {
                     lists[index].MovePrev();
                     return;
                 }
 
-                if (action.ID == InputMapCoreBindings.ScrollDown)
+                if (action.ID == InputMapCoreEventsRegister.ScrollDown)
                 {
                     lists[index].MoveNext();
                     return;
                 }
 
-                if (action.ID == InputMapCoreBindings.Right)
+                if (action.ID == InputMapCoreEventsRegister.Right)
                 {
                     FocusNext();
                     return;
                 }
 
-                if (action.ID == InputMapCoreBindings.Left)
+                if (action.ID == InputMapCoreEventsRegister.Left)
                 {
                     FocusPrev();
                     return;

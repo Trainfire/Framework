@@ -1,39 +1,40 @@
 ﻿using UnityEngine;
 using Framework;
-using System.Linq;
 
-public class YourGame : Game, IInputUpdateHandler
+namespace YourGame
 {
-    public static InputEventID actionMove = new InputEventID("Move");
-
-    protected override void OnInitialize(params string[] args)
+    /// <summary>
+    /// Define your input events here.
+    /// </summary>
+    public static class InputEventsRegister
     {
-        base.OnInitialize(args);
-
-        DebugEx.Log<YourGame>("Let the game begin!");
-
-        var inputMapXbox = gameObject.GetOrAddComponent<InputMapXbox>();
-        inputMapXbox.BindAxisToInputEvent(InputXboxAxis.LStick, actionMove);
-        InputManager.RegisterMap(inputMapXbox);
-
-        var inputMapPS4 = gameObject.GetOrAddComponent<InputMapPS4>();
-        inputMapPS4.BindAxisToInputEvent(InputPS4Axis.LStick, actionMove);
-        InputManager.RegisterMap(inputMapPS4);
-
-        InputManager.RegisterHandler(this);
+        public static InputEvent ExampleInputEvent { get; private set; } = new InputEvent("ExampleInputEvent");
     }
 
-    public void HandleInputUpdate(InputMapUpdateEvent inputUpdateEvent)
+    public class YourGame : Game, IInputUpdateHandler
     {
-        //inputUpdateEvent.GetButtonEvent("Up", (args) =>
-        //{
-        //    if (args.Type != InputActionType.None)
-        //        Debug.Log($"Received: { args.Action } { args.Type }");
-        //});
-
-        inputUpdateEvent.GetTwinAxesEvent(actionMove, (args) =>
+        protected override void OnRegisterInputs(InputHelper inputHelper)
         {
-            Debug.Log($"Received: { args.ID.Name } { args.Delta } from { inputUpdateEvent.Context }");
-        });
+            inputHelper.Xbox.BindButtonToInputEvent(InputXboxButton.ButtonA, InputEventsRegister.ExampleInputEvent);
+            inputHelper.PS4.BindButtonToInputEvent(InputPS4Button.Cross, InputEventsRegister.ExampleInputEvent);
+        }
+
+        protected override void OnInitialize(params string[] args)
+        {
+            base.OnInitialize(args);
+
+            InputManager.RegisterHandler(this);
+
+            DebugEx.Log<YourGame>("Let the game begin!");
+        }
+
+        public void HandleInputUpdate(InputMapUpdateEvent inputUpdateEvent)
+        {
+            inputUpdateEvent.GetButtonEvent(InputEventsRegister.ExampleInputEvent, (args) =>
+            {
+                Debug.Log($"Received: { args.ID.Name } { args.Type } from { inputUpdateEvent.Context }");
+            });
+        }
     }
 }
+

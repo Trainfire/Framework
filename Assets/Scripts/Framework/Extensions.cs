@@ -50,9 +50,6 @@ namespace Framework
 
     static class DictionaryEx
     {
-        /// <summary>
-        /// Returns true if the index is within range of the list. Always returns false is the list is empty.
-        /// </summary>
         public static void AddSafe<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key, TValue value)
         {
             if (!dictionary.ContainsKey(key))

@@ -8,9 +8,9 @@ namespace Framework
     {
         public InputContext Context { get; private set; }
 
-        Dictionary<InputEventID, InputButtonEvent> _buttonEvents = new Dictionary<InputEventID, InputButtonEvent>();
-        Dictionary<InputEventID, InputSingleAxisEvent> _singleAxesEvents = new Dictionary<InputEventID, InputSingleAxisEvent>();
-        Dictionary<InputEventID, InputTwinAxisEvent> _twinAxesEvents = new Dictionary<InputEventID, InputTwinAxisEvent>();
+        Dictionary<InputEvent, InputButtonEvent> _buttonEvents = new Dictionary<InputEvent, InputButtonEvent>();
+        Dictionary<InputEvent, InputSingleAxisEvent> _singleAxesEvents = new Dictionary<InputEvent, InputSingleAxisEvent>();
+        Dictionary<InputEvent, InputTwinAxisEvent> _twinAxesEvents = new Dictionary<InputEvent, InputTwinAxisEvent>();
 
         public InputMapUpdateEvent(IInputMap inputMap)
         {
@@ -20,11 +20,11 @@ namespace Framework
             _twinAxesEvents = inputMap.TwinAxisEvents;
         }
 
-        public void GetButtonEvent(InputEventID actionName, Action<InputButtonEvent> onGet) => Get(_buttonEvents, actionName, onGet);
-        public void GetSingleAxisEvent(InputEventID actionName, Action<InputSingleAxisEvent> onGet) => Get(_singleAxesEvents, actionName, onGet);
-        public void GetTwinAxesEvent(InputEventID actionName, Action<InputTwinAxisEvent> onGet) => Get(_twinAxesEvents, actionName, onGet);
+        public void GetButtonEvent(InputEvent actionName, Action<InputButtonEvent> onGet) => Get(_buttonEvents, actionName, onGet);
+        public void GetSingleAxisEvent(InputEvent actionName, Action<InputSingleAxisEvent> onGet) => Get(_singleAxesEvents, actionName, onGet);
+        public void GetTwinAxesEvent(InputEvent actionName, Action<InputTwinAxisEvent> onGet) => Get(_twinAxesEvents, actionName, onGet);
 
-        void Get<TAction>(IDictionary<InputEventID, TAction> dictionary, InputEventID actionName, Action<TAction> onGet)
+        void Get<TAction>(IDictionary<InputEvent, TAction> dictionary, InputEvent actionName, Action<TAction> onGet)
         {
             if (dictionary.ContainsKey(actionName))
                 onGet(dictionary[actionName]);
@@ -35,39 +35,47 @@ namespace Framework
     {
         event EventHandler<InputMapUpdateEvent> OnUpdate;
         InputContext Context { get; }
-        Dictionary<InputEventID, InputButtonEvent> ButtonEvents { get; }
-        Dictionary<InputEventID, InputSingleAxisEvent> SingleAxisEvents { get; }
-        Dictionary<InputEventID, InputTwinAxisEvent> TwinAxisEvents { get; }
+        Dictionary<InputEvent, InputButtonEvent> ButtonEvents { get; }
+        Dictionary<InputEvent, InputSingleAxisEvent> SingleAxisEvents { get; }
+        Dictionary<InputEvent, InputTwinAxisEvent> TwinAxisEvents { get; }
     }
 
     /// <summary>
     /// Wrapper for sanity's sake.
     /// </summary>
-    public class InputEventID
+    public class InputEvent
     {
         public string Name { get; }
-        public InputEventID(string name) => Name = name;
+        public InputEvent(string name) => Name = name;
+
+        public override bool Equals(object obj)
+        {
+            return (obj as InputEvent).Name == this.Name;
+        }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
     }
 
-    public static class InputMapCoreBindings
+    public static class InputMapCoreEventsRegister
     {
-        #region Core Generic Bindings
-        public static InputEventID Horizontal = new InputEventID("Horizontal");
-        public static InputEventID Vertical = new InputEventID("Vertical");
-        public static InputEventID Up = new InputEventID("Up");
-        public static InputEventID Right = new InputEventID("Right");
-        public static InputEventID Down = new InputEventID("Down");
-        public static InputEventID Left = new InputEventID("Left");
-        public static InputEventID ScrollUp = new InputEventID("ScrollUp");
-        public static InputEventID ScrollDown = new InputEventID("ScrollDown");
-        public static InputEventID Back = new InputEventID("Back");
-        public static InputEventID Start = new InputEventID("Pause");
-        public static InputEventID LeftClick = new InputEventID("LeftClick");
-        public static InputEventID RightClick = new InputEventID("RightClick");
-        public static InputEventID MiddleClick = new InputEventID("MiddleClick");
-        public static InputEventID LeftTrigger = new InputEventID("LeftTrigger");
-        public static InputEventID RightTrigger = new InputEventID("RightTrigger");
-        #endregion
+        public static InputEvent Horizontal { get; private set; } = new InputEvent("Horizontal");
+        public static InputEvent Vertical { get; private set; } = new InputEvent("Vertical");
+        public static InputEvent Up { get; private set; } = new InputEvent("Up");
+        public static InputEvent Right { get; private set; } = new InputEvent("Right");
+        public static InputEvent Down { get; private set; } = new InputEvent("Down");
+        public static InputEvent Left { get; private set; } = new InputEvent("Left");
+        public static InputEvent ScrollUp { get; private set; } = new InputEvent("ScrollUp");
+        public static InputEvent ScrollDown { get; private set; } = new InputEvent("ScrollDown");
+        public static InputEvent Back { get; private set; } = new InputEvent("Back");
+        public static InputEvent Start { get; private set; } = new InputEvent("Pause");
+        public static InputEvent LeftClick { get; private set; } = new InputEvent("LeftClick");
+        public static InputEvent RightClick { get; private set; } = new InputEvent("RightClick");
+        public static InputEvent MiddleClick { get; private set; } = new InputEvent("MiddleClick");
+        public static InputEvent LeftTrigger { get; private set; } = new InputEvent("LeftTrigger");
+        public static InputEvent RightTrigger { get; private set; } = new InputEvent("RightTrigger");
     }
 
     // Maps bindings to an input
@@ -78,19 +86,19 @@ namespace Framework
         public abstract InputContext Context { get; }
         protected abstract bool Active { get; }
 
-        public Dictionary<InputEventID, InputButtonEvent> ButtonEvents { get; private set; } = new Dictionary<InputEventID, InputButtonEvent>();
-        public Dictionary<InputEventID, InputSingleAxisEvent> SingleAxisEvents { get; private set; } = new Dictionary<InputEventID, InputSingleAxisEvent>();
-        public Dictionary<InputEventID, InputTwinAxisEvent> TwinAxisEvents { get; private set; } = new Dictionary<InputEventID, InputTwinAxisEvent>();
+        public Dictionary<InputEvent, InputButtonEvent> ButtonEvents { get; private set; } = new Dictionary<InputEvent, InputButtonEvent>();
+        public Dictionary<InputEvent, InputSingleAxisEvent> SingleAxisEvents { get; private set; } = new Dictionary<InputEvent, InputSingleAxisEvent>();
+        public Dictionary<InputEvent, InputTwinAxisEvent> TwinAxisEvents { get; private set; } = new Dictionary<InputEvent, InputTwinAxisEvent>();
 
-        private Dictionary<TInputButton, InputEventID> _buttonToEventBindings = new Dictionary<TInputButton, InputEventID>();
-        private Dictionary<TInputAxis, InputEventID> _axesToEventBindings = new Dictionary<TInputAxis, InputEventID>();
+        private Dictionary<TInputButton, InputEvent> _buttonToEventBindings = new Dictionary<TInputButton, InputEvent>();
+        private Dictionary<TInputAxis, InputEvent> _axesToEventBindings = new Dictionary<TInputAxis, InputEvent>();
 
         private Dictionary<TInputButton, string> _buttonBindingsToUnityInputs = new Dictionary<TInputButton, string>();
         private Dictionary<TInputButton, InputUnityAxisToButtonConverter> _buttonBindingsToUnityAxes = new Dictionary<TInputButton, InputUnityAxisToButtonConverter>();
         private Dictionary<TInputAxis, InputSingleAxis> _singleAxes = new Dictionary<TInputAxis, InputSingleAxis>();
         private Dictionary<TInputAxis, InputTwinAxes> _twinAxes = new Dictionary<TInputAxis, InputTwinAxes>();
 
-        public void BindButtonToInputEvent(TInputButton button, InputEventID inputEventID)
+        public void BindButtonToInputEvent(TInputButton button, InputEvent inputEventID)
         {
             if (_buttonToEventBindings.ContainsKey(button))
             {
@@ -104,7 +112,7 @@ namespace Framework
         /// <summary>
         /// Bind a TInputButton to a Unity Input Button.
         /// </summary>
-        public void BindAxisToInputEvent(TInputAxis axis, InputEventID inputEventID)
+        public void BindAxisToInputEvent(TInputAxis axis, InputEvent inputEventID)
         {
             if (!_singleAxes.ContainsKey(axis) && !_twinAxes.ContainsKey(axis))
             {
@@ -188,14 +196,18 @@ namespace Framework
                     if (Input.anyKey)
                     {
                         if (Input.GetKeyDown(buttonToUnityInputName))
+                        {
                             AddButtonEvent(action, InputActionType.Down);
-
-                        if (Input.GetKey(buttonToUnityInputName))
+                        }
+                        else if (Input.GetKey(buttonToUnityInputName))
+                        {
                             AddButtonEvent(action, InputActionType.Held);
+                        }    
                     }
-
-                    if (Input.GetKeyUp(buttonToUnityInputName))
+                    else if (Input.GetKeyUp(buttonToUnityInputName))
+                    {
                         AddButtonEvent(action, InputActionType.Up);
+                    }
                 }
 
                 if (_buttonBindingsToUnityAxes.ContainsKey(button))
@@ -203,7 +215,8 @@ namespace Framework
                     var unityAxisToButtonConverter = _buttonBindingsToUnityAxes[button];
                     unityAxisToButtonConverter.Update();
 
-                    AddButtonEvent(action, unityAxisToButtonConverter.LastAction);
+                    if (unityAxisToButtonConverter.DidUpdate)
+                        AddButtonEvent(action, unityAxisToButtonConverter.LastAction);
                 }
             }
 
@@ -232,8 +245,8 @@ namespace Framework
             TwinAxisEvents.Clear();
         }
 
-        void AddButtonEvent(InputEventID actionName, InputActionType actionType) => ButtonEvents.Add(actionName, new InputButtonEvent(actionName, actionType));
-        void AddSingleAxisEvent(InputEventID axisName, float delta) => SingleAxisEvents.Add(axisName, new InputSingleAxisEvent(axisName, delta));
-        void AddTwinAxisEvent(InputEventID axisName, Vector2 delta) => TwinAxisEvents.Add(axisName, new InputTwinAxisEvent(axisName, delta));
+        void AddButtonEvent(InputEvent actionName, InputActionType actionType) => ButtonEvents.Add(actionName, new InputButtonEvent(actionName, actionType));
+        void AddSingleAxisEvent(InputEvent axisName, float delta) => SingleAxisEvents.Add(axisName, new InputSingleAxisEvent(axisName, delta));
+        void AddTwinAxisEvent(InputEvent axisName, Vector2 delta) => TwinAxisEvents.Add(axisName, new InputTwinAxisEvent(axisName, delta));
     }
 }

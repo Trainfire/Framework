@@ -61,10 +61,10 @@ namespace Framework
             BindButtonToUnityInputAxis(InputPS4Button.DPadUp, new InputUnityAxisToButtonConverter("PS4 D Pad Y"));
             BindButtonToUnityInputAxis(InputPS4Button.DPadDown, new InputUnityAxisToButtonConverter("PS4 D Pad Y", true));
 
-            BindButtonToInputEvent(InputPS4Button.DPadUp, InputMapCoreBindings.Up);
-            BindButtonToInputEvent(InputPS4Button.DPadDown, InputMapCoreBindings.Down);
-            BindButtonToInputEvent(InputPS4Button.DPadLeft, InputMapCoreBindings.Left);
-            BindButtonToInputEvent(InputPS4Button.DPadRight, InputMapCoreBindings.Right);
+            BindButtonToInputEvent(InputPS4Button.DPadUp, InputMapCoreEventsRegister.Up);
+            BindButtonToInputEvent(InputPS4Button.DPadDown, InputMapCoreEventsRegister.Down);
+            BindButtonToInputEvent(InputPS4Button.DPadLeft, InputMapCoreEventsRegister.Left);
+            BindButtonToInputEvent(InputPS4Button.DPadRight, InputMapCoreEventsRegister.Right);
         }
     }
 }

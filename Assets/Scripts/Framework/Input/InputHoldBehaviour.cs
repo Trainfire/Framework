@@ -10,7 +10,7 @@ namespace Framework
     {
         public event Action OnTrigger;
 
-        private InputEventID trigger;
+        private InputEvent trigger;
         private bool buttonDown;
         private float buttonDownTimestamp;
         private float holdRepeatTimestamp;
@@ -18,7 +18,7 @@ namespace Framework
         private const float HoldActivateDelay = 0.5f;
         private const float HoldRepeatDelay = 0.05f;
 
-        public InputHoldBehaviour(InputEventID trigger)
+        public InputHoldBehaviour(InputEvent trigger)
         {
             this.trigger = trigger;
         }
