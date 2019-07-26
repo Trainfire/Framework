@@ -27,10 +27,10 @@ namespace Framework
                 _inputHandlers.Remove(handler);
         }
 
-        void IInputHandler.HandleInput(InputButtonEvent action)
+        void IInputHandler.HandleUpdate(InputHandlerEvent handlerEvent)
         {
             if (InputEnabled)
-                _inputHandlers.ForEach(x => x.HandleInput(action));
+                _inputHandlers.ForEach(x => x.HandleUpdate(handlerEvent));
         }
     }
 }

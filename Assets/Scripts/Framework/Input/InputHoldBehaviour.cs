@@ -10,7 +10,7 @@ namespace Framework
     {
         public event Action OnTrigger;
 
-        private InputEvent trigger;
+        private InputNamedEvent trigger;
         private bool buttonDown;
         private float buttonDownTimestamp;
         private float holdRepeatTimestamp;
@@ -18,44 +18,52 @@ namespace Framework
         private const float HoldActivateDelay = 0.5f;
         private const float HoldRepeatDelay = 0.05f;
 
-        public InputHoldBehaviour(InputEvent trigger)
+        public InputHoldBehaviour(InputNamedEvent trigger)
         {
             this.trigger = trigger;
         }
 
         public void HandleInput(InputButtonEvent action)
         {
-            if (action.Type == InputActionType.Held && action.ID == trigger)
-            {
-                if (!buttonDown)
-                {
-                    buttonDown = true;
-                    buttonDownTimestamp = Time.realtimeSinceStartup;
-                }
-
-                var time = Time.realtimeSinceStartup;
-
-                if (time > buttonDownTimestamp + HoldActivateDelay)
-                {
-                    if (time > holdRepeatTimestamp + HoldRepeatDelay)
-                    {
-                        if (OnTrigger != null)
-                            OnTrigger();
-
-                        holdRepeatTimestamp = Time.realtimeSinceStartup;
-                    }
-                }
-            }
-            else
-            {
-                buttonDown = false;
-            }
+            
         }
 
         public void Destroy()
         {
             InputManager.UnregisterHandler(this);
             OnTrigger = null;
+        }
+
+        void IInputHandler.HandleUpdate(InputHandlerEvent handlerEvent)
+        {
+            handlerEvent.GetButtonEvent(trigger, (action) =>
+            {
+                if (action.Type == InputActionType.Held && action.ID == trigger)
+                {
+                    if (!buttonDown)
+                    {
+                        buttonDown = true;
+                        buttonDownTimestamp = Time.realtimeSinceStartup;
+                    }
+
+                    var time = Time.realtimeSinceStartup;
+
+                    if (time > buttonDownTimestamp + HoldActivateDelay)
+                    {
+                        if (time > holdRepeatTimestamp + HoldRepeatDelay)
+                        {
+                            if (OnTrigger != null)
+                                OnTrigger();
+
+                            holdRepeatTimestamp = Time.realtimeSinceStartup;
+                        }
+                    }
+                }
+                else
+                {
+                    buttonDown = false;
+                }
+            });
         }
     }
 }

@@ -25,12 +25,7 @@ namespace Framework
 
     public interface IInputHandler
     {
-        void HandleInput(InputButtonEvent action);
-    }
-
-    public interface IInputUpdateHandler
-    {
-        void HandleInputUpdate(InputMapUpdateEvent updateEvent);
+        void HandleUpdate(InputHandlerEvent handlerEvent);
     }
 
     public interface IInputContextHandler
@@ -38,13 +33,33 @@ namespace Framework
         void HandleContextChange(InputContext context);
     }
 
+    /// <summary>
+    /// Identifies an input by its given name.
+    /// </summary>
+    public class InputNamedEvent
+    {
+        public string Name { get; }
+
+        public InputNamedEvent(string name) => Name = name;
+
+        public override bool Equals(object obj)
+        {
+            return (obj as InputNamedEvent).Name == this.Name;
+        }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
+    }
+
     public class InputButtonEvent : EventArgs
     {
-        public InputEvent ID { get; private set; }
+        public InputNamedEvent ID { get; private set; }
         public InputActionType Type { get; private set; }
         public float Delta { get; private set; }
 
-        public InputButtonEvent(InputEvent id, InputActionType type)
+        public InputButtonEvent(InputNamedEvent id, InputActionType type)
         {
             ID = id;
             Type = type;
@@ -53,10 +68,10 @@ namespace Framework
 
     public class InputAxisEvent<TValue> : EventArgs
     {
-        public InputEvent ID { get; private set; }
+        public InputNamedEvent ID { get; private set; }
         public TValue Delta { get; private set; }
 
-        public InputAxisEvent(InputEvent id, TValue delta)
+        public InputAxisEvent(InputNamedEvent id, TValue delta)
         {
             ID = id;
             Delta = delta;
@@ -65,12 +80,12 @@ namespace Framework
 
     public class InputSingleAxisEvent : InputAxisEvent<float>
     {
-        public InputSingleAxisEvent(InputEvent axis, float delta) : base(axis, delta) { }
+        public InputSingleAxisEvent(InputNamedEvent axis, float delta) : base(axis, delta) { }
     }
 
     public class InputTwinAxisEvent : InputAxisEvent<Vector2>
     {
-        public InputTwinAxisEvent(InputEvent axis, Vector2 delta) : base(axis, delta) { }
+        public InputTwinAxisEvent(InputNamedEvent axis, Vector2 delta) : base(axis, delta) { }
     }
 
     /// <summary>
@@ -104,7 +119,6 @@ namespace Framework
     // Handles input from an input map and relays to a handler
     public static class InputManager
     {
-        private static List<IInputUpdateHandler> inputUpdateHandlers;
         private static List<IInputHandler> inputHandlers;
         private static List<IInputContextHandler> contextHandlers;
         private static List<IInputMap> maps;
@@ -112,7 +126,6 @@ namespace Framework
 
         static InputManager()
         {
-            inputUpdateHandlers = new List<IInputUpdateHandler>();
             inputHandlers = new List<IInputHandler>();
             contextHandlers = new List<IInputContextHandler>();
             maps = new List<IInputMap>();
@@ -128,18 +141,6 @@ namespace Framework
         {
             if (inputHandlers.Contains(handler))
                 inputHandlers.Remove(handler);
-        }
-
-        public static void RegisterHandler(IInputUpdateHandler handler)
-        {
-            if (!inputUpdateHandlers.Contains(handler))
-                inputUpdateHandlers.Add(handler);
-        }
-
-        public static void UnregisterHandler(IInputUpdateHandler handler)
-        {
-            if (inputUpdateHandlers.Contains(handler))
-                inputUpdateHandlers.Remove(handler);
         }
 
         public static void RegisterHandler(IInputContextHandler handler)
@@ -177,9 +178,9 @@ namespace Framework
             }
         }
 
-        private static void Relay(object sender, InputMapUpdateEvent updateEvent)
+        private static void Relay(object sender, InputHandlerEvent updateEvent)
         {
-            inputUpdateHandlers.ForEach(x => x.HandleInputUpdate(updateEvent));
+            inputHandlers.ForEach(x => x.HandleUpdate(updateEvent));
         }
     }
 }

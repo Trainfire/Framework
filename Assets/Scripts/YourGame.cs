@@ -8,10 +8,10 @@ namespace YourGame
     /// </summary>
     public static class InputEventsRegister
     {
-        public static InputEvent ExampleInputEvent { get; private set; } = new InputEvent("ExampleInputEvent");
+        public static InputNamedEvent ExampleInputEvent { get; private set; } = new InputNamedEvent("ExampleInputEvent");
     }
 
-    public class YourGame : Game, IInputUpdateHandler
+    public class YourGame : Game, IInputHandler
     {
         protected override void OnRegisterInputs(InputHelper inputHelper)
         {
@@ -28,7 +28,7 @@ namespace YourGame
             DebugEx.Log<YourGame>("Let the game begin!");
         }
 
-        public void HandleInputUpdate(InputMapUpdateEvent inputUpdateEvent)
+        public void HandleUpdate(InputHandlerEvent inputUpdateEvent)
         {
             inputUpdateEvent.GetButtonEvent(InputEventsRegister.ExampleInputEvent, (args) =>
             {

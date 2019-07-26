@@ -92,54 +92,6 @@ namespace Framework.UI
             }
         }
 
-        public void HandleInput(InputButtonEvent action)
-        {
-            if (lists.Count == 0)
-                return;
-
-            holdBehaviourDown.HandleInput(action);
-            holdBehaviourUp.HandleInput(action);
-
-            if (action.Type == InputActionType.Down)
-            {
-                if (action.ID == InputMapCoreEventsRegister.Up)
-                {
-                    lists[index].MovePrev();
-                    return;
-                }
-
-                if (action.ID == InputMapCoreEventsRegister.Down)
-                {
-                    lists[index].MoveNext();
-                    return;
-                }
-
-                if (action.ID == InputMapCoreEventsRegister.ScrollUp)
-                {
-                    lists[index].MovePrev();
-                    return;
-                }
-
-                if (action.ID == InputMapCoreEventsRegister.ScrollDown)
-                {
-                    lists[index].MoveNext();
-                    return;
-                }
-
-                if (action.ID == InputMapCoreEventsRegister.Right)
-                {
-                    FocusNext();
-                    return;
-                }
-
-                if (action.ID == InputMapCoreEventsRegister.Left)
-                {
-                    FocusPrev();
-                    return;
-                }
-            }
-        }
-
         private void HoldBehaviourUp_OnTrigger()
         {
             lists[index].MovePrev();
@@ -175,6 +127,60 @@ namespace Framework.UI
 
             holdBehaviourDown.Destroy();
             holdBehaviourUp.Destroy();
+        }
+
+        void IInputHandler.HandleUpdate(InputHandlerEvent handlerEvent)
+        {
+            if (lists.Count == 0)
+                return;
+
+            var allButtonEvents = handlerEvent.GetAllButtonEvents();
+            foreach (var kvp in allButtonEvents)
+            {
+                var buttonEvent = kvp.Value;
+
+                holdBehaviourDown.HandleInput(buttonEvent);
+                holdBehaviourUp.HandleInput(buttonEvent);
+
+                if (buttonEvent.Type == InputActionType.Down)
+                {
+                    if (buttonEvent.ID == InputMapCoreEventsRegister.Up)
+                    {
+                        lists[index].MovePrev();
+                        return;
+                    }
+
+                    if (buttonEvent.ID == InputMapCoreEventsRegister.Down)
+                    {
+                        lists[index].MoveNext();
+                        return;
+                    }
+
+                    if (buttonEvent.ID == InputMapCoreEventsRegister.ScrollUp)
+                    {
+                        lists[index].MovePrev();
+                        return;
+                    }
+
+                    if (buttonEvent.ID == InputMapCoreEventsRegister.ScrollDown)
+                    {
+                        lists[index].MoveNext();
+                        return;
+                    }
+
+                    if (buttonEvent.ID == InputMapCoreEventsRegister.Right)
+                    {
+                        FocusNext();
+                        return;
+                    }
+
+                    if (buttonEvent.ID == InputMapCoreEventsRegister.Left)
+                    {
+                        FocusPrev();
+                        return;
+                    }
+                }
+            }
         }
     }
 }
