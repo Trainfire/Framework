@@ -15,6 +15,7 @@ namespace YourGame
     {
         protected override void OnRegisterInputs(InputHelper inputHelper)
         {
+            inputHelper.PC.BindButtonToInputEvent(KeyCode.Space, InputEventsRegister.ExampleInputEvent);
             inputHelper.Xbox.BindButtonToInputEvent(InputXboxButton.ButtonA, InputEventsRegister.ExampleInputEvent);
             inputHelper.PS4.BindButtonToInputEvent(InputPS4Button.Cross, InputEventsRegister.ExampleInputEvent);
         }

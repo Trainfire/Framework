@@ -25,40 +25,42 @@ namespace Framework
 
     public class InputHandlerEvent : EventArgs
     {
-        public InputContext Context { get; private set; }
+        public InputContext Context { get { return _inputMap.Context; } }
 
-        Dictionary<InputNamedEvent, InputButtonEvent> _buttonEvents = new Dictionary<InputNamedEvent, InputButtonEvent>();
-        Dictionary<InputNamedEvent, InputSingleAxisEvent> _singleAxesEvents = new Dictionary<InputNamedEvent, InputSingleAxisEvent>();
-        Dictionary<InputNamedEvent, InputTwinAxisEvent> _twinAxesEvents = new Dictionary<InputNamedEvent, InputTwinAxisEvent>();
+        private IInputMap _inputMap;
 
         public InputHandlerEvent(IInputMap inputMap)
         {
-            Context = inputMap.Context;
-
-            _buttonEvents = inputMap.ButtonEvents;
-            _singleAxesEvents = inputMap.SingleAxisEvents;
-            _twinAxesEvents = inputMap.TwinAxisEvents;
+            _inputMap = inputMap;
         }
 
-        public IReadOnlyDictionary<InputNamedEvent, InputButtonEvent> GetAllButtonEvents() { return _buttonEvents; }
-        public void GetButtonEvent(InputNamedEvent actionName, Action<InputButtonEvent> onGet) => Get(_buttonEvents, actionName, onGet);
-        public void GetSingleAxisEvent(InputNamedEvent actionName, Action<InputSingleAxisEvent> onGet) => Get(_singleAxesEvents, actionName, onGet);
-        public void GetTwinAxesEvent(InputNamedEvent actionName, Action<InputTwinAxisEvent> onGet) => Get(_twinAxesEvents, actionName, onGet);
+        public IReadOnlyDictionary<InputNamedEvent, InputButtonEvent> GetAllButtonEvents() { return _inputMap.ButtonEvents; }
+        public void GetButtonEvent(InputNamedEvent actionName, Action<InputButtonEvent> onGet) => Get(_inputMap.ButtonEvents, actionName, onGet);
+        public void GetSingleAxisEvent(InputNamedEvent actionName, Action<InputSingleAxisEvent> onGet) => Get(_inputMap.SingleAxisEvents, actionName, onGet);
+        public void GetTwinAxesEvent(InputNamedEvent actionName, Action<InputTwinAxisEvent> onGet) => Get(_inputMap.TwinAxisEvents, actionName, onGet);
 
-        void Get<TAction>(IDictionary<InputNamedEvent, TAction> dictionary, InputNamedEvent actionName, Action<TAction> onGet)
+        void Get<TAction>(IReadOnlyDictionary<InputNamedEvent, TAction> dictionary, InputNamedEvent actionName, Action<TAction> onGet)
         {
             if (dictionary.ContainsKey(actionName))
                 onGet(dictionary[actionName]);
         }
     }
 
+    /// <summary>
+    /// Sanity wrappers.
+    /// </summary>
+    public class ButtonEventDictionary : Dictionary<InputNamedEvent, InputButtonEvent> { }
+    public class SingleAxisEventDictionary : Dictionary<InputNamedEvent, InputSingleAxisEvent> { }
+    public class TwinAxisEventDictionary : Dictionary<InputNamedEvent, InputTwinAxisEvent> { }
+
     public interface IInputMap
     {
         event EventHandler<InputHandlerEvent> OnUpdate;
         InputContext Context { get; }
-        Dictionary<InputNamedEvent, InputButtonEvent> ButtonEvents { get; }
-        Dictionary<InputNamedEvent, InputSingleAxisEvent> SingleAxisEvents { get; }
-        Dictionary<InputNamedEvent, InputTwinAxisEvent> TwinAxisEvents { get; }
+
+        ButtonEventDictionary ButtonEvents { get; }
+        SingleAxisEventDictionary SingleAxisEvents { get; }
+        TwinAxisEventDictionary TwinAxisEvents { get; }
     }
 
     // Maps bindings to an input
@@ -67,11 +69,16 @@ namespace Framework
         public event EventHandler<InputHandlerEvent> OnUpdate;
 
         public abstract InputContext Context { get; }
+
+        public ButtonEventDictionary ButtonEvents { get { return _buttonEvents; } }
+        public SingleAxisEventDictionary SingleAxisEvents { get { return _singleAxisEvents; } }
+        public TwinAxisEventDictionary TwinAxisEvents { get { return _twinAxisEvents; } }
+
         protected abstract bool Active { get; }
 
-        public Dictionary<InputNamedEvent, InputButtonEvent> ButtonEvents { get; private set; } = new Dictionary<InputNamedEvent, InputButtonEvent>();
-        public Dictionary<InputNamedEvent, InputSingleAxisEvent> SingleAxisEvents { get; private set; } = new Dictionary<InputNamedEvent, InputSingleAxisEvent>();
-        public Dictionary<InputNamedEvent, InputTwinAxisEvent> TwinAxisEvents { get; private set; } = new Dictionary<InputNamedEvent, InputTwinAxisEvent>();
+        private ButtonEventDictionary _buttonEvents { get; set; } = new ButtonEventDictionary();
+        private SingleAxisEventDictionary _singleAxisEvents { get; set; } = new SingleAxisEventDictionary();
+        private TwinAxisEventDictionary _twinAxisEvents { get; set; } = new TwinAxisEventDictionary();
 
         private Dictionary<TInputButton, InputNamedEvent> _buttonToEventBindings = new Dictionary<TInputButton, InputNamedEvent>();
         private Dictionary<TInputAxis, InputNamedEvent> _axesToEventBindings = new Dictionary<TInputAxis, InputNamedEvent>();
@@ -223,13 +230,13 @@ namespace Framework
 
             OnUpdate?.Invoke(this, new InputHandlerEvent(this));
 
-            ButtonEvents.Clear();
-            SingleAxisEvents.Clear();
-            TwinAxisEvents.Clear();
+            _buttonEvents.Clear();
+            _singleAxisEvents.Clear();
+            _twinAxisEvents.Clear();
         }
 
-        void AddButtonEvent(InputNamedEvent actionName, InputActionType actionType) => ButtonEvents.Add(actionName, new InputButtonEvent(actionName, actionType));
-        void AddSingleAxisEvent(InputNamedEvent axisName, float delta) => SingleAxisEvents.Add(axisName, new InputSingleAxisEvent(axisName, delta));
-        void AddTwinAxisEvent(InputNamedEvent axisName, Vector2 delta) => TwinAxisEvents.Add(axisName, new InputTwinAxisEvent(axisName, delta));
+        void AddButtonEvent(InputNamedEvent actionName, InputActionType actionType) => _buttonEvents.Add(actionName, new InputButtonEvent(actionName, actionType));
+        void AddSingleAxisEvent(InputNamedEvent axisName, float delta) => _singleAxisEvents.Add(axisName, new InputSingleAxisEvent(axisName, delta));
+        void AddTwinAxisEvent(InputNamedEvent axisName, Vector2 delta) => _twinAxisEvents.Add(axisName, new InputTwinAxisEvent(axisName, delta));
     }
 }
