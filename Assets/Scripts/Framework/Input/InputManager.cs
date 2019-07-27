@@ -25,7 +25,7 @@ namespace Framework
 
     public interface IInputHandler
     {
-        void HandleUpdate(InputHandlerEvent handlerEvent);
+        void HandleUpdate(InputUpdateEvent handlerEvent);
     }
 
     public interface IInputContextHandler
@@ -33,18 +33,15 @@ namespace Framework
         void HandleContextChange(InputContext context);
     }
 
-    /// <summary>
-    /// Identifies an input by its given name.
-    /// </summary>
-    public class InputNamedEvent
+    public class InputAction
     {
         public string Name { get; }
 
-        public InputNamedEvent(string name) => Name = name;
+        public InputAction(string name) => Name = name;
 
         public override bool Equals(object obj)
         {
-            return (obj as InputNamedEvent).Name == this.Name;
+            return (obj as InputAction).Name == this.Name;
         }
 
         public override int GetHashCode()
@@ -55,37 +52,37 @@ namespace Framework
 
     public class InputButtonEvent : EventArgs
     {
-        public InputNamedEvent ID { get; private set; }
+        public InputAction Action { get; private set; }
         public InputActionType Type { get; private set; }
         public float Delta { get; private set; }
 
-        public InputButtonEvent(InputNamedEvent id, InputActionType type)
+        public InputButtonEvent(InputAction action, InputActionType type)
         {
-            ID = id;
+            Action = action;
             Type = type;
         }
     }
 
     public class InputAxisEvent<TValue> : EventArgs
     {
-        public InputNamedEvent ID { get; private set; }
+        public InputAction Action { get; private set; }
         public TValue Delta { get; private set; }
 
-        public InputAxisEvent(InputNamedEvent id, TValue delta)
+        public InputAxisEvent(InputAction action, TValue delta)
         {
-            ID = id;
+            Action = action;
             Delta = delta;
         }
     }
 
     public class InputSingleAxisEvent : InputAxisEvent<float>
     {
-        public InputSingleAxisEvent(InputNamedEvent axis, float delta) : base(axis, delta) { }
+        public InputSingleAxisEvent(InputAction action, float delta) : base(action, delta) { }
     }
 
     public class InputTwinAxisEvent : InputAxisEvent<Vector2>
     {
-        public InputTwinAxisEvent(InputNamedEvent axis, Vector2 delta) : base(axis, delta) { }
+        public InputTwinAxisEvent(InputAction action, Vector2 delta) : base(action, delta) { }
     }
 
     /// <summary>
@@ -178,7 +175,7 @@ namespace Framework
             }
         }
 
-        private static void Relay(object sender, InputHandlerEvent updateEvent)
+        private static void Relay(object sender, InputUpdateEvent updateEvent)
         {
             inputHandlers.ForEach(x => x.HandleUpdate(updateEvent));
         }

@@ -65,10 +65,10 @@ namespace Framework
             BindButtonToUnityInputButton(InputXboxButton.RStickClick, "joystick button 9");
 
             // Bind to the generic actions defined in InputMap
-            BindButtonToInputEvent(InputXboxButton.DPadUp, InputMapCoreEventsRegister.Up);
-            BindButtonToInputEvent(InputXboxButton.DPadDown, InputMapCoreEventsRegister.Down);
-            BindButtonToInputEvent(InputXboxButton.DPadLeft, InputMapCoreEventsRegister.Left);
-            BindButtonToInputEvent(InputXboxButton.DPadRight, InputMapCoreEventsRegister.Right);
+            BindButtonToAction(InputXboxButton.DPadUp, InputMapCoreActions.Up);
+            BindButtonToAction(InputXboxButton.DPadDown, InputMapCoreActions.Down);
+            BindButtonToAction(InputXboxButton.DPadLeft, InputMapCoreActions.Left);
+            BindButtonToAction(InputXboxButton.DPadRight, InputMapCoreActions.Right);
         }
     }
 }

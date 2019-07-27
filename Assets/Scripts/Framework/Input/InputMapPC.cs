@@ -15,5 +15,12 @@ namespace Framework
         public override InputContext Context { get { return InputContext.PC; } }
 
         protected override bool Active => true; // TODO.
+
+        protected override void DetectButtonState(KeyCode button, InputAction namedEvent)
+        {
+            var actionType = GetActionType(button);
+            if (actionType != InputActionType.None)
+                AddButtonEvent(namedEvent, actionType);
+        }
     }
 }

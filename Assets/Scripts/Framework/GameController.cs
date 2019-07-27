@@ -65,9 +65,9 @@ namespace Framework
             _zoneManager.SetZone(GameZone.InGame, InGameScene, _zoneManager.ActiveScene);
         }
 
-        void IInputHandler.HandleUpdate(InputHandlerEvent handlerEvent)
+        void IInputHandler.HandleUpdate(InputUpdateEvent handlerEvent)
         {
-            handlerEvent.GetButtonEvent(InputMapCoreEventsRegister.Start, (args) =>
+            handlerEvent.GetButtonEvent(InputMapCoreActions.Start, (args) =>
             {
                 if (args.Type == InputActionType.Down)
                 {

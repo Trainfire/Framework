@@ -10,7 +10,7 @@ namespace Framework
     {
         public event Action OnTrigger;
 
-        private InputNamedEvent trigger;
+        private InputAction trigger;
         private bool buttonDown;
         private float buttonDownTimestamp;
         private float holdRepeatTimestamp;
@@ -18,7 +18,7 @@ namespace Framework
         private const float HoldActivateDelay = 0.5f;
         private const float HoldRepeatDelay = 0.05f;
 
-        public InputHoldBehaviour(InputNamedEvent trigger)
+        public InputHoldBehaviour(InputAction trigger)
         {
             this.trigger = trigger;
         }
@@ -34,11 +34,11 @@ namespace Framework
             OnTrigger = null;
         }
 
-        void IInputHandler.HandleUpdate(InputHandlerEvent handlerEvent)
+        void IInputHandler.HandleUpdate(InputUpdateEvent handlerEvent)
         {
             handlerEvent.GetButtonEvent(trigger, (action) =>
             {
-                if (action.Type == InputActionType.Held && action.ID == trigger)
+                if (action.Type == InputActionType.Held && action.Action == trigger)
                 {
                     if (!buttonDown)
                     {

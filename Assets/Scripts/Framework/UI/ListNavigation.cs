@@ -22,10 +22,10 @@ namespace Framework.UI
         {
             lists = new List<DataViewList>();
 
-            holdBehaviourDown = new InputHoldBehaviour(InputMapCoreEventsRegister.Down);
+            holdBehaviourDown = new InputHoldBehaviour(InputMapCoreActions.Down);
             holdBehaviourDown.OnTrigger += HoldBehaviourDown_OnTrigger;
 
-            holdBehaviourUp = new InputHoldBehaviour(InputMapCoreEventsRegister.Up);
+            holdBehaviourUp = new InputHoldBehaviour(InputMapCoreActions.Up);
             holdBehaviourUp.OnTrigger += HoldBehaviourUp_OnTrigger;
         }
 
@@ -129,7 +129,7 @@ namespace Framework.UI
             holdBehaviourUp.Destroy();
         }
 
-        void IInputHandler.HandleUpdate(InputHandlerEvent handlerEvent)
+        void IInputHandler.HandleUpdate(InputUpdateEvent handlerEvent)
         {
             if (lists.Count == 0)
                 return;
@@ -144,37 +144,37 @@ namespace Framework.UI
 
                 if (buttonEvent.Type == InputActionType.Down)
                 {
-                    if (buttonEvent.ID == InputMapCoreEventsRegister.Up)
+                    if (buttonEvent.Action == InputMapCoreActions.Up)
                     {
                         lists[index].MovePrev();
                         return;
                     }
 
-                    if (buttonEvent.ID == InputMapCoreEventsRegister.Down)
+                    if (buttonEvent.Action == InputMapCoreActions.Down)
                     {
                         lists[index].MoveNext();
                         return;
                     }
 
-                    if (buttonEvent.ID == InputMapCoreEventsRegister.ScrollUp)
+                    if (buttonEvent.Action == InputMapCoreActions.ScrollUp)
                     {
                         lists[index].MovePrev();
                         return;
                     }
 
-                    if (buttonEvent.ID == InputMapCoreEventsRegister.ScrollDown)
+                    if (buttonEvent.Action == InputMapCoreActions.ScrollDown)
                     {
                         lists[index].MoveNext();
                         return;
                     }
 
-                    if (buttonEvent.ID == InputMapCoreEventsRegister.Right)
+                    if (buttonEvent.Action == InputMapCoreActions.Right)
                     {
                         FocusNext();
                         return;
                     }
 
-                    if (buttonEvent.ID == InputMapCoreEventsRegister.Left)
+                    if (buttonEvent.Action == InputMapCoreActions.Left)
                     {
                         FocusPrev();
                         return;

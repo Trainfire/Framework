@@ -6,18 +6,18 @@ namespace YourGame
     /// <summary>
     /// Define your input events here.
     /// </summary>
-    public static class InputEventsRegister
+    public static class InputActions
     {
-        public static InputNamedEvent ExampleInputEvent { get; private set; } = new InputNamedEvent("ExampleInputEvent");
+        public static InputAction ExampleInputEvent { get; private set; } = new InputAction("ExampleInputEvent");
     }
 
     public class YourGame : Game, IInputHandler
     {
         protected override void OnRegisterInputs(InputHelper inputHelper)
         {
-            inputHelper.PC.BindButtonToInputEvent(KeyCode.Space, InputEventsRegister.ExampleInputEvent);
-            inputHelper.Xbox.BindButtonToInputEvent(InputXboxButton.ButtonA, InputEventsRegister.ExampleInputEvent);
-            inputHelper.PS4.BindButtonToInputEvent(InputPS4Button.Cross, InputEventsRegister.ExampleInputEvent);
+            inputHelper.PC.BindButtonToAction(KeyCode.Space, InputActions.ExampleInputEvent);
+            inputHelper.Xbox.BindButtonToAction(InputXboxButton.ButtonA, InputActions.ExampleInputEvent);
+            inputHelper.PS4.BindButtonToAction(InputPS4Button.Cross, InputActions.ExampleInputEvent);
         }
 
         protected override void OnInitialize(params string[] args)
@@ -29,11 +29,11 @@ namespace YourGame
             DebugEx.Log<YourGame>("Let the game begin!");
         }
 
-        public void HandleUpdate(InputHandlerEvent inputUpdateEvent)
+        public void HandleUpdate(InputUpdateEvent inputUpdateEvent)
         {
-            inputUpdateEvent.GetButtonEvent(InputEventsRegister.ExampleInputEvent, (args) =>
+            inputUpdateEvent.GetButtonEvent(InputActions.ExampleInputEvent, (args) =>
             {
-                Debug.Log($"Received: { args.ID.Name } { args.Type } from { inputUpdateEvent.Context }");
+                Debug.Log($"Received: { args.Action.Name } { args.Type } from { inputUpdateEvent.Context }");
             });
         }
     }

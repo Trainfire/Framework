@@ -48,7 +48,7 @@ namespace Framework
             OnUpdate();
         }
 
-        public virtual void HandleUpdate(InputHandlerEvent handlerEvent) { }
+        public virtual void HandleUpdate(InputUpdateEvent handlerEvent) { }
 
         /// <summary>
         /// Called when the GameObject is destroyed. If override, you must call the base method!

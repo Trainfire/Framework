@@ -25,13 +25,13 @@ namespace Framework
             movePosition = Vector2.zero;
         }
 
-        void IInputHandler.HandleUpdate(InputHandlerEvent handlerEvent)
+        void IInputHandler.HandleUpdate(InputUpdateEvent handlerEvent)
         {
             var x = 0.0f;
             var y = 0.0f;
 
-            handlerEvent.GetSingleAxisEvent(InputMapCoreEventsRegister.Horizontal, (args) => x = args.Delta);
-            handlerEvent.GetSingleAxisEvent(InputMapCoreEventsRegister.Vertical, (args) => y = args.Delta);
+            handlerEvent.GetSingleAxisEvent(InputMapCoreActions.Horizontal, (args) => x = args.Delta);
+            handlerEvent.GetSingleAxisEvent(InputMapCoreActions.Vertical, (args) => y = args.Delta);
 
             movePosition += new Vector2(x, y) * _sensitivity;
         }
