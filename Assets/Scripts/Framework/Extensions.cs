@@ -48,6 +48,15 @@ namespace Framework
         }
     }
 
+    static class DictionaryEx
+    {
+        public static void AddSafe<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key, TValue value)
+        {
+            if (!dictionary.ContainsKey(key))
+                dictionary.Add(key, value);
+        }
+    }
+
     static class ActionEx
     {
         public static void InvokeSafe(this Action action)

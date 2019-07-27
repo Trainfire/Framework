@@ -65,13 +65,16 @@ namespace Framework
             _zoneManager.SetZone(GameZone.InGame, InGameScene, _zoneManager.ActiveScene);
         }
 
-        void IInputHandler.HandleInput(InputActionEvent action)
+        void IInputHandler.HandleUpdate(InputUpdateEvent handlerEvent)
         {
-            if (action.Action == InputMap.Start && action.Type == InputActionType.Down)
+            handlerEvent.GetButtonEvent(InputMapCoreActions.Start, (args) =>
             {
-                _stateManager.ToggleState();
-                Debug.Log("Game is now " + _stateManager.State);
-            }
+                if (args.Type == InputActionType.Down)
+                {
+                    _stateManager.ToggleState();
+                    Debug.Log("Game is now " + _stateManager.State);
+                }
+            });
         }
     }
 }

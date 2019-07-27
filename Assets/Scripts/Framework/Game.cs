@@ -18,6 +18,7 @@ namespace Framework
         public GameController Controller { get; private set; }
         protected ConsoleController Console { get; private set; }
         protected SceneLoader SceneLoader { get; private set; }
+        private InputHelper InputHelper { get; set; }
 
         private StateManager _stateManager;
         public StateListener StateListener
@@ -83,6 +84,11 @@ namespace Framework
             // Rules
             _rules = new List<GameRule>();
 
+            // Input
+            InputHelper = new InputHelper(gameObject);
+            InputManager.RegisterMaps(InputHelper.Maps);
+            OnRegisterInputs(InputHelper);
+
             if (args != null && args.Length != 0 && args[0] != "Main")
             {
                 Controller.LoadLevel(args[0]);
@@ -96,6 +102,7 @@ namespace Framework
             OnInitialize(args);
         }
 
+        protected virtual void OnRegisterInputs(InputHelper inputHelper) { }
         protected virtual void OnInitialize(params string[] args) { }
 
         protected virtual void RegisterRule<T>() where T : GameRule

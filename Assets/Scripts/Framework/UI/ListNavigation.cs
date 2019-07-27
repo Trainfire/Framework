@@ -22,10 +22,10 @@ namespace Framework.UI
         {
             lists = new List<DataViewList>();
 
-            holdBehaviourDown = new InputHoldBehaviour(InputMap.Down);
+            holdBehaviourDown = new InputHoldBehaviour(InputMapCoreActions.Down);
             holdBehaviourDown.OnTrigger += HoldBehaviourDown_OnTrigger;
 
-            holdBehaviourUp = new InputHoldBehaviour(InputMap.Up);
+            holdBehaviourUp = new InputHoldBehaviour(InputMapCoreActions.Up);
             holdBehaviourUp.OnTrigger += HoldBehaviourUp_OnTrigger;
         }
 
@@ -92,42 +92,6 @@ namespace Framework.UI
             }
         }
 
-        public void HandleInput(InputActionEvent action)
-        {
-            if (lists.Count == 0)
-                return;
-
-            holdBehaviourDown.HandleInput(action);
-            holdBehaviourUp.HandleInput(action);
-
-            if (action.Type == InputActionType.Down)
-            {
-                switch (action.Action)
-                {
-                    case InputMap.Up:
-                        lists[index].MovePrev();
-                        break;
-                    case InputMap.Down:
-                        lists[index].MoveNext();
-                        break;
-                    case InputMap.ScrollUp:
-                        lists[index].MovePrev();
-                        break;
-                    case InputMap.ScrollDown:
-                        lists[index].MoveNext();
-                        break;
-                    case InputMap.Right:
-                        FocusNext();
-                        break;
-                    case InputMap.Left:
-                        FocusPrev();
-                        break;
-                    default:
-                        break;
-                }
-            }
-        }
-
         private void HoldBehaviourUp_OnTrigger()
         {
             lists[index].MovePrev();
@@ -163,6 +127,60 @@ namespace Framework.UI
 
             holdBehaviourDown.Destroy();
             holdBehaviourUp.Destroy();
+        }
+
+        void IInputHandler.HandleUpdate(InputUpdateEvent handlerEvent)
+        {
+            if (lists.Count == 0)
+                return;
+
+            var allButtonEvents = handlerEvent.GetAllButtonEvents();
+            foreach (var kvp in allButtonEvents)
+            {
+                var buttonEvent = kvp.Value;
+
+                holdBehaviourDown.HandleInput(buttonEvent);
+                holdBehaviourUp.HandleInput(buttonEvent);
+
+                if (buttonEvent.Type == InputActionType.Down)
+                {
+                    if (buttonEvent.Action == InputMapCoreActions.Up)
+                    {
+                        lists[index].MovePrev();
+                        return;
+                    }
+
+                    if (buttonEvent.Action == InputMapCoreActions.Down)
+                    {
+                        lists[index].MoveNext();
+                        return;
+                    }
+
+                    if (buttonEvent.Action == InputMapCoreActions.ScrollUp)
+                    {
+                        lists[index].MovePrev();
+                        return;
+                    }
+
+                    if (buttonEvent.Action == InputMapCoreActions.ScrollDown)
+                    {
+                        lists[index].MoveNext();
+                        return;
+                    }
+
+                    if (buttonEvent.Action == InputMapCoreActions.Right)
+                    {
+                        FocusNext();
+                        return;
+                    }
+
+                    if (buttonEvent.Action == InputMapCoreActions.Left)
+                    {
+                        FocusPrev();
+                        return;
+                    }
+                }
+            }
         }
     }
 }

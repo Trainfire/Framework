@@ -25,16 +25,15 @@ namespace Framework
             movePosition = Vector2.zero;
         }
 
-        void IInputHandler.HandleInput(InputActionEvent action)
+        void IInputHandler.HandleUpdate(InputUpdateEvent handlerEvent)
         {
-            if (action.Type == InputActionType.Axis)
-            {
-                if (action.Action == InputMap.Horizontal)
-                    movePosition.x += action.Delta * _sensitivity;
+            var x = 0.0f;
+            var y = 0.0f;
 
-                if (action.Action == InputMap.Vertical)
-                    movePosition.y += action.Delta * _sensitivity;
-            }
+            handlerEvent.GetSingleAxisEvent(InputMapCoreActions.Horizontal, (args) => x = args.Delta);
+            handlerEvent.GetSingleAxisEvent(InputMapCoreActions.Vertical, (args) => y = args.Delta);
+
+            movePosition += new Vector2(x, y) * _sensitivity;
         }
     }
 }
