@@ -80,9 +80,24 @@ namespace Framework
 
     static class Vector3Ex
     {
+        /// <summary>
+        /// (1, 0, 1)
+        /// </summary>
+        public static Vector3 XZ { get { return Vector3.forward + Vector3.right; } }
+
         public static Vector2 ToVec2(this Vector3 v)
         {
             return new Vector2(v.x, v.y);
+        }
+
+        public static Vector3 Multiply (this Vector3 v, Vector3 other)
+        {
+            return new Vector3(v.x * other.x, v.y * other.y, v.z * other.z);
+        }
+
+        public static Vector3 Abs (this Vector3 v)
+        {
+            return new Vector3(Mathf.Abs(v.x), Mathf.Abs(v.y), Mathf.Abs(v.z));
         }
     }
 
@@ -131,7 +146,7 @@ namespace Framework
             return comp;
         }
 
-        public static T GetComponentAssert<T>(this GameObject obj) where T : MonoBehaviour
+        public static T GetComponentAssert<T>(this GameObject obj) where T : Component
         {
             var comp = obj.GetComponent<T>();
             Assert.IsNotNull(comp, $"{obj.name} expected a component of type {typeof(T).Name}");
