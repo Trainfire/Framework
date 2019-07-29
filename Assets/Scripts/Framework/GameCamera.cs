@@ -34,7 +34,7 @@ namespace Framework
             _controller = controller;
         }
 
-        private void Update()
+        private void FixedUpdate()
         {
             if (_controller != null)
                 _controller.Update(this);
