@@ -16,6 +16,11 @@ namespace Framework
 
         protected override bool Active => true; // TODO.
 
+        protected override void RegisterInputs()
+        {
+            CreateTwinAxes(InputPCAxis.Mouse, new InputTwinAxes("Mouse", "Mouse X", "Mouse Y"));
+        }
+
         protected override void DetectButtonState(KeyCode button, InputAction namedEvent)
         {
             var actionType = GetActionType(button);

@@ -37,9 +37,10 @@ namespace Framework
 
         protected override bool Active => Input.GetJoystickNames().Any(x => x.Contains("Wireless Controller"));
 
-        private void Awake()
+        protected override void RegisterInputs()
         {
             CreateTwinAxes(InputPS4Axis.LStick, new InputTwinAxes("Left Stick", "Horizontal", "Vertical"));
+            CreateTwinAxes(InputPS4Axis.RStick, new InputTwinAxes("Right Stick", "PS4 Right Stick X", "PS4 Right Stick Y"));
 
             BindButtonToUnityInputButton(InputPS4Button.Square, "joystick button 0");
             BindButtonToUnityInputButton(InputPS4Button.Cross, "joystick button 1");

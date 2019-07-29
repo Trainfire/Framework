@@ -40,9 +40,10 @@ namespace Framework
 
         protected override bool Active => Input.GetJoystickNames().Any(x => x.Contains("XBOX"));
 
-        public void Awake()
+        protected override void RegisterInputs()
         {
             CreateTwinAxes(InputXboxAxis.LStick, new InputTwinAxes("LStick", "Horizontal", "Vertical"));
+            CreateTwinAxes(InputXboxAxis.RStick, new InputTwinAxes("RStick", "Xbox Right Stick X", "Xbox Right Stick Y"));
 
             BindButtonToUnityInputAxis(InputXboxButton.LTrigger, new InputUnityAxisToButtonConverter("Xbox Left Trigger"));
             BindButtonToUnityInputAxis(InputXboxButton.RTrigger, new InputUnityAxisToButtonConverter("Xbox Right Trigger"));

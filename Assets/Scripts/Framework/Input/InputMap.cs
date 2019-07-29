@@ -84,6 +84,13 @@ namespace Framework
         private Dictionary<TInputAxis, InputSingleAxis> _singleAxes = new Dictionary<TInputAxis, InputSingleAxis>();
         private Dictionary<TInputAxis, InputTwinAxes> _twinAxes = new Dictionary<TInputAxis, InputTwinAxes>();
 
+        private void Awake()
+        {
+            RegisterInputs();
+        }
+
+        protected abstract void RegisterInputs();
+
         public void BindButtonToAction(TInputButton button, InputAction action)
         {
             if (_buttonToEventBindings.ContainsKey(button))
