@@ -1,6 +1,5 @@
 ﻿using UnityEngine;
 using Framework;
-using Tests;
 
 namespace YourGame
 {
