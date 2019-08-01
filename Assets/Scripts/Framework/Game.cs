@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using System;
 
 namespace Framework
 {
@@ -15,6 +16,9 @@ namespace Framework
     {
         private List<GameRule> _rules;
 
+        [SerializeField] private BasePlayer _playerPrototype;
+
+        public BasePlayer BasePlayer { get; private set; }
         public GameController Controller { get; private set; }
         protected ConsoleController Console { get; private set; }
         protected SceneLoader SceneLoader { get; private set; }
@@ -97,6 +101,13 @@ namespace Framework
             InputManager.RegisterMaps(InputHelper.Maps);
             OnRegisterInputs(InputHelper);
 
+            // Player
+            if (_playerPrototype == null)
+            {
+                DebugEx.LogError<Game>("Player reference is invalid. Make sure you are referencing a prefab with a Player component attached.");
+                return;
+            }
+
             if (args != null && args.Length != 0 && args[0] != "Main")
             {
                 Controller.LoadLevel(args[0]);
@@ -110,8 +121,8 @@ namespace Framework
             OnInitialize(args);
         }
 
-        protected virtual void OnRegisterInputs(InputHelper inputHelper) { }
         protected virtual void OnInitialize(params string[] args) { }
+        protected virtual void OnRegisterInputs(InputHelper inputHelper) { }
 
         protected virtual void RegisterRule<T>() where T : GameRule
         {
@@ -131,6 +142,17 @@ namespace Framework
 
             if (gameZone == GameZone.InGame)
             {
+                if (_playerPrototype == null)
+                {
+                    DebugEx.LogError<Game>("Player reference is invalid. Make sure you are referencing a prefab with a Player component attached.");
+                    return;
+                }
+                else
+                {
+                    BasePlayer = Instantiate(_playerPrototype);
+                    BasePlayer.name = "Player";
+                }
+
                 _rules.ForEach(x => x.Initialize(Controller));
             }
         }
