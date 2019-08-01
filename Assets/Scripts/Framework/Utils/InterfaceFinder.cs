@@ -110,6 +110,9 @@ namespace Framework
         {
             var resList = new List<T>();
 
+            if (!_interfaceToComponentMapping.ContainsKey(typeof(T)))
+                return new List<T>();
+
             var types = _interfaceToComponentMapping[typeof(T)];
 
             if (types == null || types.Count <= 0)

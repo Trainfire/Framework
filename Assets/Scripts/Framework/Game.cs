@@ -84,6 +84,14 @@ namespace Framework
             // Rules
             _rules = new List<GameRule>();
 
+            // Camera
+            Camera = FindObjectOfType<GameCamera>();
+            if (!Camera)
+            {
+                DebugEx.LogError<Game>("Failed to find a GameCamera. Make sure one exists in the Main scene.");
+                return;
+            }
+
             // Input
             InputHelper = new InputHelper(gameObject);
             InputManager.RegisterMaps(InputHelper.Maps);

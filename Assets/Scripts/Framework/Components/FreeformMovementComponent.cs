@@ -30,7 +30,7 @@ namespace Framework.Components
         /// <summary>
         /// Call from FixedUpdate.
         /// </summary>
-        public void Move(CharacterController characterController, Vector3 inputDirection)
+        public void Move(CharacterController characterController, Vector2 inputDirection)
         {
             if (!characterController)
             {
@@ -102,14 +102,17 @@ namespace Framework.Components
              return Mathf.Lerp(velocity, 0f, friction * Time.deltaTime);
         }
 
-        private Vector3 GetMovementDirectionFromInputDirection(Vector3 inputDirection)
+        private Vector3 GetMovementDirectionFromInputDirection(Vector2 inputDirection)
         {
             if (ShouldMoveRelativeToCamera)
             {
                 if (!Camera.main)
+                {
+                    DebugEx.LogError<FreeformMovementComponent>("ShouldMoveRelativeToCamera is true, but no camera is tagged with Main Camera.");
                     return Vector3.zero;
+                }
 
-                return Quaternion.Euler(new Vector3(0f, Camera.main.transform.eulerAngles.y, 0f)) * inputDirection;
+                return Quaternion.Euler(new Vector3(0f, Camera.main.transform.eulerAngles.y, 0f)) * new Vector3(inputDirection.x, 0f, inputDirection.y);
             }
 
             return inputDirection;

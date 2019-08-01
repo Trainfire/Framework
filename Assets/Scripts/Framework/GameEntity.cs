@@ -39,6 +39,7 @@ namespace Framework
         protected virtual void OnInitialize() { }
         protected virtual void OnStateChanged(State state) { }
         protected virtual void OnUpdate() { }
+        protected virtual void OnFixedUpdate() { }
 
         private void Update()
         {
@@ -46,6 +47,14 @@ namespace Framework
                 return;
 
             OnUpdate();
+        }
+
+        private void FixedUpdate()
+        {
+            if (!_initialized)
+                return;
+
+            OnFixedUpdate();
         }
 
         public virtual void HandleUpdate(InputUpdateEvent handlerEvent) { }
