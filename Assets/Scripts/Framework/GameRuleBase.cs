@@ -9,7 +9,7 @@ namespace Framework
     /// A type of behaviour associated with a Game. 
     /// Attach to a Game and this will be automatically invoked once the game state is InGame.
     /// </summary>
-    public abstract class GameRule : MonoBehaviourEx
+    public abstract class GameRuleBase : MonoBehaviourEx
     {
         public void Initialize(GameController gameController)
         {

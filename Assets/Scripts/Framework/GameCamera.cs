@@ -15,7 +15,7 @@ namespace Framework
 
     public class GameCamera : MonoBehaviour
     {
-        private Game _game;
+        private GameBase _game;
         private IGameCameraController _controller;
         private List<ScreenEffect> _screenEffects;
 

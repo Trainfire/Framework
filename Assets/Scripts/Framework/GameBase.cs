@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Assertions;
 using System.Collections.Generic;
 using System;
 
@@ -12,13 +13,15 @@ namespace Framework
         InGame,
     }
 
-    public abstract class Game : MonoBehaviour
+    public abstract class GameBase : MonoBehaviour
     {
-        private List<GameRule> _rules;
+        private List<GameRuleBase> _rules;
 
-        [SerializeField] private BasePlayer _playerPrototype;
+        [SerializeField] private PlayerBase _playerPrototype;
+        [SerializeField] private GameCamera _cameraPrototype;
+        [SerializeField] private ConsoleView _consolePrototype;
 
-        public BasePlayer BasePlayer { get; private set; }
+        public PlayerBase BasePlayer { get; private set; }
         public GameController Controller { get; private set; }
         protected ConsoleController Console { get; private set; }
         protected SceneLoader SceneLoader { get; private set; }
@@ -49,15 +52,25 @@ namespace Framework
 
             Initialized = true;
 
-            // Console
-            var consoleView = FindObjectOfType<ConsoleView>();
-            if (consoleView == null)
+            // Validate Prototypes
+            if (!IsPrototypeValid(_playerPrototype))
+                return;
+
+            // Camera
+            if (IsPrototypeValid(_cameraPrototype))
             {
-                Debug.LogError("Failed to find a ConsoleView! The Console will be unavailable!");
+                Camera = Instantiate(_cameraPrototype);
+                Camera.name = "Camera";
+
+                Assert.IsTrue(Camera.tag == "MainCamera", "Expected the GameCamera tag to be MainCamera");
             }
-            else
+
+            // Console
+            if (IsPrototypeValid(_consolePrototype))
             {
                 Console = new ConsoleController();
+
+                var consoleView = GameObject.Instantiate(_consolePrototype);
                 consoleView.SetConsole(Console);
             }
 
@@ -86,27 +99,12 @@ namespace Framework
             new GameEntityManager(this);
 
             // Rules
-            _rules = new List<GameRule>();
-
-            // Camera
-            Camera = FindObjectOfType<GameCamera>();
-            if (!Camera)
-            {
-                DebugEx.LogError<Game>("Failed to find a GameCamera. Make sure one exists in the Main scene.");
-                return;
-            }
+            _rules = new List<GameRuleBase>();
 
             // Input
             InputHelper = new InputHelper(gameObject);
             InputManager.RegisterMaps(InputHelper.Maps);
             OnRegisterInputs(InputHelper);
-
-            // Player
-            if (_playerPrototype == null)
-            {
-                DebugEx.LogError<Game>("Player reference is invalid. Make sure you are referencing a prefab with a Player component attached.");
-                return;
-            }
 
             if (args != null && args.Length != 0 && args[0] != "Main")
             {
@@ -124,10 +122,21 @@ namespace Framework
         protected virtual void OnInitialize(params string[] args) { }
         protected virtual void OnRegisterInputs(InputHelper inputHelper) { }
 
-        protected virtual void RegisterRule<T>() where T : GameRule
+        protected virtual void AddGameRule<T>() where T : GameRuleBase
         {
             var rule = gameObject.GetOrAddComponent<T>();
             _rules.Add(rule);
+        }
+
+        private bool IsPrototypeValid<T>(T component) where T : Component
+        {
+            if (component == null)
+            {
+                DebugEx.LogError<GameBase>($"{ typeof(T).Name } reference is invalid. Make sure you are referencing a prefab with this component attached.");
+                return false;
+            }
+
+            return true;
         }
 
         private void Listener_StateChanged(State state)
@@ -142,39 +151,13 @@ namespace Framework
 
             if (gameZone == GameZone.InGame)
             {
-                if (_playerPrototype == null)
-                {
-                    DebugEx.LogError<Game>("Player reference is invalid. Make sure you are referencing a prefab with a Player component attached.");
-                    return;
-                }
-                else
+                if (IsPrototypeValid(_playerPrototype))
                 {
                     BasePlayer = Instantiate(_playerPrototype);
                     BasePlayer.name = "Player";
                 }
 
                 _rules.ForEach(x => x.Initialize(Controller));
-            }
-        }
-    }
-
-    class GameEntityManager
-    {
-        private Game _game;
-        private List<GameEntity> _entities;
-
-        public GameEntityManager(Game game)
-        {
-            _game = game;
-            _game.ZoneListener.ZoneChanged += ZoneListener_ZoneChanged;
-        }
-
-        private void ZoneListener_ZoneChanged(GameZone gameZone)
-        {
-            foreach (var entity in InterfaceHelper.FindObjects<IGameEntity>())
-            {
-                if (!entity.Initialized)
-                    entity.Initialize(_game);
             }
         }
     }

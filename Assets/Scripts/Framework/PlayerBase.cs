@@ -2,12 +2,15 @@
 
 namespace Framework
 {
+    /// <summary>
+    /// An object that can be controlled.
+    /// </summary>
     public interface IPawn
     {
         void HandleInput(InputUpdateEvent inputUpdateEvent);
     }
 
-    public abstract class BasePlayer : GameEntity
+    public abstract class PlayerBase : GameEntity
     {
         public IPawn Pawn { get; private set; }
 
@@ -15,7 +18,7 @@ namespace Framework
         {
             if (pawn == null)
             {
-                DebugEx.LogError<BasePlayer>("Cannot posses a pawn that is null.");
+                DebugEx.LogError<PlayerBase>("Cannot posses a pawn that is null.");
                 return;
             }
 

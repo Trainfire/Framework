@@ -10,9 +10,9 @@ namespace Framework
         private StateManager _stateManager;
         private ZoneManager<GameZone> _zoneManager;
 
-        public Game Game { get; private set; }
+        public GameBase Game { get; private set; }
 
-        public GameController(Game game, StateManager stateManager, ZoneManager<GameZone> zoneManager)
+        public GameController(GameBase game, StateManager stateManager, ZoneManager<GameZone> zoneManager)
         {
             Game = game;
             _stateManager = stateManager;

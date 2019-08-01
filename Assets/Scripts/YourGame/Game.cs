@@ -11,7 +11,7 @@ namespace YourGame
         public static InputAction ExampleInputEvent { get; private set; } = new InputAction("ExampleInputEvent");
     }
 
-    public class YourGame : Game, IInputHandler
+    public class Game : GameBase
     {
         protected override void OnRegisterInputs(InputHelper inputHelper)
         {
@@ -24,17 +24,9 @@ namespace YourGame
         {
             base.OnInitialize(args);
 
-            InputManager.RegisterHandler(this);
+            AddGameRule<GameRule>();
 
-            DebugEx.Log<YourGame>("Let the game begin!");
-        }
-
-        public void HandleUpdate(InputUpdateEvent inputUpdateEvent)
-        {
-            inputUpdateEvent.GetButtonEvent(InputActions.ExampleInputEvent, (args) =>
-            {
-                Debug.Log($"Received: { args.Action.Name } { args.Type } from { inputUpdateEvent.Context }");
-            });
+            DebugEx.Log<Game>("Let the game begin!");
         }
     }
 }

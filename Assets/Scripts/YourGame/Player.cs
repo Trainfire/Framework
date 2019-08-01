@@ -4,13 +4,13 @@ namespace YourGame
 {
     public static class PlayerHelper
     {
-        public static Player ToPlayer(this BasePlayer basePlayer)
+        public static Player ToPlayer(this PlayerBase basePlayer)
         {
             return basePlayer as Player;
         }
     }
 
-    public class Player : BasePlayer
+    public class Player : PlayerBase
     {
         protected override void OnPossess(IPawn pawn)
         {

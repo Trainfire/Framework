@@ -3,7 +3,7 @@ namespace Framework
     public interface IGameEntity
     {
         bool Initialized { get; }
-        void Initialize(Game game);
+        void Initialize(GameBase game);
     }
 
     /// <summary>
@@ -11,7 +11,7 @@ namespace Framework
     /// </summary>
     public abstract class GameEntity : MonoBehaviourEx, IGameEntity, IInputHandler
     {
-        protected Game Game { get; private set; }
+        protected GameBase Game { get; private set; }
 
         public int InstanceID
         {
@@ -24,7 +24,7 @@ namespace Framework
             get { return _initialized; }
         }
 
-        void IGameEntity.Initialize(Game game)
+        void IGameEntity.Initialize(GameBase game)
         {
             _initialized = true;
 

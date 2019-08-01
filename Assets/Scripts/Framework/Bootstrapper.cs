@@ -18,7 +18,7 @@ namespace Framework
         {
             _startingSceneName = SceneManager.GetActiveScene().name;
 
-            var game = FindObjectOfType<Game>();
+            var game = FindObjectOfType<GameBase>();
             if (game == null)
             {
                 // We're not in the root scene that contains the Game, so we'll need to initialize.
@@ -61,7 +61,7 @@ namespace Framework
             yield return SceneManager.UnloadSceneAsync(_startingSceneName);
 
             // Initialize game passing in the level name as an argument.
-            var game = FindObjectOfType<Game>();
+            var game = FindObjectOfType<GameBase>();
             if (game == null)
             {
                 Debug.LogError("Failed to find a Game component. The scene 'Main' should contain a Game component.");
